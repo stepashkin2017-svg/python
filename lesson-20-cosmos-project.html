@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Проект «Космическая станция» — урок 20</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 20 · ПРОЕКТ «КОСМИЧЕСКАЯ СТАНЦИЯ»
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(91,75,196,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(40,115,184,.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(184,50,90,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#5B4BC4}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+.byte-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.06));
+  border-radius:20px;
+}
+.byte-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(12,124,134,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.byte-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.byte-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.byte-says .bubble b{color:var(--a1)}
+@media(max-width:520px){
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:15.5px/1.75 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .imp{color:#FF8FB0;font-weight:800}
+
+.term{
+  margin:18px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:18px 22px;
+  font:16px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+.scene{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:22px;padding:26px;margin:24px 0;
+}
+.scene h4{
+  margin:0 0 8px;font-size:19px;
+  display:flex;align-items:center;gap:10px;
+}
+.scene h4::before{content:"🎯";font-size:22px}
+.scene .hint{margin:0 0 18px;font-size:16px;color:var(--muted);line-height:1.5}
+
+.kid-input{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.kid-input input{
+  flex:1;min-width:150px;padding:16px 18px;
+  font:800 20px var(--font-code);
+  border:4px solid var(--line);border-radius:16px;
+  outline:none;background:var(--card);color:var(--text);
+  text-align:center;transition:.15s;
+}
+.kid-input input:focus{
+  border-color:var(--a1);
+  box-shadow:0 0 0 5px rgba(12,124,134,.15);
+  transform:scale(1.02);
+}
+.kid-input button{
+  padding:16px 24px;font:800 17px var(--font-ui);
+  border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  transition:.15s ease;
+}
+.kid-input button:hover{transform:translateY(-2px) scale(1.03)}
+.kid-input button:active{transform:scale(.98)}
+
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35;color:var(--text)}
+
+.rules{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:22px 0;
+}
+.rule{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;border-left:6px solid var(--a3);
+  font-size:16.5px;line-height:1.55;
+}
+.rule .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;border-radius:50%;
+  background:var(--a3);color:#fff;
+  font:800 16px var(--font-ui);
+  margin-right:10px;vertical-align:middle;
+}
+
+/* ---------- ТЗ: официальный документ ---------- */
+.tz-doc{
+  background:var(--bg);border-radius:16px;
+  padding:22px 24px;margin:20px 0;
+  border:2px solid var(--line);
+  position:relative;
+}
+.tz-doc::before{
+  content:"ТЗ";
+  position:absolute;
+  top:-14px;left:22px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;
+  font:800 13px var(--font-ui);
+  padding:5px 14px;border-radius:8px;
+  letter-spacing:.06em;
+}
+.tz-doc h4{
+  margin:8px 0 12px;
+  font-size:20px;line-height:1.3;
+  color:var(--text);
+}
+.tz-doc .row{
+  display:grid;grid-template-columns:140px 1fr;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px dashed var(--line);
+  font-size:16px;line-height:1.55;
+}
+.tz-doc .row:last-child{border-bottom:none}
+.tz-doc .row b{color:var(--muted);font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.04em}
+.tz-doc ul{
+  margin:8px 0 0;padding-left:22px;
+  font-size:16px;line-height:1.7;
+}
+.tz-doc ul li{margin-bottom:4px}
+
+/* ---------- Mind map ---------- */
+.mindmap{
+  background:var(--bg);border-radius:18px;
+  padding:24px;margin:22px 0;
+  overflow-x:auto;
+}
+.mindmap .center{
+  display:block;
+  margin:0 auto 20px;
+  padding:14px 22px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#F5C5D8,#E29BC0);
+  color:#5B1A3D;
+  font:800 17px var(--font-ui);
+  text-align:center;
+  width:fit-content;
+  box-shadow:0 10px 24px rgba(184,50,90,.25);
+}
+.mindmap .branches{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;
+}
+.mindmap .branch{
+  padding:14px 16px;border-radius:14px;
+  background:var(--card);
+  border:2px solid var(--line);
+  border-left:6px solid var(--c, var(--a3));
+  font-size:14px;line-height:1.5;
+}
+.mindmap .branch .name{
+  font:800 14px var(--font-code);
+  color:var(--c, var(--a3));
+  margin-bottom:6px;
+}
+.mindmap .branch .list{
+  list-style:none;padding:0;margin:0;
+  color:var(--muted);font-size:13.5px;
+}
+.mindmap .branch .list li::before{
+  content:"· ";
+  color:var(--c, var(--a3));
+  font-weight:800;
+}
+.mindmap .branch.b1{--c:#0C7C86}
+.mindmap .branch.b2{--c:#5B4BC4}
+.mindmap .branch.b3{--c:#B9660A}
+.mindmap .branch.b4{--c:#B8325A}
+.mindmap .branch.b5{--c:#3A7D2C}
+
+/* ---------- Чек-лист ---------- */
+.checklist{
+  background:var(--bg);border-radius:16px;
+  padding:20px 22px;margin:20px 0;
+}
+.checklist h4{
+  margin:0 0 14px;font-size:17px;
+  color:var(--text);
+  display:flex;align-items:center;gap:10px;
+}
+.checklist h4::before{content:"📋"}
+.checklist .item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 4px;
+  border-bottom:1px dashed var(--line);
+  font-size:16px;line-height:1.5;
+  cursor:pointer;user-select:none;
+  transition:.15s ease;
+}
+.checklist .item:last-child{border-bottom:none}
+.checklist .item:hover{color:var(--a3)}
+.checklist .item .box{
+  flex:0 0 auto;
+  width:24px;height:24px;
+  border-radius:8px;
+  border:2px solid var(--line);
+  background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+  color:transparent;
+  transition:.15s ease;
+  margin-top:2px;
+}
+.checklist .item.done{color:var(--muted);text-decoration:line-through}
+.checklist .item.done .box{
+  background:var(--a5);
+  border-color:var(--a5);
+  color:#fff;
+}
+
+/* ---------- Превью проекта ---------- */
+.preview-card{
+  background:#0B1220;
+  border-radius:20px;
+  padding:20px;
+  margin:22px 0;
+  box-shadow:0 12px 32px rgba(11,18,32,.4);
+}
+.preview-card .label{
+  font:700 12px var(--font-ui);
+  color:#7F90B0;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  text-align:center;
+  margin-bottom:14px;
+}
+.preview-card svg{
+  display:block;margin:0 auto;
+  width:100%;max-width:420px;height:auto;
+  background:#0B1220;
+  border-radius:12px;
+}
+
+/* ---------- Галерея объектов ---------- */
+.obj-gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:12px;margin:22px 0;
+}
+.obj-card{
+  background:var(--card);
+  border-radius:14px;
+  padding:14px 10px;
+  text-align:center;
+  border:2px solid var(--line);
+  transition:.2s ease;
+}
+.obj-card:hover{
+  transform:translateY(-3px);
+  border-color:var(--a3);
+}
+.obj-card svg{
+  display:block;width:100%;height:auto;
+  max-width:90px;margin:0 auto 8px;
+}
+.obj-card .name{
+  font:700 12.5px var(--font-ui);
+  color:var(--text);line-height:1.3;
+}
+.obj-card .fn{
+  font:600 11.5px var(--font-code);
+  color:var(--a3);
+  margin-top:3px;
+  display:block;
+}
+
+/* ---------- Подсказки ---------- */
+.hints{
+  display:flex;flex-direction:column;gap:10px;
+  margin:22px 0;
+}
+.hint-item{
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+}
+.hint-item summary{
+  cursor:pointer;
+  padding:14px 18px;
+  list-style:none;
+  font:800 16px var(--font-ui);
+  color:var(--a3);
+  display:flex;align-items:center;gap:10px;
+  transition:.15s ease;
+}
+.hint-item summary::-webkit-details-marker{display:none}
+.hint-item summary::before{
+  content:"▸";
+  color:var(--a3);
+  font-size:12px;
+  display:inline-block;
+  transition:.2s;
+}
+.hint-item[open] summary::before{transform:rotate(90deg)}
+.hint-item[open] summary{
+  background:rgba(91,75,196,.08);
+  border-bottom:1px solid var(--line);
+}
+.hint-item .body{
+  padding:14px 18px 16px;
+  font-size:16px;line-height:1.6;
+  color:var(--text);
+}
+.hint-item .body p{margin:0 0 8px}
+.hint-item .body p:last-child{margin:0}
+
+/* ---------- Кнопки ---------- */
+.btn-action{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:16px 26px;
+  font:800 16px var(--font-ui);
+  border:none;border-radius:14px;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.btn-action.run{
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;
+  box-shadow:0 10px 24px rgba(91,75,196,.35);
+}
+.btn-action.run:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(91,75,196,.5)}
+.btn-action.show{
+  background:linear-gradient(135deg,#5B4BC4,#B8325A);
+  color:#fff;
+  box-shadow:0 10px 24px rgba(91,75,196,.35);
+}
+.btn-action.show:hover{transform:translateY(-3px)}
+.btn-action.hide{
+  background:var(--card);
+  color:var(--text);
+  border:2px solid var(--line);
+}
+.btn-action.hide:hover{border-color:var(--a3);color:var(--a3)}
+
+/* ---------- Решение (скрытый блок) ---------- */
+#solutionBox{display:none;margin-top:20px}
+
+.files-row{
+  display:grid;grid-template-columns:1fr;gap:14px;
+  margin:18px 0;
+}
+.file-card{
+  background:var(--bg);border-radius:16px;
+  padding:14px 16px;
+  border-top:6px solid var(--a3);
+  box-shadow:0 8px 20px rgba(23,32,51,.06);
+}
+.file-card.module{border-top-color:var(--a1)}
+.file-card.main{border-top-color:var(--a3)}
+.file-card .fname{
+  display:flex;align-items:center;gap:8px;
+  font:800 14px var(--font-code);
+  color:var(--a1);margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px dashed var(--line);
+}
+.file-card.main .fname{color:var(--a3)}
+.file-card .fname::before{content:"📄";font-size:16px}
+.file-card pre{
+  margin:0;font-size:13px;
+  background:#0F1A30;color:#E8EEF8;
+  padding:14px 16px;border-radius:10px;
+  font-family:var(--font-code);
+  overflow-x:auto;white-space:pre;line-height:1.6;
+}
+
+/* ---------- Рефлексия ---------- */
+.reflection{
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+  border-radius:20px;
+  padding:22px 24px;
+  margin:22px 0;
+  border-left:6px solid var(--a3);
+}
+.reflection h4{
+  margin:0 0 14px;
+  font-size:18px;
+  color:var(--a3);
+}
+.reflection ol{
+  margin:0;padding-left:22px;
+  font-size:17px;line-height:1.7;
+}
+.reflection ol li{margin-bottom:10px}
+
+/* ---------- Квиз ---------- */
+.kquiz{margin-top:8px}
+.kquiz .q{
+  background:var(--card);border-radius:16px;
+  padding:18px;margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+}
+.kquiz .q .qnum{
+  font:800 11px var(--font-code);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.kquiz .q .qtext{font:700 17px var(--font-ui);margin:6px 0 12px;line-height:1.45}
+.kquiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kquiz .opt{
+  padding:12px 14px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);transition:.15s ease;
+}
+.kquiz .opt:hover:not(:disabled){border-color:var(--a3)}
+.kquiz .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.kquiz .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.kquiz .opt:disabled{cursor:default;opacity:.9}
+.kquiz .fb{margin-top:8px;font-weight:700;font-size:14.5px;min-height:20px}
+.kquiz .fb.ok{color:var(--a5)}
+.kquiz .fb.no{color:var(--red)}
+.kquiz .score{text-align:center;margin-top:14px;font:800 16px var(--font-ui);color:var(--a3)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#C9B8FF,#B5E7A0 50%,#FFD98E);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🚀";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#3A2A7D}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#3A2A7D;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#3A7D2C,#0C7C86);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(58,125,44,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#5B4BC4,#B8325A)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .kquiz .opts{grid-template-columns:1fr}
+  .code-full{font-size:13px;padding:16px}
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px}
+  .tz-doc .row{grid-template-columns:1fr;gap:2px}
+  .file-card pre{font-size:12px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>🚀</span>
+    <span>🪐</span>
+    <span>🤖</span>
+  </div>
+  <h1>Космическая станция</h1>
+  <p class="lead">
+    Детский технопарк «Орбита» готовит новую программу для
+    юных космонавтов. Нужны картинки космических объектов:
+    ракета, планета, спутник и многое другое. Ты — главный
+    разработчик. Соберём всё, что знаем, в один большой проект.
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>🏁 Финал модуля 4</span>
+    <span>📦 Модуль city</span>
+    <span>🎨 Космос на turtle</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>💭</span>
+      <span>📋</span>
+      <span>🗺</span>
+      <span>💻</span>
+      <span>✅</span>
+      <span>🏁</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- ПЛАН -->
+<!-- ============================================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–5 мин</span>
+    <span class="icon">💭</span>
+    <div class="ttl">Новый заказ</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">5–12 мин</span>
+    <span class="icon">📋</span>
+    <div class="ttl">Техническое задание</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">12–20 мин</span>
+    <span class="icon">🗺</span>
+    <div class="ttl">План и mind map</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">20–35 мин</span>
+    <span class="icon">💻</span>
+    <div class="ttl">Работа над проектом</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">35–42 мин</span>
+    <span class="icon">✅</span>
+    <div class="ttl">Проверка и доработка</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">42–45 мин</span>
+    <span class="icon">🏁</span>
+    <div class="ttl">Итог и рефлексия</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ШАГ 1 · ЗАКАЗ -->
+<!-- ============================================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–5 минут · 💭 Новый заказ</span>
+  <h2>Письмо из технопарка «Орбита»</h2>
+  <p class="sub">
+    Пока мы делали знаки для полиции, Байту пришло ещё одно письмо.
+    На этот раз — из детского технопарка «Орбита».
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      «Мы запускаем новую программу для школьников — «Юный
+      космонавт». Нужны картинки космических объектов, которые
+      дети будут изучать: ракета, планета, спутник, НЛО. А самое
+      главное — мы хотим, чтобы <b>объекты можно было
+      переиспользовать</b> в разных программах и собирать из
+      них <b>разные сцены</b>».
+    </div>
+  </div>
+
+  <h3>Как это сделать?</h3>
+
+  <p>
+    Мы уже знаем, как <b>выносить функции в модуль</b> (урок 16),
+    рисовать черепашкой (уроки 17–19). Пора собрать всё вместе.
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">🎯 Идея проекта</div>
+    <p>
+      <b>1.</b> Создадим <b>модуль</b> <code>space.py</code>
+      с функциями для рисования космических объектов.
+    </p>
+    <p>
+      <b>2.</b> В отдельной программе будем вызывать эти
+      функции и собирать из них сцену — например, «полёт
+      к планете» или «встреча с НЛО».
+    </p>
+  </div>
+
+  <p>
+    Такой подход используют настоящие разработчики: пишут
+    библиотеку объектов один раз — и используют её в десятках
+    проектов.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 2 · ТЕХНИЧЕСКОЕ ЗАДАНИЕ -->
+<!-- ============================================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 5–12 минут · 📋 ТЗ</span>
+  <h2>Техническое задание</h2>
+  <p class="sub">
+    Прежде чем писать код, всегда изучают требования заказчика.
+    Вот что просит технопарк «Орбита».
+  </p>
+
+  <div class="tz-doc">
+    <h4>Проект «Космическая станция»</h4>
+    <div class="row">
+      <b>Заказчик</b>
+      <span>Детский технопарк «Орбита»</span>
+    </div>
+    <div class="row">
+      <b>Исполнитель</b>
+      <span>Младший разработчик ProTeam (ты!)</span>
+    </div>
+    <div class="row">
+      <b>Результат</b>
+      <span>Пакет из двух файлов в Playground: модуль <code>space.py</code> и основная программа <code>main.py</code></span>
+    </div>
+    <div class="row">
+      <b>Требования</b>
+      <span>
+        <ul>
+          <li>Модуль содержит <b>не менее 4 функций</b> для рисования космических объектов.</li>
+          <li>Каждая функция обязательно убирает перо, перемещается в нужную точку и рисует свой объект.</li>
+          <li>Основная программа использует <b>минимум 4 функции</b> из модуля.</li>
+          <li>Сцена закрашена фоном (тёмный космос) с помощью <code>bgcolor()</code>.</li>
+          <li>В сцене есть звёзды — рисуются циклом с использованием <code>random</code>.</li>
+        </ul>
+      </span>
+    </div>
+    <div class="row">
+      <b>Дополнительно</b>
+      <span>Приветствуется творчество: необычные цвета, декоративные элементы, идеи собственных объектов.</span>
+    </div>
+  </div>
+
+  <h3>Как выглядит пример готовой сцены</h3>
+
+  <div class="preview-card">
+    <div class="label">👇 Пример того, что должно получиться</div>
+    <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- фон -->
+      <rect width="400" height="320" fill="#0B1220"/>
+      <!-- звёзды -->
+      <g fill="#fff">
+        <circle cx="40" cy="35" r="1.5"/>
+        <circle cx="80" cy="60" r="1"/>
+        <circle cx="130" cy="25" r="1.6"/>
+        <circle cx="200" cy="50" r="1"/>
+        <circle cx="260" cy="30" r="1.4"/>
+        <circle cx="330" cy="55" r="1.2"/>
+        <circle cx="360" cy="90" r="1.7"/>
+        <circle cx="50" cy="120" r="1.1"/>
+        <circle cx="300" cy="140" r="1"/>
+        <circle cx="370" cy="200" r="1.3"/>
+        <circle cx="30" cy="250" r="1.4"/>
+        <circle cx="120" cy="290" r="1.1"/>
+        <circle cx="280" cy="280" r="1.5"/>
+      </g>
+      <!-- планета -->
+      <circle cx="310" cy="80" r="38" fill="#5B4BC4"/>
+      <ellipse cx="310" cy="80" rx="60" ry="12" fill="none" stroke="#A99BFF" stroke-width="2" transform="rotate(-20 310 80)"/>
+      <!-- ракета -->
+      <g transform="translate(100,190)">
+        <ellipse cx="0" cy="20" rx="14" ry="40" fill="#E8EEF8" stroke="#172033" stroke-width="2"/>
+        <polygon points="0,-38 -14,-5 14,-5" fill="#B8325A" stroke="#172033" stroke-width="2"/>
+        <rect x="-14" y="5" width="28" height="20" fill="#7FC4FF" stroke="#172033" stroke-width="1.5"/>
+        <polygon points="-14,60 -22,80 -6,80" fill="#FFC93C"/>
+        <polygon points="14,60 6,80 22,80" fill="#FFC93C"/>
+        <polygon points="0,60 -8,80 8,80" fill="#FF8F8F"/>
+      </g>
+      <!-- спутник -->
+      <g transform="translate(230,240)">
+        <rect x="-15" y="-15" width="30" height="30" fill="#A99BFF" stroke="#172033" stroke-width="2"/>
+        <rect x="-45" y="-8" width="20" height="16" fill="#7FC4FF" stroke="#172033" stroke-width="2"/>
+        <rect x="25" y="-8" width="20" height="16" fill="#7FC4FF" stroke="#172033" stroke-width="2"/>
+        <line x1="0" y1="-15" x2="0" y2="-28" stroke="#172033" stroke-width="2"/>
+        <circle cx="0" cy="-30" r="3" fill="#FFC93C"/>
+      </g>
+    </svg>
+  </div>
+
+  <h3>Разберём требования по пунктам</h3>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      <b>Модуль <code>space.py</code>.</b> Отдельный файл
+      с функциями. Внутри — только определения функций.
+      Без <code>input()</code> и циклов верхнего уровня.
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      <b>Не менее 4 функций.</b> Идеи: звёзды, планета,
+      ракета, спутник, НЛО, комета.
+    </div>
+    <div class="rule">
+      <span class="n">3</span>
+      <b>Каждая функция:</b> <code>penup()</code>,
+      <code>goto()</code>, <code>pendown()</code> — чтобы
+      объект рисовался в нужной точке без лишних линий.
+    </div>
+    <div class="rule">
+      <span class="n">4</span>
+      <b>Основная программа.</b> Импортирует модуль,
+      ставит фон, вызывает функции в нужном порядке.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 3 · ПЛАН И MIND MAP -->
+<!-- ============================================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 12–20 минут · 🗺 План</span>
+  <h2>Составляем план работы</h2>
+  <p class="sub">
+    Опытные разработчики перед началом работы всегда
+    составляют <b>mind map</b> (карту идей) и <b>чек-лист</b>.
+    Так проще ничего не забыть и понятнее, куда двигаться.
+  </p>
+
+  <h3>Mind map проекта</h3>
+
+  <div class="mindmap">
+    <div class="center">🚀 Космическая станция</div>
+    <div class="branches">
+      <div class="branch b1">
+        <div class="name">space.py</div>
+        <ul class="list">
+          <li>draw_stars()</li>
+          <li>draw_planet()</li>
+          <li>draw_rocket()</li>
+          <li>draw_satellite()</li>
+        </ul>
+      </div>
+      <div class="branch b2">
+        <div class="name">main.py</div>
+        <ul class="list">
+          <li>import space</li>
+          <li>bgcolor('black')</li>
+          <li>вызовы функций</li>
+        </ul>
+      </div>
+      <div class="branch b3">
+        <div class="name">Фон</div>
+        <ul class="list">
+          <li>тёмный космос</li>
+          <li>звёзды</li>
+        </ul>
+      </div>
+      <div class="branch b4">
+        <div class="name">Объекты</div>
+        <ul class="list">
+          <li>планета</li>
+          <li>ракета</li>
+          <li>спутник</li>
+        </ul>
+      </div>
+      <div class="branch b5">
+        <div class="name">Порядок</div>
+        <ul class="list">
+          <li>сначала фон</li>
+          <li>потом объекты</li>
+          <li>hideturtle() в конце</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>Чек-лист проекта</h3>
+
+  <p>
+    Нажимай на пункт, когда выполнишь его — отмечай прогресс.
+  </p>
+
+  <div class="checklist" id="checklist">
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>Изучить ТЗ и запомнить требования</span>
+    </div>
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>Открыть Playground, создать две вкладки (module и main)</span>
+    </div>
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>В модуле <code>space.py</code> написать функцию <code>draw_stars()</code></span>
+    </div>
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>Написать функцию <code>draw_planet()</code> — планета с кольцами</span>
+    </div>
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>Написать функцию <code>draw_rocket()</code> — ракета</span>
+    </div>
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>Написать функцию <code>draw_satellite()</code> — спутник</span>
+    </div>
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>В <code>main.py</code> подключить модуль и настроить фон</span>
+    </div>
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>Вызвать все четыре функции и собрать сцену</span>
+    </div>
+    <div class="item" data-check>
+      <div class="box">✓</div>
+      <span>Проверить работу и, если нужно, доработать</span>
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Зачем нужен чек-лист</div>
+    <p>
+      Когда делаешь большой проект, легко забыть один-два шага.
+      Чек-лист помогает ничего не упустить и видеть, сколько
+      уже сделано. Ставь галочки по мере выполнения — это
+      приятно и помогает не сдаваться.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 4 · РАБОТА НАД ПРОЕКТОМ -->
+<!-- ============================================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 20–35 минут · 💻 Работа</span>
+  <h2>Собираем космические объекты</h2>
+  <p class="sub">
+    Начнём с самого интересного. Разберём, как может выглядеть
+    каждый объект, и напишем код.
+  </p>
+
+  <h3>Идеи для объектов</h3>
+
+  <div class="obj-gallery">
+    <div class="obj-card">
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="20" fill="#5B4BC4"/>
+        <ellipse cx="30" cy="30" rx="30" ry="6" fill="none" stroke="#A99BFF" stroke-width="1.5"/>
+      </svg>
+      <div class="name">Планета</div>
+      <span class="fn">draw_planet()</span>
+    </div>
+    <div class="obj-card">
+      <svg viewBox="0 0 60 60">
+        <ellipse cx="30" cy="30" rx="8" ry="22" fill="#E8EEF8" stroke="#172033" stroke-width="1.5"/>
+        <polygon points="30,4 22,22 38,22" fill="#B8325A" stroke="#172033" stroke-width="1.5"/>
+        <polygon points="24,48 20,58 28,58" fill="#FFC93C"/>
+        <polygon points="36,48 32,58 40,58" fill="#FFC93C"/>
+      </svg>
+      <div class="name">Ракета</div>
+      <span class="fn">draw_rocket()</span>
+    </div>
+    <div class="obj-card">
+      <svg viewBox="0 0 60 60">
+        <rect x="20" y="22" width="20" height="20" fill="#A99BFF" stroke="#172033" stroke-width="1.5"/>
+        <rect x="4" y="26" width="14" height="12" fill="#7FC4FF" stroke="#172033" stroke-width="1.5"/>
+        <rect x="42" y="26" width="14" height="12" fill="#7FC4FF" stroke="#172033" stroke-width="1.5"/>
+        <line x1="30" y1="22" x2="30" y2="10" stroke="#172033" stroke-width="1.5"/>
+        <circle cx="30" cy="8" r="3" fill="#FFC93C"/>
+      </svg>
+      <div class="name">Спутник</div>
+      <span class="fn">draw_satellite()</span>
+    </div>
+    <div class="obj-card">
+      <svg viewBox="0 0 60 60">
+        <circle cx="20" cy="22" r="1.2" fill="#fff"/>
+        <circle cx="45" cy="15" r="1" fill="#fff"/>
+        <circle cx="50" cy="40" r="1.3" fill="#fff"/>
+        <circle cx="12" cy="45" r="1" fill="#fff"/>
+        <circle cx="35" cy="50" r="1.2" fill="#fff"/>
+        <circle cx="5" cy="12" r="1" fill="#fff"/>
+        <circle cx="55" cy="5" r="1.2" fill="#fff"/>
+      </svg>
+      <div class="name">Звёзды</div>
+      <span class="fn">draw_stars()</span>
+    </div>
+  </div>
+
+  <h3>Подсказки</h3>
+
+  <p>
+    Открывай по одной, если что-то не получается. Но сначала
+    попробуй сам!
+  </p>
+
+  <div class="hints">
+    <details class="hint-item">
+      <summary>💡 Как начать работать в Playground</summary>
+      <div class="body">
+        <p>
+          В Playground есть две вкладки — одна для модуля,
+          другая для основной программы. Сначала пиши код
+          в модуле (это будет файл <code>space.py</code>),
+          потом — в главной.
+        </p>
+        <p>
+          Начни с одной самой простой функции — например,
+          <code>draw_planet()</code>. Проверь, что она
+          работает. Только потом переходи к следующей.
+        </p>
+      </div>
+    </details>
+
+    <details class="hint-item">
+      <summary>💡 Что писать в модуле?</summary>
+      <div class="body">
+        <p>
+          Внутри модуля — только определения функций.
+          Каждая функция:
+        </p>
+        <p>
+          <b>1.</b> Поднимает перо: <code>penup()</code>.<br>
+          <b>2.</b> Переходит в нужную точку: <code>goto(x, y)</code>.<br>
+          <b>3.</b> Опускает перо: <code>pendown()</code>.<br>
+          <b>4.</b> Рисует объект — через <code>circle()</code>,
+          <code>forward()</code>, <code>left()</code> и т. д.
+        </p>
+        <p>
+          Никаких <code>input()</code>, <code>while</code> и
+          вызовов функций внутри модуля быть не должно.
+        </p>
+      </div>
+    </details>
+
+    <details class="hint-item">
+      <summary>💡 Как нарисовать звёзды циклом</summary>
+      <div class="body">
+        <p>
+          Сначала импортируй <code>random</code> в модуле
+          (<code>from random import randint</code>).
+        </p>
+        <p>
+          Потом в функции используй цикл на 30–40 итераций.
+          На каждой итерации:
+        </p>
+        <p>
+          <b>1.</b> Случайные координаты: <code>x = randint(-180, 180)</code>,
+          <code>y = randint(-130, 130)</code>.<br>
+          <b>2.</b> Переходи в точку через <code>goto()</code>.<br>
+          <b>3.</b> Рисуй маленькую точку: <code>dot(3, 'white')</code> —
+          если используешь команду <code>dot()</code>,
+          или маленький круг.
+        </p>
+      </div>
+    </details>
+
+    <details class="hint-item">
+      <summary>💡 Как нарисовать ракету</summary>
+      <div class="body">
+        <p>
+          Ракета состоит из трёх частей:
+        </p>
+        <p>
+          <b>1. Нос</b> — треугольник. Можно через
+          <code>forward()</code> и <code>left(120)</code>.<br>
+          <b>2. Корпус</b> — прямоугольник или овал.
+          Овал можно сымитировать парой кругов.<br>
+          <b>3. Пламя</b> — треугольник под корпусом.
+        </p>
+        <p>
+          Начинай рисовать <b>сверху вниз</b> — так удобнее.
+          Не забудь в конце вернуться в точку старта.
+        </p>
+      </div>
+    </details>
+
+    <details class="hint-item">
+      <summary>💡 Какую структуру имеет основная программа</summary>
+      <div class="body">
+        <p>
+          Основная программа короткая — не более 15 строк:
+        </p>
+        <p style="font-family:var(--font-code);background:#0F1A30;color:#E8EEF8;padding:12px;border-radius:10px;font-size:13.5px;white-space:pre-wrap">import space
+from turtle import *
+
+speed(10)
+bgcolor('black')
+
+space.draw_stars()
+space.draw_planet()
+space.draw_rocket()
+
+hideturtle()
+exitonclick()</p>
+        <p>
+          Важно: <code>import space</code> пишется <b>первой
+          строкой</b>. Иначе Python не найдёт модуль.
+        </p>
+      </div>
+    </details>
+
+    <details class="hint-item">
+      <summary>💡 Частые ошибки</summary>
+      <div class="body">
+        <p>
+          <b>1.</b> Забыл <code>import space</code> — будет
+          <code>NameError</code>.<br>
+          <b>2.</b> Написал <code>import space.py</code> вместо
+          <code>import space</code> — ошибка.<br>
+          <b>3.</b> Функция в модуле использует
+          <code>input()</code> — не нужно, модуль не должен
+          ничего спрашивать.<br>
+          <b>4.</b> Забыл <code>penup()</code> перед <code>goto()</code> —
+          между объектами будут лишние линии.<br>
+          <b>5.</b> Забыл <code>hideturtle()</code> в основной
+          программе — черепашка останется на экране.
+        </p>
+      </div>
+    </details>
+  </div>
+
+  <div class="scene">
+    <h4>Начать работу над проектом</h4>
+    <p class="hint">
+      Кнопка откроет Playground с готовым шаблоном:
+      двумя файлами и комментариями, что где писать.
+    </p>
+
+    <button type="button" class="btn-action run" id="startProject">
+      🚀 Открыть проект в Playground
+    </button>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 5 · РЕШЕНИЕ -->
+<!-- ============================================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 35–42 минут · ✅ Проверка</span>
+  <h2>Проверь себя и посмотри решение</h2>
+  <p class="sub">
+    Готово? Сравни свой код с нашим вариантом. Если совсем
+    застрял — открой решение, посмотри, как это устроено,
+    и потом напиши своё. Но сначала попробуй сам!
+  </p>
+
+  <div class="scene">
+    <h4>Решение проекта «Космическая станция»</h4>
+    <p class="hint">
+      Кнопка покажет два файла — модуль и основную программу.
+      Открывай, когда будешь готов сравнить.
+    </p>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button type="button" class="btn-action show" id="showSolutionBtn">
+        👀 Показать решение
+      </button>
+      <button type="button" class="btn-action hide" id="hideSolutionBtn" style="display:none">
+        🙈 Скрыть решение
+      </button>
+    </div>
+
+    <div id="solutionBox">
+      <p style="font-weight:700;margin:20px 0 10px;color:var(--muted);font-size:14px">
+        Файл 1 — модуль <code>space.py</code>:
+      </p>
+
+      <div class="files-row">
+        <div class="file-card module">
+          <div class="fname">space.py</div>
+          <pre>from random import randint
+
+def draw_stars():
+    penup()
+    color('white')
+    for i in range(40):
+        x = randint(-180, 180)
+        y = randint(-130, 130)
+        goto(x, y)
+        dot(3, 'white')
+
+def draw_planet():
+    penup()
+    goto(-150, 80)
+    pendown()
+    color('violet')
+    begin_fill()
+    circle(50)
+    end_fill()
+    # кольца планеты
+    penup()
+    goto(-200, 80)
+    pendown()
+    pensize(3)
+    color('light blue')
+    for i in range(2):
+        circle(50, 90)
+        right(90)
+
+def draw_rocket():
+    penup()
+    goto(120, -100)
+    pendown()
+    color('white')
+    begin_fill()
+    forward(60)
+    left(120)
+    forward(60)
+    left(120)
+    forward(60)
+    end_fill()
+    # пламя
+    penup()
+    goto(120, -160)
+    pendown()
+    color('orange')
+    begin_fill()
+    forward(30)
+    left(120)
+    forward(30)
+    left(120)
+    forward(30)
+    end_fill()
+
+def draw_satellite():
+    penup()
+    goto(0, -60)
+    pendown()
+    color('gray')
+    begin_fill()
+    for i in range(4):
+        forward(40)
+        left(90)
+    end_fill()
+    # антенна
+    penup()
+    goto(20, -20)
+    pendown()
+    color('yellow')
+    dot(8, 'yellow')</pre>
+        </div>
+      </div>
+
+      <p style="font-weight:700;margin:20px 0 10px;color:var(--muted);font-size:14px">
+        Файл 2 — основная программа <code>main.py</code>:
+      </p>
+
+      <div class="files-row">
+        <div class="file-card main">
+          <div class="fname">main.py</div>
+          <pre>import space
+from turtle import *
+
+speed(10)
+bgcolor('midnightblue')
+
+space.draw_stars()
+space.draw_planet()
+space.draw_rocket()
+space.draw_satellite()
+
+hideturtle()
+exitonclick()</pre>
+        </div>
+      </div>
+
+      <div class="explain memo" style="margin-top:20px">
+        <div class="ttl">🧠 Разбор решения</div>
+        <p>
+          <b>1.</b> В модуле <code>space.py</code> четыре функции —
+          каждая рисует свой объект. Все они начинают с
+          <code>penup()</code>, чтобы перейти в нужное место
+          без лишних линий.
+        </p>
+        <p>
+          <b>2.</b> Функция <code>draw_stars()</code> использует
+          <code>random</code> и цикл на 40 итераций: рисует
+          <code>dot()</code> в случайных точках.
+        </p>
+        <p>
+          <b>3.</b> Основная программа короткая: импорт, фон,
+          четыре вызова функций, скрытие черепашки.
+        </p>
+        <p>
+          <b>4.</b> Ты можешь менять координаты, цвета и размеры
+          как угодно — лишь бы все объекты влезали на экран.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 6 · ИТОГ И РЕФЛЕКСИЯ -->
+<!-- ============================================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 42–45 минут · 🏁 Итог</span>
+  <h2>Итог модуля 4 и рефлексия</h2>
+  <p class="sub">
+    Это последний урок модуля про turtle. Мы прошли большой путь:
+    от простых линий до целого проекта с модулем. Пора подвести итоги.
+  </p>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">🐢</span>
+      <b>Урок 17.</b> Turtle: линейные алгоритмы, координаты,
+      углы.
+    </div>
+    <div class="rule">
+      <span class="n">🔁</span>
+      <b>Урок 18.</b> Циклы в turtle: звёзды, узоры, колесо.
+    </div>
+    <div class="rule">
+      <span class="n">🚦</span>
+      <b>Урок 19.</b> Условный оператор: разные картинки
+      по данным.
+    </div>
+    <div class="rule">
+      <span class="n">📦</span>
+      <b>Урок 20.</b> Проект: модуль <code>space.py</code>
+      + сцена из нескольких объектов.
+    </div>
+  </div>
+
+  <div class="reflection">
+    <h4>🤔 Поразмышляй</h4>
+    <ol>
+      <li>Что получилось лучше всего?</li>
+      <li>Что было сложно и почему?</li>
+      <li>Чему ты научился за эти четыре урока?</li>
+    </ol>
+  </div>
+
+  <h3>Проверь себя</h3>
+
+  <div class="kquiz" id="kquiz">
+
+    <div class="q">
+      <div class="qnum">Вопрос 1</div>
+      <div class="qtext">Зачем нужен модуль в большом проекте?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы программа была длиннее</button>
+        <button type="button" class="opt" data-correct="true">Чтобы функции можно было переиспользовать в разных программах</button>
+        <button type="button" class="opt">Чтобы избежать ошибок</button>
+        <button type="button" class="opt">Это требование Python</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 2</div>
+      <div class="qtext">Как подключить модуль <code>space.py</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt"><code>import space.py</code></button>
+        <button type="button" class="opt" data-correct="true"><code>import space</code></button>
+        <button type="button" class="opt"><code>include space</code></button>
+        <button type="button" class="opt"><code>load space</code></button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 3</div>
+      <div class="qtext">Как вызвать функцию <code>draw_rocket()</code> из модуля?</div>
+      <div class="opts">
+        <button type="button" class="opt"><code>draw_rocket()</code></button>
+        <button type="button" class="opt" data-correct="true"><code>space.draw_rocket()</code></button>
+        <button type="button" class="opt"><code>space.py.draw_rocket()</code></button>
+        <button type="button" class="opt"><code>import.draw_rocket()</code></button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 4</div>
+      <div class="qtext">Что не должно быть внутри модуля?</div>
+      <div class="opts">
+        <button type="button" class="opt">Функции</button>
+        <button type="button" class="opt" data-correct="true"><code>input()</code> и циклы верхнего уровня</button>
+        <button type="button" class="opt">Импорты</button>
+        <button type="button" class="opt">Комментарии</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 5</div>
+      <div class="qtext">Зачем каждая функция начинается с <code>penup()</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы стереть предыдущий рисунок</button>
+        <button type="button" class="opt" data-correct="true">Чтобы не рисовать линию при перемещении к месту объекта</button>
+        <button type="button" class="opt">Это требование turtle</button>
+        <button type="button" class="opt">Чтобы поднять скорость</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 6</div>
+      <div class="qtext">Что делает <code>hideturtle()</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Очищает экран</button>
+        <button type="button" class="opt" data-correct="true">Убирает с экрана черепашку-исполнителя</button>
+        <button type="button" class="opt">Закрывает окно</button>
+        <button type="button" class="opt">Уменьшает скорость</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 7</div>
+      <div class="qtext">Что делать, чтобы звёзды были в случайных местах?</div>
+      <div class="opts">
+        <button type="button" class="opt">Задать координаты вручную</button>
+        <button type="button" class="opt" data-correct="true">Использовать <code>randint()</code> внутри цикла</button>
+        <button type="button" class="opt">Нарисовать одну большую звезду</button>
+        <button type="button" class="opt">Ничего не делать</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score" id="kquizScore">Счёт: 0 из 7</div>
+  </div>
+
+  <div class="explain memo" style="margin-top:24px">
+    <div class="ttl">🎓 Что ты теперь умеешь</div>
+    <p>
+      <b>1.</b> Создавать модуль с функциями и подключать его к программе.<br>
+      <b>2.</b> Рисовать через turtle: линии, круги, многоугольники, звёзды.<br>
+      <b>3.</b> Использовать циклы и условия внутри turtle-программ.<br>
+      <b>4.</b> Работать с координатами и располагать объекты на экране.<br>
+      <b>5.</b> Собирать большую программу из маленьких функций.<br>
+      <b>6.</b> Планировать проект: ТЗ → mind map → чек-лист → код.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🚀</span>
+  <h2>Космическая станция готова!</h2>
+  <p>
+    Ты закончил большой проект для технопарка «Орбита» и закрыл
+    модуль 4. Позади — черепашка, координаты, циклы, условия,
+    модули. Впереди — новый модуль: <b>объектно-ориентированное
+    программирование</b>. Там ты узнаешь, как создавать свои
+    собственные типы данных и делать код ещё удобнее.
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+  <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="lesson-21-oop-objects.html">
+      Модуль 5: ООП. Объекты и методы →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 20 · Проект «Космическая станция» · 🚀 технопарк «Орбита» · 📦 модуль space
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   ЧЕК-ЛИСТ
+   ============================================================ */
+(function(){
+  var items = document.querySelectorAll('#checklist .item');
+  if (!items.length) return;
+  items.forEach(function(item){
+    item.addEventListener('click', function(){
+      item.classList.toggle('done');
+    });
+  });
+})();
+
+/* ============================================================
+   КНОПКА «Открыть проект»
+   ============================================================ */
+(function(){
+  var btn = document.getElementById('startProject');
+  if (!btn) return;
+
+  var startCode = [
+    '# =============================',
+    '# ФАЙЛ 1: space.py — модуль',
+    '# =============================',
+    '# Здесь напиши 4 функции:',
+    '#   draw_stars()      — звёздное небо',
+    '#   draw_planet()     — планета с кольцами',
+    '#   draw_rocket()     — ракета',
+    '#   draw_satellite()  — спутник',
+    '#',
+    '# Не забудь: from random import randint',
+    '# Каждая функция начинается с penup(), goto(), pendown().',
+    '# Никаких input() и while здесь быть не должно!',
+    '',
+    '',
+    '# =============================',
+    '# ФАЙЛ 2: main.py — основная программа',
+    '# =============================',
+    '# import space',
+    '# from turtle import *',
+    '#',
+    '# speed(10)',
+    "# bgcolor('midnightblue')",
+    '#',
+    '# space.draw_stars()',
+    '# space.draw_planet()',
+    '# space.draw_rocket()',
+    '# space.draw_satellite()',
+    '#',
+    '# hideturtle()',
+    '# exitonclick()'
+  ].join('\n');
+
+  btn.addEventListener('click', function(){
+    var encoded = btoa(unescape(encodeURIComponent(startCode)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    window.open('python-compiler.html#code=' + encoded, '_blank', 'noopener');
+  });
+})();
+
+/* ============================================================
+   ПОКАЗ / СКРЫТИЕ РЕШЕНИЯ
+   ============================================================ */
+(function(){
+  var showBtn = document.getElementById('showSolutionBtn');
+  var hideBtn = document.getElementById('hideSolutionBtn');
+  var box = document.getElementById('solutionBox');
+  if (!showBtn || !box) return;
+
+  showBtn.addEventListener('click', function(){
+    box.style.display = 'block';
+    showBtn.style.display = 'none';
+    hideBtn.style.display = 'inline-flex';
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  hideBtn.addEventListener('click', function(){
+    box.style.display = 'none';
+    hideBtn.style.display = 'none';
+    showBtn.style.display = 'inline-flex';
+    showBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+
+/* ============================================================
+   КВИЗ
+   ============================================================ */
+(function(){
+  var quiz = document.getElementById('kquiz');
+  if (!quiz) return;
+
+  var qs = quiz.querySelectorAll('.q');
+  var total = qs.length;
+  var score = 0, answered = 0;
+  var scoreEl = document.getElementById('kquizScore');
+
+  qs.forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var fb = q.querySelector('.fb');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (q.dataset.done) return;
+        q.dataset.done = '1';
+        var ok = opt.dataset.correct === 'true';
+        opts.forEach(function(o){
+          if (o.dataset.correct === 'true') o.classList.add('right');
+          o.disabled = true;
+        });
+        if (!ok) opt.classList.add('wrong');
+        fb.classList.add(ok ? 'ok' : 'no');
+        fb.textContent = ok ? '✅ Верно!' : '❌ Неверно — правильный ответ подсвечен зелёным.';
+        if (ok) score++;
+        answered++;
+        if (answered === total){
+          var verdict = score === total ? ' — идеально! 🎉'
+                       : score >= total * 0.7 ? ' — хорошо! 👍'
+                       : ' — стоит повторить 🤔';
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total + verdict;
+        } else {
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total;
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   ОТМЕТКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var LS_KEY = 'py_course_progress';
+  var LESSON_NUM = 20;
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  function readArr(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeArr(arr){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+
+  if (readArr().indexOf(LESSON_NUM) !== -1){
+    btn.textContent = '✓ Урок пройден';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+  }
+
+  btn.addEventListener('click', function(){
+    var arr = readArr();
+    if (arr.indexOf(LESSON_NUM) === -1){
+      arr.push(LESSON_NUM);
+      writeArr(arr);
+    }
+    btn.textContent = '✓ Урок пройден!';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+    nextWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>

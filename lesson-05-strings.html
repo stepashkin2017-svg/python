@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Модуль 1 · Урок 5 · Свитки Текста — PyKids: Кодонавты Цифровой Долины</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   PyKids · Модуль 1 · Урок 5 · Свитки Текста
+   Единый формат страницы-урока: hero → трек → 5 шагов →
+   звёзды → домашка → навигация.
+   ============================================================ */
+
+:root{
+  --pk-bg1:#0E1530;
+  --pk-bg2:#131D31;
+  --pk-accent:#7C5CFF;
+  --pk-accent2:#FF7A9C;
+  --pk-mint:#5FE0B8;
+  --pk-gold:#FFC93C;
+  --pk-xp:#3DDB77;
+  --pk-border:#27344F;
+  --pk-card:var(--card);
+  --pk-glow:0 12px 40px rgba(124,92,255,.35);
+}
+
+body.kids{
+  background:
+    radial-gradient(circle at 12% 8%, rgba(124,92,255,.18), transparent 42%),
+    radial-gradient(circle at 88% 92%, rgba(255,122,156,.14), transparent 45%),
+    radial-gradient(circle at 55% 55%, rgba(95,224,184,.06), transparent 60%),
+    var(--bg);
+  font-size:19px;line-height:1.65;
+}
+body.kids main{max-width:920px;padding:20px 20px 100px}
+
+/* ---------- Верхняя панель ---------- */
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:10px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:920px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 17px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--pk-accent),var(--pk-accent2));
+  padding:7px 15px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(124,92,255,.35);
+}
+.kid-bar .steps{display:flex;gap:6px;flex:1;min-width:200px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--pk-accent),var(--pk-accent2));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(124,92,255,.5);
+}
+
+/* ---------- XP ---------- */
+.xp-wrap{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(61,219,119,.12);
+  border:1px solid rgba(61,219,119,.3);
+  border-radius:99px;padding:5px 12px;
+  font:800 13px var(--font-code);color:#2E7D32;
+}
+:root[data-theme="dark"] .xp-wrap,
+body.kids .xp-wrap{color:#5FE0B8}
+.xp-bar{
+  width:70px;height:8px;border-radius:99px;
+  background:var(--line);overflow:hidden;position:relative;
+}
+.xp-bar i{
+  display:block;height:100%;
+  background:linear-gradient(90deg,var(--pk-xp),var(--a1));
+  width:0%;transition:width .6s cubic-bezier(.22,1,.36,1);
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.pk-hero{
+  text-align:center;padding:40px 18px 30px;
+  position:relative;
+}
+.pk-hero .scene{
+  display:flex;justify-content:center;align-items:flex-end;
+  gap:22px;margin-bottom:22px;height:130px;
+}
+.pk-hero .chip{
+  position:absolute;top:22px;left:50%;transform:translateX(-50%);
+  font:800 11.5px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--pk-accent);
+  background:rgba(124,92,255,.12);
+  border:1px solid rgba(124,92,255,.35);
+  padding:6px 14px;border-radius:99px;
+}
+.pk-hero .pixel{
+  width:96px;height:96px;
+  animation:pkFloat 3.2s ease-in-out infinite;
+  filter:drop-shadow(0 8px 20px rgba(124,92,255,.4));
+}
+.pk-hero .scroll{
+  width:80px;height:80px;
+  animation:pkFloat 3.2s ease-in-out infinite;
+  animation-delay:.5s;
+  filter:drop-shadow(0 8px 20px rgba(255,201,60,.35));
+}
+.pk-hero h1{
+  margin:0 0 14px;
+  font-size:clamp(34px,5.6vw,64px);
+  line-height:1.05;
+  letter-spacing:-.03em;
+  font-weight:900;
+}
+.pk-hero h1 em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--pk-accent) 0%,var(--pk-accent2) 60%,var(--pk-gold) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+}
+.pk-hero .lead{
+  color:var(--muted);font-size:19px;line-height:1.55;
+  max-width:620px;margin:0 auto 22px;
+}
+.pk-hero .chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.pk-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:8px 16px;border-radius:99px;
+  font:700 13.5px var(--font-ui);color:var(--text);
+  transition:.2s ease;
+}
+.pk-hero .chips span:hover{border-color:var(--pk-accent);transform:translateY(-2px)}
+
+@keyframes pkFloat{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-12px) rotate(2deg)}
+}
+
+/* ============================================
+   ЦЕЛИ УРОКА — 3 карточки
+   ============================================ */
+.pk-goals{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:26px 0 40px;
+}
+.pk-goal{
+  background:var(--card);
+  border-radius:20px;
+  padding:20px 18px 18px;
+  border:1px solid var(--line);
+  border-top:5px solid var(--gc,var(--pk-accent));
+  transition:.25s ease;
+  position:relative;
+  overflow:hidden;
+}
+.pk-goal::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 80% 20%, var(--gc,var(--pk-accent)), transparent 60%);
+  opacity:0;transition:.3s ease;pointer-events:none;
+}
+.pk-goal:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(23,32,51,.12)}
+.pk-goal:hover::after{opacity:.08}
+.pk-goal .icon{
+  font-size:34px;line-height:1;margin-bottom:10px;display:block;
+}
+.pk-goal .ttl{
+  font:800 15px var(--font-ui);
+  color:var(--gc,var(--pk-accent));
+  margin-bottom:6px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.pk-goal .txt{
+  font:600 15px var(--font-ui);
+  color:var(--text);line-height:1.5;
+  position:relative;z-index:1;
+}
+.pk-goal.g1{--gc:#5FE0B8}
+.pk-goal.g2{--gc:#7C5CFF}
+.pk-goal.g3{--gc:#FF7A9C}
+
+/* ============================================
+   Шаги урока — общий контейнер
+   ============================================ */
+.kstep{
+  margin:32px 0;background:var(--card);border-radius:26px;
+  padding:30px 26px;box-shadow:0 12px 32px rgba(23,32,51,.08);
+  position:relative;overflow:hidden;
+  border:1px solid var(--line);
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--pk-accent)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 13px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--pk-accent)));
+  padding:7px 16px;border-radius:99px;margin-bottom:16px;
+  letter-spacing:.02em;
+  box-shadow:0 6px 16px rgba(12,124,134,.25);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(23px,3.4vw,31px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:16px;margin:0 0 20px;line-height:1.5}
+.kstep p{font-size:18px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:24px 0 12px;font-size:20px;line-height:1.3}
+
+.kstep.s1{--c1:#5FE0B8;--c2:#0C7C86}
+.kstep.s2{--c1:#7C5CFF;--c2:#FF7A9C}
+.kstep.s3{--c1:#FFC93C;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#7C5CFF}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+
+/* ---------- Пиксель говорит ---------- */
+.px-says{
+  display:flex;gap:14px;align-items:flex-start;
+  margin:20px 0;padding:18px 20px;
+  background:linear-gradient(135deg,rgba(124,92,255,.08),rgba(95,224,184,.06));
+  border-radius:18px;
+  border:1px solid rgba(124,92,255,.18);
+}
+.px-says .face{
+  flex:0 0 auto;width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,#7C5CFF,#5FE0B8);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;line-height:1;
+  box-shadow:0 8px 20px rgba(124,92,255,.35);
+  animation:pkFloat 3.4s ease-in-out infinite;
+}
+.px-says .bubble{
+  flex:1;background:var(--card);border-radius:14px;
+  padding:14px 18px;font-size:17px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.px-says .bubble::before{
+  content:"";position:absolute;left:-9px;top:20px;
+  width:0;height:0;border:8px solid transparent;
+  border-right-color:var(--card);
+}
+.px-says .bubble b{color:var(--pk-accent)}
+.px-says.bug .face{background:linear-gradient(135deg,#B8325A,#FF7A9C)}
+.px-says.bug .bubble b{color:#B8325A}
+@media(max-width:520px){
+  .px-says .face{width:48px;height:48px;font-size:24px}
+  .px-says .bubble{font-size:15px;padding:12px 14px}
+}
+
+/* ---------- Explain-блоки ---------- */
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(124,92,255,.05));
+  border-left:5px solid var(--pk-accent);border-radius:14px;
+  padding:16px 20px;margin:16px 0;font-size:16.5px;line-height:1.6;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.06em;
+  color:var(--pk-accent);margin-bottom:8px;
+}
+.explain p{margin:0 0 8px;font-size:16.5px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(255,122,156,.06));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--pk-mint);
+  background:linear-gradient(135deg,rgba(95,224,184,.09),rgba(124,92,255,.05));
+}
+.explain.memo .ttl{color:#2E7D32}
+
+/* ---------- Блок кода с кнопками ---------- */
+.code-wrap{
+  position:relative;margin:16px 0;
+}
+.code-wrap pre{
+  background:#0B1220;color:#E8EEF8;
+  padding:20px 22px;border-radius:16px;
+  font:14.5px/1.7 var(--font-code);
+  box-shadow:0 10px 24px rgba(11,18,32,.35);
+  overflow-x:auto;white-space:pre;
+  border:1px solid #1e2c48;
+  margin:0;
+}
+.code-wrap .code-tools{
+  position:absolute;top:10px;right:10px;
+  display:flex;gap:6px;opacity:0;transition:.2s ease;
+}
+.code-wrap:hover .code-tools{opacity:1}
+.code-wrap .code-tools button{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  color:#E8EEF8;font:700 11px var(--font-ui);
+  padding:5px 10px;border-radius:8px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;
+  transition:.15s ease;
+}
+.code-wrap .code-tools button:hover{background:var(--pk-accent);border-color:transparent}
+
+.code-wrap pre .kw{color:#FFB454;font-weight:600}
+.code-wrap pre .fn{color:#C9B8FF;font-weight:600}
+.code-wrap pre .str{color:#8EE6A0}
+.code-wrap pre .num{color:#7FC4FF}
+.code-wrap pre .cm{color:#7F90B0;font-style:italic}
+.code-wrap pre .op{color:#FFB454;font-weight:800}
+
+/* ---------- Мини-песочница ---------- */
+.pk-sandbox{
+  background:linear-gradient(180deg,#0B1220,#131D31);
+  border-radius:20px;padding:22px;
+  border:1px solid var(--pk-border);
+  box-shadow:0 14px 34px rgba(11,18,32,.4);
+  margin:20px 0;
+}
+.pk-sandbox .sb-head{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.pk-sandbox .sb-head .dot{
+  width:11px;height:11px;border-radius:50%;
+  background:#FF5F56;box-shadow:18px 0 0 #FFBD2E,36px 0 0 #27C93F;
+  margin-right:38px;
+}
+.pk-sandbox .sb-head .lbl{
+  font:700 12px var(--font-code);
+  color:#7F90B0;letter-spacing:.05em;text-transform:uppercase;
+}
+.pk-sandbox .sb-head .run-stat{
+  margin-left:auto;font:700 12px var(--font-code);
+  color:#5FE0B8;display:inline-flex;align-items:center;gap:6px;
+}
+.pk-sandbox .sb-head .run-stat .p{
+  width:7px;height:7px;border-radius:50%;background:#5FE0B8;
+  animation:pulse 1.2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.pk-sandbox textarea{
+  width:100%;box-sizing:border-box;
+  background:#050B18;color:#E8EEF8;
+  border:1px solid var(--pk-border);
+  border-radius:12px;padding:14px 16px;
+  font:14.5px/1.65 var(--font-code);
+  resize:vertical;min-height:130px;outline:none;
+  transition:.15s ease;
+}
+.pk-sandbox textarea:focus{
+  border-color:var(--pk-accent);
+  box-shadow:0 0 0 3px rgba(124,92,255,.15);
+}
+.pk-sandbox .sb-out{
+  margin-top:12px;
+  background:#050B18;border-radius:12px;
+  padding:14px 16px;border:1px solid var(--pk-border);
+  font:14px/1.7 var(--font-code);color:#E8EEF8;
+  min-height:70px;white-space:pre-wrap;
+}
+.pk-sandbox .sb-out .prompt{color:#7F90B0}
+.pk-sandbox .sb-out .ok{color:#8EE6A0;font-weight:600}
+.pk-sandbox .sb-out .err{color:#FF8F8F}
+.pk-sandbox .sb-out .dim{color:#7F90B0;font-style:italic}
+
+/* ---------- Квиз ---------- */
+.pk-quiz{
+  background:var(--card);
+  border-radius:20px;padding:22px;
+  border:1px solid var(--line);
+  box-shadow:0 8px 22px rgba(23,32,51,.06);
+  margin:16px 0;
+}
+.pk-quiz .qhead{
+  display:flex;justify-content:space-between;
+  align-items:center;
+  font:800 12px var(--font-code);
+  color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+  margin-bottom:14px;
+}
+.pk-quiz .qhead .progress{color:var(--pk-accent)}
+.pk-quiz .code{
+  background:#0B1220;color:#E8EEF8;
+  padding:16px 18px;border-radius:12px;
+  font:13.5px/1.7 var(--font-code);
+  white-space:pre-wrap;margin-bottom:16px;
+}
+.pk-quiz .options{display:grid;gap:10px}
+.pk-quiz .opt{
+  padding:13px 18px;
+  border:2px solid var(--line);
+  background:var(--card);
+  border-radius:12px;cursor:pointer;
+  font:700 15px var(--font-code);
+  text-align:left;color:var(--text);
+  transition:.15s ease;
+}
+.pk-quiz .opt:hover:not(:disabled){
+  border-color:var(--pk-accent);
+  transform:translateX(4px);
+}
+.pk-quiz .opt.right{
+  background:rgba(58,125,44,.12);
+  border-color:var(--a5);
+  color:#2E7D32;
+}
+.pk-quiz .opt.wrong{
+  background:rgba(180,35,24,.08);
+  border-color:var(--red);color:var(--red);
+}
+.pk-quiz .fb{
+  margin-top:12px;
+  font:700 15px var(--font-ui);
+  min-height:24px;
+}
+
+/* ---------- Практика в 3 уровня ---------- */
+.pk-practice{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;margin:20px 0;
+}
+.pk-task{
+  background:var(--card);border-radius:18px;
+  padding:18px 18px 16px;
+  border:1px solid var(--line);
+  border-top:6px solid var(--c,var(--pk-accent));
+  position:relative;transition:.2s ease;
+}
+.pk-task:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(23,32,51,.1)}
+.pk-task .stars{font-size:14px;letter-spacing:2px;margin-bottom:8px}
+.pk-task .ttl{
+  font:800 16.5px var(--font-ui);
+  color:var(--text);margin-bottom:8px;
+}
+.pk-task .txt{
+  font:600 14.5px var(--font-ui);
+  color:var(--muted);line-height:1.55;
+  margin:0 0 14px;
+}
+.pk-task .hint-btn{
+  font:800 13px var(--font-ui);
+  border:2px solid var(--c,var(--pk-accent));
+  background:transparent;color:var(--c,var(--pk-accent));
+  padding:8px 14px;border-radius:10px;cursor:pointer;
+  transition:.15s ease;
+}
+.pk-task .hint-btn:hover{
+  background:var(--c,var(--pk-accent));color:#fff;
+}
+.pk-task .hint{
+  max-height:0;overflow:hidden;
+  transition:max-height .35s ease, margin .3s ease;
+  font:600 14px var(--font-code);
+  color:var(--muted);
+  padding:0 2px;
+}
+.pk-task .hint.open{
+  max-height:340px;margin-top:12px;
+  padding-top:12px;
+  border-top:1px dashed var(--line);
+}
+.pk-task.green{--c:#3A7D2C}
+.pk-task.yellow{--c:#B9660A}
+.pk-task.red{--c:#B8325A}
+
+/* ---------- Итог + звёзды ---------- */
+.pk-finale{
+  text-align:center;padding:44px 22px;
+  background:linear-gradient(135deg,rgba(124,92,255,.14),rgba(95,224,184,.12) 50%,rgba(255,201,60,.14));
+  border:2px solid rgba(124,92,255,.25);
+  border-radius:26px;margin:44px 0;
+}
+.pk-finale h2{
+  margin:0 0 10px;
+  font-size:clamp(24px,3.6vw,34px);
+  color:var(--text);
+  letter-spacing:-.02em;
+}
+.pk-finale .sub{
+  color:var(--muted);font-size:17px;
+  margin:0 0 22px;
+}
+.pk-stars{
+  display:flex;justify-content:center;gap:10px;
+  margin:22px 0;
+}
+.pk-star{
+  width:60px;height:60px;
+  border:none;background:transparent;
+  cursor:pointer;font-size:44px;line-height:1;
+  filter:grayscale(1) brightness(.7);
+  transition:.2s ease;
+}
+.pk-star:hover{transform:scale(1.15)}
+.pk-star.lit{
+  filter:none;
+  animation:starPop .35s ease;
+}
+@keyframes starPop{
+  0%{transform:scale(.6);opacity:.4}
+  60%{transform:scale(1.3)}
+  100%{transform:scale(1);opacity:1}
+}
+.pk-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-top:14px;padding:12px 22px;
+  background:linear-gradient(135deg,var(--pk-gold),#FF7A9C);
+  color:#3A1D00;font:900 16px var(--font-ui);
+  border-radius:99px;
+  opacity:0;transform:scale(.8);transition:.35s ease;
+  box-shadow:0 12px 28px rgba(255,201,60,.4);
+}
+.pk-badge.show{opacity:1;transform:scale(1)}
+
+/* ---------- Домашка ---------- */
+.pk-hw{
+  display:grid;gap:14px;margin:22px 0;
+}
+.pk-hw-item{
+  background:var(--card);
+  border:1px solid var(--line);border-radius:18px;
+  padding:20px 22px;
+  border-left:6px solid var(--c,var(--pk-accent));
+}
+.pk-hw-item .badge-hw{
+  display:inline-flex;align-items:center;gap:6px;
+  font:800 11px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.08em;
+  color:#fff;padding:4px 12px;border-radius:99px;
+  margin-bottom:10px;
+}
+.pk-hw-item.must{--c:#3A7D2C}
+.pk-hw-item.must .badge-hw{background:#3A7D2C}
+.pk-hw-item.opt{--c:#7C5CFF}
+.pk-hw-item.opt .badge-hw{background:#7C5CFF}
+.pk-hw-item .txt{font:600 15.5px var(--font-ui);line-height:1.6;color:var(--text)}
+
+/* ---------- Навигация ---------- */
+.pk-nav{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:14px;margin:36px 0;
+}
+@media(max-width:560px){.pk-nav{grid-template-columns:1fr}}
+.pk-nav a{
+  display:flex;flex-direction:column;gap:6px;
+  text-decoration:none;
+  background:var(--card);border:2px solid var(--line);
+  border-radius:18px;padding:18px 20px;
+  transition:.18s ease;
+}
+.pk-nav a:hover{border-color:var(--pk-accent);transform:translateY(-3px)}
+.pk-nav a .dir{
+  font:800 12px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);
+}
+.pk-nav a .ttl{
+  font:800 16px var(--font-ui);color:var(--text);
+}
+.pk-nav a.next{text-align:right;align-items:flex-end}
+
+/* ---------- Reveal ---------- */
+[data-reveal]{
+  opacity:0;transform:translateY(24px);
+  transition:opacity .65s ease, transform .65s cubic-bezier(.22,1,.36,1);
+}
+[data-reveal].in{opacity:1;transform:translateY(0)}
+
+/* ---------- Toast ---------- */
+.pk-toast{
+  position:fixed;left:50%;bottom:26px;
+  transform:translate(-50%,80px);
+  background:var(--text);color:var(--card);
+  padding:12px 22px;border-radius:12px;
+  font:700 14px var(--font-ui);
+  box-shadow:0 12px 30px rgba(0,0,0,.3);
+  opacity:0;transition:.3s ease;pointer-events:none;z-index:100;
+}
+.pk-toast.show{transform:translate(-50%,0);opacity:1}
+
+/* ---------- Конфетти-канвас ---------- */
+#pkConfetti{
+  position:fixed;inset:0;
+  pointer-events:none;z-index:90;
+}
+
+/* ---------- Ачивка ---------- */
+.pk-ach{
+  position:fixed;right:22px;bottom:22px;
+  background:linear-gradient(135deg,var(--pk-accent),var(--pk-accent2));
+  color:#fff;border-radius:16px;
+  padding:14px 20px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 14px 34px rgba(124,92,255,.45);
+  font:800 14px var(--font-ui);
+  transform:translateY(140%);opacity:0;
+  transition:.4s cubic-bezier(.22,1,.36,1);z-index:95;
+  max-width:300px;
+}
+.pk-ach.show{transform:translateY(0);opacity:1}
+.pk-ach .em{font-size:26px}
+
+/* ---------- Адаптив ---------- */
+@media (max-width:640px){
+  body.kids{font-size:17px}
+  .kstep{padding:22px 18px;border-radius:22px}
+  .pk-hero h1{font-size:34px}
+  .pk-hero .lead{font-size:16px}
+  .code-wrap pre{font-size:12.5px;padding:16px}
+  .pk-sandbox textarea{font-size:13px}
+  .pk-star{width:48px;height:48px;font-size:34px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<header class="pk-hero">
+  <span class="chip">Модуль 1 · Урок 5 · Свитки Текста</span>
+  <div class="scene">
+    <!-- Пиксель -->
+    <svg class="pixel" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#7C5CFF"/>
+          <stop offset="1" stop-color="#5FE0B8"/>
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="14" fill="url(#pg)"/>
+      <circle cx="24" cy="28" r="4.5" fill="#fff"/>
+      <circle cx="40" cy="28" r="4.5" fill="#fff"/>
+      <circle cx="25" cy="29" r="2" fill="#0E1530"/>
+      <circle cx="41" cy="29" r="2" fill="#0E1530"/>
+      <path d="M22 42 Q32 50 42 42" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+    <!-- Свиток -->
+    <svg class="scroll" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <rect x="14" y="8" width="36" height="48" rx="4" fill="#FFE7A8" stroke="#B9660A" stroke-width="2.5"/>
+      <line x1="20" y1="20" x2="44" y2="20" stroke="#B9660A" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="28" x2="44" y2="28" stroke="#B9660A" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="36" x2="44" y2="36" stroke="#B9660A" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="44" x2="36" y2="44" stroke="#B9660A" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <h1>Пиксель и <em>Свитки Текста</em></h1>
+  <p class="lead">
+    В библиотеке Цифровой Долины хранятся свитки с именами жителей.
+    Но все они перепутаны: лишние пробелы, разный регистр, дубликаты.
+    Хранитель библиотеки просит Пикселя помочь — и сегодня мы
+    научим его <b>обрабатывать строки</b>.
+  </p>
+
+  <div class="chips">
+    <span>📜 45 минут</span>
+    <span>✨ f-строки</span>
+    <span>🔠 upper / lower / title</span>
+    <span>✂️ strip / replace</span>
+    <span>📏 len</span>
+  </div>
+</header>
+
+<!-- ============================================================
+     ПРОГРЕСС-ТРЕК
+     ============================================================ -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="pkClock">00:00</span>
+    <div class="steps" id="pkSteps">
+      <span>📖</span>
+      <span>💡</span>
+      <span>🧪</span>
+      <span>🎯</span>
+      <span>⭐</span>
+    </div>
+    <div class="xp-wrap" title="Опыт Кодонавта">
+      <span id="pkXpText">0 XP</span>
+      <div class="xp-bar"><i id="pkXpBar"></i></div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ============================================================
+       ЦЕЛИ УРОКА
+       ============================================================ -->
+  <div class="pk-goals" data-reveal>
+    <div class="pk-goal g1">
+      <span class="icon">🎓</span>
+      <div class="ttl">Знание</div>
+      <div class="txt">Узнать 6 методов строк и понять, зачем они нужны.</div>
+    </div>
+    <div class="pk-goal g2">
+      <span class="icon">🛠</span>
+      <div class="ttl">Навык</div>
+      <div class="txt">Обрабатывать «грязный» ввод: пробелы, регистр, дубликаты.</div>
+    </div>
+    <div class="pk-goal g3">
+      <span class="icon">🏆</span>
+      <div class="ttl">Проект</div>
+      <div class="txt">Собрать визитку жителя Долины через f-строки.</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ШАГ 1 · ЗНАКОМСТВО
+       ============================================================ -->
+  <section class="kstep s1" data-reveal>
+    <span class="badge">📖 Шаг 1 · Знакомство</span>
+    <h2>Что случилось в библиотеке?</h2>
+    <p class="sub">
+      Пиксель зашёл в библиотеку Цифровой Долины — и увидел беспорядок.
+    </p>
+
+    <div class="px-says">
+      <div class="face">🟣</div>
+      <div class="bubble">
+        Смотри, что творится! Хранитель библиотеки вводил имена жителей,
+        и получилось вот что: <br>
+        <code>'  аня  '</code> — с пробелами,<br>
+        <code>'ИВАНОВА'</code> — капсом,<br>
+        <code>'пётр петров'</code> — вообще без заглавных. <br><br>
+        Так нельзя! Мне нужно научиться <b>причёсывать текст</b>.
+      </div>
+    </div>
+
+    <h3>Визуальная схема проблемы</h3>
+
+    <div style="background:var(--bg);border-radius:18px;padding:20px;margin:20px 0">
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center">
+        <div style="background:var(--card);border:2px dashed var(--a2);border-radius:14px;padding:16px;text-align:center">
+          <div style="font:700 11px var(--font-ui);color:var(--a2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">❌ Как пришло</div>
+          <div style="font:800 18px var(--font-code);color:var(--text)">'&nbsp;&nbsp;аня&nbsp;&nbsp;'</div>
+        </div>
+        <div style="font-size:26px;color:var(--pk-accent)">➜</div>
+        <div style="background:var(--card);border:2px solid var(--pk-mint);border-radius:14px;padding:16px;text-align:center">
+          <div style="font:700 11px var(--font-ui);color:#2E7D32;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">✅ Как нужно</div>
+          <div style="font:800 18px var(--font-code);color:var(--text)">'Аня'</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="explain memo">
+      <div class="ttl">🎯 Что мы будем делать</div>
+      <p>
+        Сегодня Пиксель получит <b>шесть инструментов</b> для работы с текстом.
+        Мы разберём каждый — а затем натренируемся на настоящих «грязных» данных
+        из библиотеки.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ШАГ 2 · РАЗБОР ТЕМЫ
+       ============================================================ -->
+  <section class="kstep s2" data-reveal>
+    <span class="badge">💡 Шаг 2 · Шесть методов строк</span>
+    <h2>Магические команды для текста</h2>
+    <p class="sub">
+      У каждой строки в Python есть встроенные команды. Они называются
+      <b>методами</b>. Вызываются через точку: <code>текст.метод()</code>.
+    </p>
+
+    <h3>🔠 .upper() — в ВЕРХНИЙ регистр</h3>
+    <div class="code-wrap">
+      <pre><span class="str">'аня'</span>.<span class="fn">upper</span>()       <span class="cm"># 'АНЯ'</span></pre>
+      <div class="code-tools">
+        <button data-copy><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg> Копировать</button>
+      </div>
+    </div>
+
+    <h3>🔡 .lower() — в нижний регистр</h3>
+    <div class="code-wrap">
+      <pre><span class="str">'АНЯ'</span>.<span class="fn">lower</span>()       <span class="cm"># 'аня'</span></pre>
+    </div>
+
+    <h3>✨ .title() — Каждое Слово С Заглавной</h3>
+    <div class="code-wrap">
+      <pre><span class="str">'аня иванова'</span>.<span class="fn">title</span>()   <span class="cm"># 'Аня Иванова'</span></pre>
+    </div>
+
+    <h3>✂️ .strip() — убрать пробелы по краям</h3>
+    <div class="code-wrap">
+      <pre><span class="str">'  аня  '</span>.<span class="fn">strip</span>()       <span class="cm"># 'аня'</span></pre>
+    </div>
+
+    <h3>🔁 .replace(a, b) — заменить</h3>
+    <div class="code-wrap">
+      <pre><span class="str">'а-а-а'</span>.<span class="fn">replace</span>(<span class="str">'а'</span>, <span class="str">'о'</span>)   <span class="cm"># 'о-о-о'</span></pre>
+    </div>
+
+    <h3>📏 len(s) — длина строки</h3>
+    <p>
+      Внимание: <code>len</code> — это <b>не метод</b>, а отдельная функция.
+      Пишется как <code>len(текст)</code>, а не <code>текст.len()</code>.
+    </p>
+    <div class="code-wrap">
+      <pre><span class="fn">len</span>(<span class="str">'Аня'</span>)              <span class="cm"># 3</span></pre>
+    </div>
+
+    <div class="explain warn">
+      <div class="ttl">⚠️ Метод не меняет исходную строку!</div>
+      <p>
+        Строки в Python <b>неизменяемы</b>. Метод возвращает <b>новую</b> строку,
+        а старая остаётся как была.
+      </p>
+      <p>
+        Хочешь изменить переменную — присвой результат обратно:
+        <code>name = name.strip()</code>.
+      </p>
+    </div>
+
+    <h3>🎨 Бонус: f-строки</h3>
+    <p>
+      Собирать текст из кусочков через <code>+</code> — неудобно.
+      А f-строки позволяют вставлять переменные прямо в текст:
+    </p>
+    <div class="code-wrap">
+      <pre><span class="var">name</span> = <span class="str">'Аня'</span>
+<span class="fn">print</span>(<span class="str">f'Привет, {name}!'</span>)   <span class="cm"># Привет, Аня!</span></pre>
+    </div>
+
+    <div class="px-says bug">
+      <div class="face">🐛</div>
+      <div class="bubble">
+        Хе-хе! А я спрятал три ошибки в этом коде. Попробуй их найти!
+        <br>
+        <code>'аня'.upper</code> — без скобок (не сработает!)<br>
+        <code>len 'аня'</code> — забыли скобки<br>
+        <code>name.upper()</code> — а потом удивляемся, что name не изменилось
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ШАГ 3 · МИНИ-ПЕСОЧНИЦА
+       ============================================================ -->
+  <section class="kstep s3" data-reveal>
+    <span class="badge">🧪 Шаг 3 · Песочница</span>
+    <h2>Попробуй сам: живой редактор</h2>
+    <p class="sub">
+      Пиши код прямо здесь — и сразу видь результат. Поддерживаются
+      методы строк и <code>print()</code>. Запуск — автоматически через 0,5 секунды
+      после того, как ты перестанешь печатать.
+    </p>
+
+    <div class="pk-sandbox">
+      <div class="sb-head">
+        <span class="dot"></span>
+        <span class="lbl">live.py</span>
+        <span class="run-stat" id="pkRunStat"><span class="p"></span> Авто-запуск</span>
+      </div>
+      <textarea id="pkSandbox" spellcheck="false">name = '  аня иванова  '
+name = name.strip().title()
+print('Привет,', name)
+print('Длина:', len(name))
+print(name.upper())
+print(name.replace('а', 'о'))</textarea>
+      <div class="sb-out" id="pkOut"><span class="dim">// Здесь появится вывод…</span></div>
+    </div>
+
+    <div class="explain memo">
+      <div class="ttl">🧠 Что можно попробовать</div>
+      <p>
+        Замени <code>'аня иванова'</code> на своё имя. Пробуй методы
+        цепочкой: <code>name.strip().lower().title()</code>. Посмотри,
+        что получится.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ШАГ 4 · КВИЗ
+       ============================================================ -->
+  <section class="kstep s4" data-reveal>
+    <span class="badge">🎯 Шаг 4 · Квиз</span>
+    <h2>Что выведет код?</h2>
+    <p class="sub">
+      Три вопроса. Правильный ответ подсветится зелёным, а за верный
+      ответ полетит конфетти.
+    </p>
+
+    <div id="pkQuiz"></div>
+  </section>
+
+  <!-- ============================================================
+       ШАГ 5 · ПРАКТИКА
+       ============================================================ -->
+  <section class="kstep s5" data-reveal>
+    <span class="badge">⭐ Шаг 5 · Практика</span>
+    <h2>Три уровня заданий</h2>
+    <p class="sub">
+      Начни с зелёного. Если легко — переходи к жёлтому и красному.
+    </p>
+
+    <div class="pk-practice">
+      <div class="pk-task green">
+        <div class="stars">🟢</div>
+        <div class="ttl">Привести имя в порядок</div>
+        <p class="txt">
+          Спроси имя через <code>input()</code>, убери пробелы
+          и сделай с заглавной буквы. Выведи приветствие.
+        </p>
+        <button type="button" class="hint-btn" data-hint>💡 Показать подсказку</button>
+        <div class="hint">
+          Используй цепочку: <code>input().strip().title()</code>.<br>
+          Затем <code>print(f'Привет, {name}!')</code>.
+        </div>
+      </div>
+
+      <div class="pk-task yellow">
+        <div class="stars">🟡</div>
+        <div class="ttl">Посчитать длину имени</div>
+        <p class="txt">
+          Спроси имя, обработай его и выведи длину через <code>len()</code>.
+          Например: «Аня, в твоём имени 3 букв».
+        </p>
+        <button type="button" class="hint-btn" data-hint>💡 Показать подсказку</button>
+        <div class="hint">
+          Сначала обработай имя, потом посчитай длину:<br>
+          <code>name = input(...).strip().title()</code><br>
+          <code>length = len(name)</code>
+        </div>
+      </div>
+
+      <div class="pk-task red">
+        <div class="stars">🔴</div>
+        <div class="ttl">Цензор</div>
+        <p class="txt">
+          Спроси фразу, замени плохое слово на <code>'***'</code>
+          через <code>replace()</code> и выведи результат.
+        </p>
+        <button type="button" class="hint-btn" data-hint>💡 Показать подсказку</button>
+        <div class="hint">
+          <code>phrase = input('Фраза: ')</code><br>
+          <code>clean = phrase.replace('плохое', '***')</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="explain memo">
+      <div class="ttl">🧠 Совет Пикселя</div>
+      <p>
+        Метод <b>не меняет</b> исходную строку — он возвращает новую.
+        Если хочешь сохранить изменение — присвой результат обратно
+        в переменную.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ИТОГ + ЗВЁЗДЫ
+       ============================================================ -->
+  <section class="pk-finale" data-reveal>
+    <h2>Урок почти пройден!</h2>
+    <p class="sub">
+      Оцени, насколько тебе было интересно и понятно. Зажги звёзды —
+      и получишь бейдж «Хранитель Свитков».
+    </p>
+
+    <div class="pk-stars" id="pkStars">
+      <button type="button" class="pk-star" data-v="1" aria-label="1 звезда">★</button>
+      <button type="button" class="pk-star" data-v="2" aria-label="2 звезды">★</button>
+      <button type="button" class="pk-star" data-v="3" aria-label="3 звезды">★</button>
+      <button type="button" class="pk-star" data-v="4" aria-label="4 звезды">★</button>
+      <button type="button" class="pk-star" data-v="5" aria-label="5 звёзд">★</button>
+    </div>
+
+    <div class="pk-badge" id="pkBadge">
+      <span>🏅</span> Бейдж «Хранитель Свитков»
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ДОМАШКА
+       ============================================================ -->
+  <section class="kstep s6" style="--c1:#5FE0B8;--c2:#7C5CFF" data-reveal>
+    <span class="badge">📬 Домашнее задание</span>
+    <h2>Два уровня сложности</h2>
+    <p class="sub">
+      Обязательный уровень — для всех. Продвинутый — если хочется
+      больше практики.
+    </p>
+
+    <div class="pk-hw">
+      <div class="pk-hw-item must">
+        <span class="badge-hw">Обязательно</span>
+        <p class="txt">
+          Напиши программу, которая спрашивает <b>имя</b> и <b>фамилию</b>.
+          Убери лишние пробелы, приведи к формату «Слово Слово» и выведи
+          визитку через f-строку. Пример: ввод <code>'  аня  '</code> и
+          <code>'иванова'</code> → вывод <code>Аня Иванова</code>.
+        </p>
+      </div>
+
+      <div class="pk-hw-item opt">
+        <span class="badge-hw">По желанию</span>
+        <p class="txt">
+          Добавь к визитке вывод длины полного имени, вариант в верхнем
+          регистре и число букв «а» (подсказка: <code>full.lower().count('а')</code>).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       НАВИГАЦИЯ
+       ============================================================ -->
+  <nav class="pk-nav" data-reveal>
+    <a href="lesson-04-arithmetic.html">
+      <span class="dir">← Назад</span>
+      <span class="ttl">Урок 4 · Арифметика</span>
+    </a>
+    <a href="lesson-06-questionnaire.html" class="next">
+      <span class="dir">Вперёд →</span>
+      <span class="ttl">Урок 6 · Мини-проект «Анкета»</span>
+    </a>
+  </nav>
+
+</main>
+
+<!-- ============================================================
+     Дополнительные элементы
+     ============================================================ -->
+<canvas id="pkConfetti"></canvas>
+<div class="pk-toast" id="pkToast"></div>
+<div class="pk-ach" id="pkAch"><span class="em">🎉</span><span id="pkAchText">Ачивка!</span></div>
+
+<footer class="site">
+  PyKids · Кодонавты Цифровой Долины · Модуль 1 · Урок 5 «Свитки Текста»
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   PyKids · урок 5 · полный скрипт страницы
+   ============================================================ */
+(function(){
+  'use strict';
+
+  var $  = function(id){ return document.getElementById(id); };
+
+  /* ============================================================
+     1. ТАЙМЕР
+     ============================================================ */
+  (function(){
+    var clock = $('pkClock');
+    var steps = document.querySelectorAll('#pkSteps span');
+    if (!clock) return;
+    var TOTAL = 45 * 60, elapsed = 0;
+
+    function render(){
+      var m = Math.floor(elapsed / 60), s = elapsed % 60;
+      clock.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      var blocks = document.querySelectorAll('.kstep');
+      var current = -1;
+      var scrolled = window.scrollY + window.innerHeight / 2;
+      for (var i = 0; i < blocks.length; i++){
+        if (blocks[i].offsetTop <= scrolled) current = i;
+      }
+      for (var j = 0; j < steps.length; j++){
+        steps[j].classList.remove('done','active');
+        if (j < current) steps[j].classList.add('done');
+        if (j === current) steps[j].classList.add('active');
+      }
+    }
+    render();
+    setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+    window.addEventListener('scroll', render, { passive: true });
+  })();
+
+  /* ============================================================
+     2. REVEAL-АНИМАЦИИ ПРИ СКРОЛЛЕ
+     ============================================================ */
+  (function(){
+    var items = document.querySelectorAll('[data-reveal]');
+    if (!items.length || !('IntersectionObserver' in window)){
+      items.forEach(function(el){ el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '-40px 0px -10% 0px', threshold: 0.05 });
+    items.forEach(function(el){ io.observe(el); });
+  })();
+
+  /* ============================================================
+     3. XP + ПРОГРЕСС (localStorage)
+     ============================================================ */
+  var XP_KEY = 'pykids_xp_lesson5';
+  var xpState = { xp: 0, max: 100 };
+
+  function readXp(){
+    try {
+      var raw = localStorage.getItem(XP_KEY);
+      if (raw){ xpState = Object.assign(xpState, JSON.parse(raw)); }
+    } catch(e){}
+  }
+  function writeXp(){
+    try { localStorage.setItem(XP_KEY, JSON.stringify(xpState)); } catch(e){}
+  }
+  function renderXp(){
+    var txt = $('pkXpText'), bar = $('pkXpBar');
+    if (txt) txt.textContent = xpState.xp + ' XP';
+    if (bar) bar.style.width = Math.min(100, (xpState.xp / xpState.max) * 100) + '%';
+  }
+  function addXp(n, reason){
+    xpState.xp = Math.min(xpState.max, xpState.xp + n);
+    writeXp();
+    renderXp();
+    if (reason) showToast('+' + n + ' XP · ' + reason);
+  }
+  readXp();
+  renderXp();
+
+  /* ============================================================
+     4. TOAST
+     ============================================================ */
+  var toastTimer = null;
+  function showToast(msg){
+    var t = $('pkToast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+  }
+
+  /* ============================================================
+     5. ACHIEVEMENT (всплывающая ачивка)
+     ============================================================ */
+  var achTimer = null;
+  function showAch(text, emoji){
+    var a = $('pkAch');
+    var txt = $('pkAchText');
+    if (!a || !txt) return;
+    txt.textContent = text;
+    a.querySelector('.em').textContent = emoji || '🎉';
+    a.classList.add('show');
+    clearTimeout(achTimer);
+    achTimer = setTimeout(function(){ a.classList.remove('show'); }, 3000);
+  }
+
+  /* ============================================================
+     6. КОПИРОВАНИЕ КОДА
+     ============================================================ */
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    var wrap = btn.closest('.code-wrap');
+    if (!wrap) return;
+    var pre = wrap.querySelector('pre');
+    if (!pre) return;
+    var text = pre.innerText;
+    navigator.clipboard.writeText(text).then(function(){
+      var old = btn.textContent;
+      btn.textContent = '✓ Скопировано';
+      showToast('Код скопирован');
+      setTimeout(function(){ btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg> Копировать'; }, 1400);
+    }).catch(function(){
+      showToast('Не удалось скопировать');
+    });
+  });
+
+  /* ============================================================
+     7. КОНФЕТТИ
+     ============================================================ */
+  var confCanvas = $('pkConfetti');
+  var confCtx = confCanvas ? confCanvas.getContext('2d') : null;
+  var confParticles = [];
+
+  function resizeConf(){
+    if (!confCanvas) return;
+    confCanvas.width = window.innerWidth;
+    confCanvas.height = window.innerHeight;
+  }
+  if (confCanvas){
+    resizeConf();
+    window.addEventListener('resize', resizeConf);
+    requestAnimationFrame(confLoop);
+  }
+
+  function confLoop(){
+    if (!confCtx) return;
+    confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+    for (var i = confParticles.length - 1; i >= 0; i--){
+      var p = confParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.12;
+      p.rot += p.vr;
+      p.life -= 1;
+      if (p.life <= 0 || p.y > confCanvas.height + 40){
+        confParticles.splice(i, 1);
+        continue;
+      }
+      confCtx.save();
+      confCtx.translate(p.x, p.y);
+      confCtx.rotate(p.rot);
+      confCtx.fillStyle = p.color;
+      confCtx.fillRect(-p.size/2, -p.size/3, p.size, p.size * 0.66);
+      confCtx.restore();
+    }
+    requestAnimationFrame(confLoop);
+  }
+
+  function fireConfetti(x, y){
+    if (!confCanvas) return;
+    var colors = ['#7C5CFF','#FF7A9C','#5FE0B8','#FFC93C','#FF5F56','#27C93F'];
+    for (var i = 0; i < 60; i++){
+      confParticles.push({
+        x: x, y: y,
+        vx: (Math.random() - 0.5) * 9,
+        vy: -Math.random() * 9 - 3,
+        size: 6 + Math.random() * 8,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 100 + Math.random() * 40
+      });
+    }
+  }
+
+  /* ============================================================
+     8. МИНИ-ПЕСОЧНИЦА — простой интерпретатор Python-подмножества
+     ============================================================ */
+
+  var sandbox = $('pkSandbox');
+  var sbOut = $('pkOut');
+  var sbTimer = null;
+
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+
+  /**
+   * Мини-интерпретатор Python-подмножества.
+   * Поддерживает:
+   *  - присваивание строк и чисел: name = 'Аня' / x = 5
+   *  - цепочки методов строк: .upper() .lower() .title() .strip() .replace('a','b')
+   *  - len(s)
+   *  - print(...) с аргументами через запятую и f-строками {expr}
+   *  - оператор + и * для строк
+   */
+  function evalPython(code){
+    var vars = {};
+    var lines = code.replace(/\r/g,'').split('\n');
+    var out = [];
+
+    function stripQuotes(s){
+      s = s.trim();
+      if ((s.startsWith('"') && s.endsWith('"')) ||
+          (s.startsWith("'") && s.endsWith("'"))){
+        return s.slice(1, -1);
+      }
+      return s;
+    }
+
+    function isQuoted(s){
+      s = s.trim();
+      return (s.startsWith('"') && s.endsWith('"')) ||
+             (s.startsWith("'") && s.endsWith("'"));
+    }
+
+    // Парсим f-строку: f'...{expr}...'
+    function evalFString(s, vars){
+      var m = s.match(/^[fF](['"])([\s\S]*)\1$/);
+      if (!m) return null;
+      var inner = m[2];
+      return inner.replace(/\{([^{}]+)\}/g, function(_, expr){
+        try { return String(evalExpr(expr.trim(), vars)); }
+        catch(e){ return '{' + expr + '}'; }
+      });
+    }
+
+    // Рекурсивный парсер выражений справа от =
+    function evalExpr(raw, vars){
+      raw = raw.trim();
+      if (!raw) return '';
+
+      // f-строка
+      var f = evalFString(raw, vars);
+      if (f !== null) return f;
+
+      // Простой литерал
+      if (isQuoted(raw)) return stripQuotes(raw);
+      if (/^-?\d+$/.test(raw)) return parseInt(raw, 10);
+      if (/^-?\d+\.\d+$/.test(raw)) return parseFloat(raw);
+
+      // Проверяем простейший оператор верхнего уровня: + и *
+      // Ищем последний оператор верхнего уровня для лево-ассоциативности
+      // (не самый корректно, но для учебного кода хватит)
+      var depth = 0, lastPlus = -1, lastMul = -1, inStr = false, quoteChar = '';
+      for (var i = 0; i < raw.length; i++){
+        var c = raw[i];
+        if (inStr){
+          if (c === quoteChar && raw[i-1] !== '\\') inStr = false;
+          continue;
+        }
+        if (c === "'" || c === '"'){ inStr = true; quoteChar = c; continue; }
+        if (c === '('){ depth++; continue; }
+        if (c === ')'){ depth--; continue; }
+        if (depth === 0){
+          if (c === '+') lastPlus = i;
+          else if (c === '*') lastMul = i;
+        }
+      }
+      if (lastPlus !== -1 && lastPlus > 0){
+        var l = evalExpr(raw.slice(0, lastPlus), vars);
+        var r = evalExpr(raw.slice(lastPlus + 1), vars);
+        if (typeof l === 'number' && typeof r === 'number') return l + r;
+        return String(l) + String(r);
+      }
+      if (lastMul !== -1 && lastMul > 0){
+        var l2 = evalExpr(raw.slice(0, lastMul), vars);
+        var r2 = evalExpr(raw.slice(lastMul + 1), vars);
+        if (typeof l2 === 'number' && typeof r2 === 'number') return l2 * r2;
+        var n = parseInt(r2, 10);
+        if (!isNaN(n)) return String(l2).repeat(n);
+      }
+
+      // len(...)
+      var lenM = raw.match(/^len\s*\(([\s\S]+)\)\s*$/);
+      if (lenM) return String(evalExpr(lenM[1], vars)).length;
+
+      // Цепочка методов: base.method(...).method(...)
+      // Разбираем по последней закрывающей скобке перед первым .method(
+      // Проще: применяем методы по одному, находим .name( слева направо
+      var chainMatch = raw.match(/^([\s\S]+?)\.([a-zA-Z_]+)\(([^()]*)\)\s*$/);
+      if (chainMatch){
+        // Рекурсивно: сначала вычислим основу
+        var base = evalExpr(chainMatch[1], vars);
+        var method = chainMatch[2];
+        var args = chainMatch[3].trim() ? splitArgs(chainMatch[3]) : [];
+        var argVals = args.map(function(a){ return evalExpr(a, vars); });
+        return applyMethod(base, method, argVals);
+      }
+
+      // Переменная
+      if (vars.hasOwnProperty(raw)) return vars[raw];
+
+      // Если ничего не подошло — вернём как строку
+      return raw;
+    }
+
+    function applyMethod(base, method, args){
+      var s = String(base);
+      switch(method){
+        case 'upper': return s.toUpperCase();
+        case 'lower': return s.toLowerCase();
+        case 'title': return s.toLowerCase().replace(/(^|\s|\-)\S/g, function(c){ return c.toUpperCase(); });
+        case 'capitalize': return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+        case 'strip': return s.trim();
+        case 'lstrip': return s.replace(/^\s+/, '');
+        case 'rstrip': return s.replace(/\s+$/, '');
+        case 'replace':
+          if (args.length >= 2) return s.split(String(args[0])).join(String(args[1]));
+          return s;
+        case 'count':
+          if (args.length >= 1) return (s.split(String(args[0])).length - 1);
+          return 0;
+        case 'find':
+          if (args.length >= 1) return s.indexOf(String(args[0]));
+          return -1;
+        case 'split':
+          if (args.length >= 1) return s.split(String(args[0])).join(' | ');
+          return s.split(/\s+/).join(' | ');
+        default: return s;
+      }
+    }
+
+    function splitArgs(raw){
+      var res = [], depth = 0, inStr = false, quoteChar = '', cur = '';
+      for (var i = 0; i < raw.length; i++){
+        var c = raw[i];
+        if (inStr){
+          cur += c;
+          if (c === quoteChar && raw[i-1] !== '\\') inStr = false;
+          continue;
+        }
+        if (c === "'" || c === '"'){ inStr = true; quoteChar = c; cur += c; continue; }
+        if (c === '('){ depth++; cur += c; continue; }
+        if (c === ')'){ depth--; cur += c; continue; }
+        if (c === ',' && depth === 0){
+          res.push(cur.trim());
+          cur = '';
+          continue;
+        }
+        cur += c;
+      }
+      if (cur.trim()) res.push(cur.trim());
+      return res;
+    }
+
+    // Построчно
+    lines.forEach(function(line, idx){
+      var ln = line.replace(/#.*$/, '').trim();  // убираем комментарии
+      if (!ln) return;
+
+      // print(...)
+      var printM = ln.match(/^print\s*\(([\s\S]*)\)\s*$/);
+      if (printM){
+        var argsRaw = printM[1];
+        var parts = splitArgs(argsRaw);
+        var pieces = parts.map(function(p){
+          var v = evalExpr(p, vars);
+          return typeof v === 'string' ? v : String(v);
+        });
+        out.push(pieces.join(' '));
+        return;
+      }
+
+      // Присваивание
+      var assignM = ln.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([\s\S]+)$/);
+      if (assignM){
+        var name = assignM[1];
+        var val = evalExpr(assignM[2], vars);
+        vars[name] = val;
+        return;
+      }
+    });
+
+    return out;
+  }
+
+  function runSandbox(){
+    if (!sandbox || !sbOut) return;
+    var code = sandbox.value;
+    try {
+      var res = evalPython(code);
+      var html = '';
+      if (!res.length){
+        html = '<span class="dim">// Код выполнен, но ничего не напечатано.</span>';
+      } else {
+        html = res.map(function(l){
+          return '<span class="ok">' + esc(l) + '</span>';
+        }).join('\n');
+      }
+      sbOut.innerHTML = html;
+      sbOut.style.borderColor = 'var(--pk-border)';
+    } catch(err){
+      sbOut.innerHTML = '<span class="err">Ошибка: ' + esc(String(err.message || err)) + '</span>';
+      sbOut.style.borderColor = '#FF8F8F';
+    }
+  }
+
+  if (sandbox){
+    sandbox.addEventListener('input', function(){
+      clearTimeout(sbTimer);
+      sbTimer = setTimeout(runSandbox, 500);
+    });
+    // первый запуск
+    setTimeout(runSandbox, 300);
+  }
+
+  /* ============================================================
+     9. КВИЗ С КОНФЕТТИ
+     ============================================================ */
+  var QUIZ = [
+    {
+      code: "'аня'.upper()",
+      options: ["'аня'", "'АНЯ'", "'Аня'"],
+      answer: 1,
+      explain: "Метод upper() переводит всю строку в верхний регистр."
+    },
+    {
+      code: "len('Пиксель')",
+      options: ["6", "7", "8"],
+      answer: 1,
+      explain: "Пиксель — 7 символов: П-и-к-с-е-л-ь."
+    },
+    {
+      code: "'  аня иванова  '.strip().title()",
+      options: ["'аня иванова'", "'Аня Иванова'", "'  Аня Иванова  '"],
+      answer: 1,
+      explain: "Сначала strip() убирает пробелы, потом title() делает заглавные буквы в каждом слове."
+    }
+  ];
+
+  (function(){
+    var quizEl = $('pkQuiz');
+    if (!quizEl) return;
+
+    var idx = 0, score = 0;
+
+    function render(){
+      if (idx >= QUIZ.length){
+        quizEl.innerHTML =
+          '<div style="text-align:center;padding:16px">' +
+            '<div style="font:900 22px var(--font-ui);color:var(--pk-accent);margin-bottom:8px">' +
+              'Квиз пройден: ' + score + ' из ' + QUIZ.length +
+            '</div>' +
+            '<div style="color:var(--muted);font-size:16px">' +
+              'Не забудь зайти в песочницу и попробовать код руками!' +
+            '</div>' +
+          '</div>';
+        if (score === QUIZ.length){
+          addXp(15, 'Квиз без ошибок');
+        } else {
+          addXp(5, 'Квиз пройден');
+        }
+        return;
+      }
+
+      var q = QUIZ[idx];
+      var html = '';
+      html += '<div class="qhead"><span>Вопрос ' + (idx + 1) + ' из ' + QUIZ.length + '</span>';
+      html += '<span class="progress">' + score + ' правильных</span></div>';
+      html += '<div class="code">' + esc(q.code) + '</div>';
+      html += '<div class="options">';
+      q.options.forEach(function(opt, i){
+        html += '<button type="button" class="opt" data-i="' + i + '">' + esc(opt) + '</button>';
+      });
+      html += '</div>';
+      html += '<div class="fb" id="pkQuizFb"></div>';
+      quizEl.innerHTML = html;
+
+      quizEl.querySelectorAll('.opt').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var i = parseInt(btn.dataset.i, 10);
+          var fb = $('pkQuizFb');
+          var btns = quizEl.querySelectorAll('.opt');
+          btns.forEach(function(b){
+            b.disabled = true;
+            if (parseInt(b.dataset.i, 10) === q.answer) b.classList.add('right');
+          });
+          if (i === q.answer){
+            fb.textContent = '✅ Верно! ' + q.explain;
+            fb.style.color = 'var(--a5)';
+            score++;
+            // Конфетти в точку клика
+            var r = btn.getBoundingClientRect();
+            fireConfetti(r.left + r.width / 2, r.top);
+          } else {
+            btn.classList.add('wrong');
+            fb.textContent = '❌ ' + q.explain;
+            fb.style.color = 'var(--red)';
+          }
+          setTimeout(function(){ idx++; render(); }, 1500);
+        });
+      });
+    }
+    render();
+  })();
+
+  /* ============================================================
+     10. ПОДСКАЗКИ В ЗАДАЧАХ
+     ============================================================ */
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-hint]');
+    if (!btn) return;
+    var hint = btn.parentElement.querySelector('.hint');
+    if (!hint) return;
+    hint.classList.toggle('open');
+    btn.textContent = hint.classList.contains('open') ? '🙈 Скрыть подсказку' : '💡 Показать подсказку';
+  });
+
+  /* ============================================================
+     11. ЗВЁЗДЫ + БЕЙДЖ
+     ============================================================ */
+  (function(){
+    var stars = document.querySelectorAll('#pkStars .pk-star');
+    var badge = $('pkBadge');
+    if (!stars.length) return;
+
+    var picked = 0;
+    stars.forEach(function(s, i){
+      s.addEventListener('click', function(){
+        picked = i + 1;
+        stars.forEach(function(x, j){
+          x.classList.toggle('lit', j <= i);
+        });
+        // Бейдж после 5 звёзд
+        if (picked === 5){
+          badge.classList.add('show');
+          showAch('Бейдж «Хранитель Свитков»!', '🏅');
+          addXp(20, 'Оценка урока 5★');
+          // Финальный залп конфетти
+          var w = window.innerWidth, h = window.innerHeight;
+          fireConfetti(w * 0.2, h * 0.5);
+          setTimeout(function(){ fireConfetti(w * 0.8, h * 0.5); }, 200);
+          setTimeout(function(){ fireConfetti(w * 0.5, h * 0.4); }, 400);
+        } else if (picked >= 3){
+          addXp(5, 'Оценка урока');
+        }
+      });
+    });
+  })();
+
+  /* ============================================================
+     12. ФИНАЛЬНАЯ ПРОВЕРКА ПРИ ЗАВЕРШЕНИИ
+     ============================================================ */
+  (function(){
+    var endBlock = document.querySelector('.pk-finale');
+    if (!endBlock) return;
+    var seen = false;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting && !seen){
+          seen = true;
+          addXp(10, 'Дошёл до финала урока');
+          showAch('Урок пройден!', '🎓');
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    io.observe(endBlock);
+  })();
+
+})();
+</script>
+
+</body>
+</html>

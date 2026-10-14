@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Модуль random — урок 14</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 14 · МОДУЛЬ RANDOM · случайные числа
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(58,125,44,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(91,75,196,.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(12,124,134,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#5B4BC4}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+.byte-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.06));
+  border-radius:20px;
+}
+.byte-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(12,124,134,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.byte-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.byte-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.byte-says .bubble b{color:var(--a1)}
+@media(max-width:520px){
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:15.5px/1.75 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .fn2{color:#7FC4FF;font-weight:600}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .imp{color:#FF8FB0;font-weight:800}
+.code-full .indent{
+  background:rgba(91,75,196,.22);
+  border-radius:4px;padding:0 2px;
+  color:#C9B8FF;
+}
+
+.term{
+  margin:18px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:18px 22px;
+  font:16px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+.scene{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:22px;padding:26px;margin:24px 0;
+}
+.scene h4{
+  margin:0 0 8px;font-size:19px;
+  display:flex;align-items:center;gap:10px;
+}
+.scene h4::before{content:"🎯";font-size:22px}
+.scene .hint{margin:0 0 18px;font-size:16px;color:var(--muted);line-height:1.5}
+
+.kid-input{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.kid-input input{
+  flex:1;min-width:150px;padding:16px 18px;
+  font:800 20px var(--font-code);
+  border:4px solid var(--line);border-radius:16px;
+  outline:none;background:var(--card);color:var(--text);
+  text-align:center;transition:.15s;
+}
+.kid-input input:focus{
+  border-color:var(--a1);
+  box-shadow:0 0 0 5px rgba(12,124,134,.15);
+  transform:scale(1.02);
+}
+.kid-input button{
+  padding:16px 24px;font:800 17px var(--font-ui);
+  border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  transition:.15s ease;
+}
+.kid-input button:hover{transform:translateY(-2px) scale(1.03)}
+.kid-input button:active{transform:scale(.98)}
+
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35}
+
+.rules{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:22px 0;
+}
+.rule{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;border-left:6px solid var(--a3);
+  font-size:16.5px;line-height:1.55;
+}
+.rule .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;border-radius:50%;
+  background:var(--a3);color:#fff;
+  font:800 16px var(--font-ui);
+  margin-right:10px;vertical-align:middle;
+}
+
+.print-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.06);
+  font-size:15.5px;
+}
+.print-table th, .print-table td{
+  padding:12px 16px;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.print-table th{
+  background:var(--bg);color:var(--muted);
+  font:700 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.print-table td:first-child{
+  font-family:var(--font-code);font-size:14.5px;color:var(--text);
+}
+.print-table td:first-child code{
+  background:var(--bg);padding:2px 8px;border-radius:6px;
+}
+.print-table td:last-child{
+  font-family:var(--font-code);font-weight:700;color:var(--a3);
+}
+.print-table tr:last-child td{border-bottom:none}
+
+/* ТРИ СПОСОБА ИМПОРТА */
+.import-row{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px;
+  margin:22px 0;
+}
+.import-card{
+  background:var(--card);
+  border:3px solid var(--line);
+  border-radius:18px;
+  padding:20px;
+  transition:.2s ease;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.import-card:hover{transform:translateY(-3px)}
+.import-card.c1{border-color:var(--a1)}
+.import-card.c2{border-color:var(--a3)}
+.import-card.c3{border-color:var(--a2)}
+.import-card .num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--bg);
+  font:800 16px var(--font-code);
+}
+.import-card.c1 .num{color:var(--a1);background:rgba(12,124,134,.12)}
+.import-card.c2 .num{color:var(--a3);background:rgba(91,75,196,.12)}
+.import-card.c3 .num{color:var(--a2);background:rgba(185,102,10,.12)}
+.import-card .ttl{
+  font:800 16px var(--font-ui);
+}
+.import-card.c1 .ttl{color:var(--a1)}
+.import-card.c2 .ttl{color:var(--a3)}
+.import-card.c3 .ttl{color:var(--a2)}
+.import-card pre{
+  margin:0;padding:12px 14px;font-size:13px;
+  background:#0F1A30;color:#E8EEF8;
+  border-radius:10px;font-family:var(--font-code);
+  overflow-x:auto;white-space:pre;line-height:1.65;
+}
+.import-card .note{
+  font-size:14.5px;color:var(--muted);line-height:1.55;
+}
+
+/* ВИЗУАЛЬНЫЙ ДИАПАЗОН */
+.range-viz{
+  display:flex;flex-direction:column;gap:14px;
+  background:var(--bg);border-radius:18px;
+  padding:24px;margin:22px 0;
+}
+.range-line{
+  display:flex;align-items:center;gap:10px;
+  flex-wrap:wrap;
+}
+.range-line .lbl{
+  font:800 13px var(--font-code);
+  color:var(--muted);min-width:100px;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+.range-cells{
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.range-cell{
+  padding:8px 14px;
+  background:var(--card);
+  border:2px solid var(--line);
+  border-radius:10px;
+  font:800 16px var(--font-code);
+  color:var(--text);
+  transition:.25s ease;
+  min-width:44px;text-align:center;
+}
+.range-cell.hit{
+  background:linear-gradient(180deg,#B5E7A0,#8FD97C);
+  color:#2E4A1F;border-color:#3A7D2C;
+  transform:scale(1.06);
+  box-shadow:0 6px 14px rgba(58,125,44,.25);
+}
+.range-cell.miss{
+  background:var(--bg);color:var(--muted);
+  border-color:var(--line);opacity:.6;
+}
+
+/* БАРАБАН */
+.drum{
+  display:flex;gap:12px;justify-content:center;
+  margin:26px 0;
+  perspective:800px;
+}
+.drum-box{
+  width:90px;height:110px;
+  border-radius:16px;
+  background:linear-gradient(180deg,var(--card),var(--bg));
+  border:3px solid var(--a3);
+  display:flex;align-items:center;justify-content:center;
+  font:800 48px var(--font-code);
+  color:var(--a3);
+  transition:.15s ease;
+  box-shadow:0 10px 24px rgba(91,75,196,.15);
+}
+.drum-box.spinning{
+  animation:spin .5s linear infinite;
+}
+@keyframes spin{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+
+.kquiz{margin-top:8px}
+.kquiz .q{
+  background:var(--card);border-radius:16px;
+  padding:18px;margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+}
+.kquiz .q .qnum{
+  font:800 11px var(--font-code);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.kquiz .q .qtext{font:700 17px var(--font-ui);margin:6px 0 12px;line-height:1.45}
+.kquiz .q pre{
+  margin:0 0 12px;padding:12px;font-size:13.5px;
+  background:#0F1A30;border-radius:10px;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;
+}
+.kquiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kquiz .opt{
+  padding:12px 14px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);transition:.15s ease;
+}
+.kquiz .opt:hover:not(:disabled){border-color:var(--a3)}
+.kquiz .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.kquiz .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.kquiz .opt:disabled{cursor:default;opacity:.9}
+.kquiz .fb{margin-top:8px;font-weight:700;font-size:14.5px;min-height:20px}
+.kquiz .fb.ok{color:var(--a5)}
+.kquiz .fb.no{color:var(--red)}
+.kquiz .score{text-align:center;margin-top:14px;font:800 16px var(--font-ui);color:var(--a3)}
+
+.tasks-wrap{margin:56px 0 40px}
+.tasks-intro{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-left:6px solid var(--a1);border-radius:16px;
+  padding:20px 24px;margin:20px 0 26px;
+  font-size:17px;line-height:1.6;
+}
+.tasks-intro b{color:var(--a1)}
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:16px;margin-top:22px;
+}
+.play-task{
+  background:var(--card);border-radius:18px;padding:20px;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  display:flex;flex-direction:column;gap:12px;
+  border-left:5px solid var(--a3);transition:.18s ease;
+}
+.play-task:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(23,32,51,.14)}
+.play-task .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play-task .task-num{
+  font:800 12px var(--font-code);color:#fff;background:var(--a3);
+  padding:4px 10px;border-radius:8px;letter-spacing:.04em;
+}
+.play-task .task-title{font:800 16px var(--font-ui);flex:1;min-width:120px}
+.play-task .task-stars{font-size:13px;letter-spacing:2px}
+.play-task .task-desc{margin:0;font-size:14.5px;line-height:1.55;color:var(--text)}
+.play-task .task-desc code{
+  font:600 12.5px var(--font-code);
+  background:var(--bg);padding:1px 6px;border-radius:4px;
+}
+.btn-play{
+  align-self:flex-start;padding:11px 18px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;font:800 14px var(--font-ui);cursor:pointer;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+  transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(91,75,196,.45)}
+.play-task details{
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);overflow:hidden;font-size:14px;
+}
+.play-task details summary{
+  cursor:pointer;padding:10px 12px;list-style:none;
+  font-weight:700;color:var(--text);
+}
+.play-task details summary::-webkit-details-marker{display:none}
+.play-task details summary::before{
+  content:"▸ ";color:var(--a3);font-size:11px;
+  display:inline-block;transition:.2s;
+}
+.play-task details[open] summary::before{transform:rotate(90deg)}
+.play-task details[open] summary{
+  background:rgba(91,75,196,.1);color:var(--a3);
+  border-bottom:1px solid var(--line);
+}
+.play-task details pre{
+  margin:0;padding:12px;font-size:12.5px;
+  background:#0F1A30;border-radius:0;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;line-height:1.55;
+}
+.play-task details p{margin:8px 12px;color:var(--muted)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#B5E7A0,#C9B8FF 50%,#FFD98E);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🎲";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#2E4A1F}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#2E4A1F;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#3A7D2C,#0C7C86);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(58,125,44,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#5B4BC4,#B8325A)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .kquiz .opts{grid-template-columns:1fr}
+  .code-full{font-size:13px;padding:16px}
+  .print-table{font-size:13.5px}
+  .print-table th, .print-table td{padding:10px 12px}
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px}
+  .drum-box{width:64px;height:80px;font-size:36px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>🎲</span>
+    <span>🏊</span>
+    <span>🤖</span>
+  </div>
+  <h1>Случайный выбор</h1>
+  <p class="lead">
+    Компания «Go Ahead!» организует спортивные мероприятия. Ей нужна
+    программа для <b>жеребьёвки команд</b>: кто с кем встретится
+    в отборочном матче. Случайно — и без подтасовок. Сегодня Байт
+    узнает, что в Python для этого есть целый отдельный модуль.
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>📚 Стандартная библиотека</span>
+    <span>🎲 Модуль random</span>
+    <span>🏊 Задачи «Go Ahead!»</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>💭</span>
+      <span>📚</span>
+      <span>📦</span>
+      <span>🎲</span>
+      <span>🏊</span>
+      <span>🏁</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- ПЛАН -->
+<!-- ============================================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–6 мин</span>
+    <span class="icon">💭</span>
+    <div class="ttl">Заказ «Go Ahead!»</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">6–13 мин</span>
+    <span class="icon">📚</span>
+    <div class="ttl">Стандартная библиотека</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">13–20 мин</span>
+    <span class="icon">📦</span>
+    <div class="ttl">Три способа импорта</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">20–28 мин</span>
+    <span class="icon">🎲</span>
+    <div class="ttl">randint и random</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">28–40 мин</span>
+    <span class="icon">🏊</span>
+    <div class="ttl">Задачи спортивной компании</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">40–45 мин</span>
+    <span class="icon">🏁</span>
+    <div class="ttl">Итог и квиз</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ШАГ 1 · ЗАКАЗ -->
+<!-- ============================================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–6 минут · 💭 Новый заказ</span>
+  <h2>Жеребьёвка команд по водному поло</h2>
+  <p class="sub">
+    В ProTeam обратилась компания «Go Ahead!» — она организует
+    спортивные мероприятия. Заказчик просит программу для
+    <b>случайного распределения</b> команд по парам.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      В соревнованиях по водному поло участвуют, например,
+      <b>11 команд</b>. Нужно случайно выбрать пару номеров:
+      «Команда 7 — команда 4». Как это сделать? Я пока
+      умею только спрашивать и печатать — но не придумывать
+      случайные числа.
+    </div>
+  </div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что должна вывести программа</em></div>
+    <pre class="term-body"><span class="dim">Число участвующих команд: </span><span class="hl">11</span>
+Команда <span class="ok">7</span> — команда <span class="ok">4</span>
+
+<span class="dim">Число участвующих команд: </span><span class="hl">9</span>
+Команда <span class="ok">5</span> — команда <span class="ok">1</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">💭 Задача</div>
+    <p>
+      Программа спрашивает число команд <b>N</b> и печатает два
+      случайных номера <b>от 1 до N</b>. Даже если выпадет одинаковый
+      номер — это нормально: судья просто запустит программу ещё раз.
+    </p>
+    <p>
+      Но как получить «случайное число»? Откуда компьютер его берёт?
+    </p>
+  </div>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      У меня есть подозрение, что в Python это уже придумано.
+      Помните, мы обсуждали <b>стандартную библиотеку</b>?
+      Кажется, там должны быть готовые инструменты для случайных чисел.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 2 · СТАНДАРТНАЯ БИБЛИОТЕКА -->
+<!-- ============================================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 6–13 минут · 📚 Стандартная библиотека</span>
+  <h2>Что такое стандартная библиотека</h2>
+  <p class="sub">
+    В Python много команд: одни — встроенные, другие лежат в отдельных
+    файлах. Разберёмся, как они устроены.
+  </p>
+
+  <div class="def-card">
+    <div class="term">Стандартная библиотека Python</div>
+    <div class="def">
+      Это <b>набор готовых модулей</b>, которые идут вместе с языком.
+      Каждый модуль — отдельный файл с командами для определённой
+      темы: работа со случайными числами, временем, графикой и т.д.
+    </div>
+    <div class="ex">
+      Модуль <code>random</code> — для случайных чисел.<br>
+      Модуль <code>time</code> — для работы со временем.<br>
+      Модуль <code>turtle</code> — для графики.
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="ttl">📖 Почему всё не лежит «в одном месте»</div>
+    <p>
+      <b>Простые</b> команды (например, <code>print()</code>,
+      <code>input()</code>, <code>len()</code>) интерпретатор
+      знает сразу — они всегда под рукой.
+    </p>
+    <p>
+      А <b>сложные и редкие</b> команды хранятся в отдельных
+      файлах-модулях. Чтобы ими пользоваться, модуль нужно
+      сначала <b>подключить</b> к программе.
+    </p>
+    <p>
+      Так делают почти во всех языках программирования —
+      чтобы программа оставалась быстрой и не тащила за собой
+      всё сразу.
+    </p>
+  </div>
+
+  <h3>Кто где живёт</h3>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Модуль</th><th>Что делает</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>random</td><td>случайные числа</td></tr>
+      <tr><td>time</td><td>время, паузы, секундомеры</td></tr>
+      <tr><td>turtle</td><td>рисование черепахой</td></tr>
+      <tr><td>math</td><td>математические функции</td></tr>
+      <tr><td>os</td><td>взаимодействие с системой</td></tr>
+    </tbody>
+  </table>
+
+  <div class="def-card">
+    <div class="term">Модуль</div>
+    <div class="def">
+      Это <b>отдельный файл</b> библиотеки с командами на общую тему.
+      Чтобы пользоваться командами модуля, его нужно
+      <b>импортировать</b> в программу.
+    </div>
+    <div class="ex">
+      <code>import random</code> — подключить модуль случайных чисел.
+    </div>
+  </div>
+
+  <!-- Интерактив -->
+  <div class="scene">
+    <h4>Встроенное или из модуля?</h4>
+    <p class="hint">
+      Посмотри на команду и реши: она встроенная или её надо
+      импортировать из модуля?
+    </p>
+
+    <div id="g1task" style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
+      <div style="font:800 26px var(--font-code);color:var(--a3);line-height:1.4" id="g1code">print()</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button type="button" class="yn-btn" data-v="builtin" style="padding:16px;border:3px solid var(--a1);background:linear-gradient(180deg,rgba(12,124,134,.12),rgba(12,124,134,.03));border-radius:14px;cursor:pointer;font:800 15px var(--font-ui);color:var(--a1)">⚡ Встроенная</button>
+      <button type="button" class="yn-btn" data-v="module" style="padding:16px;border:3px solid var(--a3);background:linear-gradient(180deg,rgba(91,75,196,.12),rgba(91,75,196,.03));border-radius:14px;cursor:pointer;font:800 15px var(--font-ui);color:var(--a3)">📦 Из модуля</button>
+    </div>
+    <div id="g1msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g1score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 3 · ТРИ СПОСОБА ИМПОРТА -->
+<!-- ============================================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 13–20 минут · 📦 Импорт</span>
+  <h2>Три способа подключить модуль</h2>
+  <p class="sub">
+    Модуль можно подключить по-разному. У каждого способа свои
+    особенности — разберём все три на примере модуля
+    <code>random</code>.
+  </p>
+
+  <div class="import-row">
+    <div class="import-card c1">
+      <div class="num">1</div>
+      <div class="ttl">Подключить модуль целиком</div>
+      <pre>import random
+
+number = random.randint(0, 9)</pre>
+      <div class="note">
+        <b>Плюс:</b> сразу понятно, откуда команда.<br>
+        <b>Минус:</b> каждый раз нужно писать <code>random.</code>
+      </div>
+    </div>
+
+    <div class="import-card c2">
+      <div class="num">2</div>
+      <div class="ttl">Подключить одну функцию</div>
+      <pre>from random import randint
+
+number = randint(0, 9)</pre>
+      <div class="note">
+        <b>Плюс:</b> короче, не нужно префикса.<br>
+        <b>Минус:</b> если функций много — придётся перечислить их все.
+      </div>
+    </div>
+
+    <div class="import-card c3">
+      <div class="num">3</div>
+      <div class="ttl">Подключить всё подряд</div>
+      <pre>from random import *
+
+number = randint(0, 9)</pre>
+      <div class="note">
+        <b>Плюс:</b> очень коротко.<br>
+        <b>Минус:</b> имена могут конфликтовать — лучше избегать.
+      </div>
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Как выбрать</div>
+    <p>
+      <b>Для учебного кода</b> удобно использовать
+      <code>from random import randint</code> — коротко и понятно.
+    </p>
+    <p>
+      <b>В больших проектах</b> предпочитают <code>import random</code> —
+      так всегда видно, откуда пришла команда.
+    </p>
+    <p>
+      <b>Третий способ</b> (<code>import *</code>) почти не используют:
+      слишком легко запутаться.
+    </p>
+  </div>
+
+  <h3>Импорт обычно пишется в самом начале</h3>
+
+  <div class="code-full"><span class="imp">from random import randint</span>   <span class="cm"># ← первой строкой</span>
+
+number = <span class="fn2">randint</span>(<span class="num">1</span>, <span class="num">6</span>)
+<span class="fn">print</span>(number)</div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Куда ставить import</div>
+    <p>
+      Импорт ставят <b>в самом начале файла</b>, до других команд.
+      Так проще увидеть, какие модули использует программа.
+    </p>
+  </div>
+
+  <!-- Интерактив -->
+  <div class="scene">
+    <h4>Как правильно вызвать?</h4>
+    <p class="hint">
+      Дан импорт. Напиши, что нужно вызвать, чтобы получить
+      случайное число от 1 до 10.
+    </p>
+
+    <div id="g2task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 14px var(--font-code);line-height:1.75;color:var(--text);white-space:pre-wrap" id="g2code"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g2answer" placeholder="Что написать?" style="text-align:center">
+      <button type="button" id="g2btn">Проверить</button>
+    </div>
+    <div id="g2msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g2score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 4 · RANDINT И RANDOM -->
+<!-- ============================================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 20–28 минут · 🎲 Функции модуля</span>
+  <h2>Две главные функции модуля random</h2>
+  <p class="sub">
+    В модуле random много функций, но нам сейчас понадобятся
+    две.
+  </p>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Функция</th><th>Что делает</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>randint(a, b)</code></td>
+        <td>Случайное целое число от a до b включительно</td>
+      </tr>
+      <tr>
+        <td><code>random()</code></td>
+        <td>Случайное дробное от 0 (включительно) до 1 (не включительно)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>randint(a, b) — целое число</h3>
+
+  <p>
+    Возвращает целое число в диапазоне от <b>a</b> до <b>b</b>
+    включительно. Обе границы входят!
+  </p>
+
+  <div class="range-viz">
+    <div class="range-line">
+      <div class="lbl">randint(1, 6)</div>
+      <div class="range-cells">
+        <div class="range-cell hit">1</div>
+        <div class="range-cell hit">2</div>
+        <div class="range-cell hit">3</div>
+        <div class="range-cell hit">4</div>
+        <div class="range-cell hit">5</div>
+        <div class="range-cell hit">6</div>
+        <div class="range-cell miss">7</div>
+      </div>
+    </div>
+    <div class="range-line">
+      <div class="lbl">randint(10, 13)</div>
+      <div class="range-cells">
+        <div class="range-cell hit">10</div>
+        <div class="range-cell hit">11</div>
+        <div class="range-cell hit">12</div>
+        <div class="range-cell hit">13</div>
+        <div class="range-cell miss">14</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-full"><span class="imp">from random import randint</span>
+
+lottery = <span class="fn2">randint</span>(<span class="num">1000</span>, <span class="num">9999</span>)
+<span class="fn">print</span>(lottery)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Один из возможных результатов</em></div>
+    <pre class="term-body"><span class="ok">8307</span></pre>
+  </div>
+
+  <p>
+    Каждый раз, когда ты запускаешь программу, число будет
+    разным. Так и работает «случайность».
+  </p>
+
+  <h3>Случайные числа в деле</h3>
+
+  <p>Попробуй — нажимай кнопку и смотри, что выпадет:</p>
+
+  <div class="scene">
+    <h4>Кубик</h4>
+    <p class="hint">
+      Настоящий кубик: числа от 1 до 6.
+    </p>
+    <div class="drum">
+      <div class="drum-box" id="diceBox">?</div>
+    </div>
+    <div style="text-align:center">
+      <button type="button" id="rollBtn" style="padding:14px 28px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--a1),var(--a3));color:#fff;font:800 17px var(--font-ui);cursor:pointer;box-shadow:0 8px 20px rgba(91,75,196,.3)">
+        🎲 Бросить кубик
+      </button>
+    </div>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Правая граница ВХОДИТ</div>
+    <p>
+      В <code>randint(1, 6)</code> могут выпасть <b>все шесть</b> чисел:
+      1, 2, 3, 4, 5 и 6. Оба конца входят.
+    </p>
+    <p>
+      Это отличается от <code>range(1, 6)</code> из прошлых уроков,
+      где правая граница <i>не входит</i>. Будь внимателен!
+    </p>
+  </div>
+
+  <h3>random() — дробное от 0 до 1</h3>
+
+  <p>
+    Вторая полезная функция. Она возвращает <b>дробное</b> число —
+    от 0 (включительно) до 1 (не включительно).
+  </p>
+
+  <div class="code-full"><span class="imp">import random</span>
+
+x = random.<span class="fn2">random</span>()
+<span class="fn">print</span>(x)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Примеры</em></div>
+    <pre class="term-body"><span class="ok">0.4728391</span>
+<span class="ok">0.9140226</span>
+<span class="ok">0.0385011</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Где пригодится</div>
+    <p>
+      Может показаться, что это бесполезно: всегда какое-то
+      число от 0 до 1. Но на самом деле так генерируют любые
+      случайные величины — просто умножают на нужное число.
+    </p>
+    <p>
+      Например, <code>random() * 100</code> даст случайное число
+      от 0 до 100. А <code>randint(1, 100)</code> — целое
+      в том же диапазоне.
+    </p>
+  </div>
+
+  <!-- Интерактив -->
+  <div class="scene">
+    <h4>Какие числа могут выпасть?</h4>
+    <p class="hint">
+      Посмотри на вызов randint и напиши через пробел все числа,
+      которые могут выпасть.
+    </p>
+
+    <div id="g3task" style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
+      <div style="font:800 24px var(--font-code);color:var(--a3);line-height:1.4" id="g3code">randint(3, 6)</div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g3answer" placeholder="Числа через пробел" style="text-align:center">
+      <button type="button" id="g3btn">Проверить</button>
+    </div>
+    <div id="g3msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g3score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 5 · ЗАДАЧИ «GO AHEAD!» -->
+<!-- ============================================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 28–40 минут · 🏊 Задачи заказчика</span>
+  <h2>Решаем задачи «Go Ahead!»</h2>
+  <p class="sub">
+    Теперь у Байта есть все инструменты, чтобы справиться
+    с заказом. Разберём две задачи спортивной компании.
+  </p>
+
+  <h3>Задача 1. Жеребьёвка команд по водному поло</h3>
+
+  <p>
+    Программа спрашивает число команд <b>N</b> и печатает
+    случайную пару номеров от 1 до N.
+  </p>
+
+  <div class="code-full"><span class="imp">from random import randint</span>
+
+total = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Число участвующих команд: '</span>))
+
+participant_1 = <span class="fn2">randint</span>(<span class="num">1</span>, total)
+participant_2 = <span class="fn2">randint</span>(<span class="num">1</span>, total)
+
+<span class="fn">print</span>(<span class="str">'Команда'</span>, participant_1, <span class="str">'— команда'</span>, participant_2)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Число участвующих команд: </span><span class="hl">11</span>
+Команда <span class="ok">7</span> — команда <span class="ok">4</span>
+
+<span class="dim">Число участвующих команд: </span><span class="hl">9</span>
+Команда <span class="ok">5</span> — команда <span class="ok">1</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Разбор</div>
+    <p>
+      <b>1.</b> Спрашиваем число команд — граница диапазона.<br>
+      <b>2.</b> Дважды вызываем <code>randint(1, total)</code> —
+      получаем два случайных номера.<br>
+      <b>3.</b> Печатаем их как пару.
+    </p>
+    <p>
+      Если выпадут одинаковые числа — это нормально: судья
+      просто запустит программу ещё раз.
+    </p>
+  </div>
+
+  <h3>Задача 2. Распределение футболистов по командам</h3>
+
+  <p>
+    Тренер вводит имена спортсменов по одному. Программа
+    случайно отправляет каждого в команду 1 или в команду 2.
+  </p>
+
+  <div class="code-full"><span class="imp">from random import randint</span>
+
+name = <span class="fn">input</span>(<span class="str">'Имя спортсмена (off — завершить): '</span>)
+
+<span class="kw">while</span> name != <span class="str">'off'</span>:
+    team = <span class="fn2">randint</span>(<span class="num">1</span>, <span class="num">2</span>)
+    <span class="fn">print</span>(name, <span class="str">', команда'</span>, team)
+    name = <span class="fn">input</span>(<span class="str">'Имя спортсмена (off — завершить): '</span>)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="dim">Имя спортсмена (off — завершить): </span><span class="hl">Катя</span>
+Катя , команда <span class="ok">2</span>
+<span class="dim">Имя спортсмена (off — завершить): </span><span class="hl">Лера</span>
+Лера , команда <span class="ok">1</span>
+<span class="dim">Имя спортсмена (off — завершить): </span><span class="hl">Василиса</span>
+Василиса , команда <span class="ok">1</span>
+<span class="dim">Имя спортсмена (off — завершить): </span><span class="hl">Полина</span>
+Полина , команда <span class="ok">2</span>
+<span class="dim">Имя спортсмена (off — завершить): </span><span class="hl">off</span></pre>
+  </div>
+
+  <p>
+    Программа может отправить всех в одну команду — равное
+    количество обеспечивает тренер, а не программа.
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Знакомая структура</div>
+    <p>
+      Это та же конструкция, что мы использовали для промокодов
+      и отзывов: спрашиваем до тех пор, пока не введут «off».
+    </p>
+    <p>
+      Только теперь внутри цикла не проверка, а <b>случайный
+      выбор команды</b> для каждого имени.
+    </p>
+  </div>
+
+  <h3>Сравним два решения</h3>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Задача</th><th>Что спрашиваем</th><th>Что генерируем</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Жеребьёвка</td>
+        <td>Число команд N</td>
+        <td>Два номера <code>randint(1, N)</code></td>
+      </tr>
+      <tr>
+        <td>Футболисты</td>
+        <td>Имена по одному</td>
+        <td>Один номер команды <code>randint(1, 2)</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="explain warn">
+    <div class="ttl">💡 Что общего и что разное</div>
+    <p>
+      <b>Общее:</b> в обоих случаях используем
+      <code>randint()</code> — только с разными границами.
+    </p>
+    <p>
+      <b>Разное:</b> в первой задаче вызываем функцию ровно
+      два раза, во второй — по разу для каждого спортсмена,
+      внутри цикла <code>while</code>.
+    </p>
+  </div>
+
+  <!-- Интерактив -->
+  <div class="scene">
+    <h4>Что напечатает программа?</h4>
+    <p class="hint">
+      Посмотри на ввод и определи, сколько строк напечатает
+      программа. Пиши количество.
+    </p>
+
+    <div id="g4task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.75;color:var(--text);white-space:pre-wrap" id="g4code"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font:700 13.5px var(--font-code);color:var(--muted)" id="g4input"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="number" id="g4answer" placeholder="Сколько строк?" style="text-align:center">
+      <button type="button" id="g4btn">Проверить</button>
+    </div>
+    <div id="g4msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g4score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 6 · ИТОГ И КВИЗ -->
+<!-- ============================================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 40–45 минут · 🏁 Итог</span>
+  <h2>Проверь себя</h2>
+  <p class="sub">
+    Семь вопросов по всему уроку. Счёт появится внизу.
+  </p>
+
+  <div class="kquiz" id="kquiz">
+
+    <div class="q">
+      <div class="qnum">Вопрос 1</div>
+      <div class="qtext">Что такое стандартная библиотека Python?</div>
+      <div class="opts">
+        <button type="button" class="opt">Список команд в коде</button>
+        <button type="button" class="opt" data-correct="true">Набор готовых модулей, идущих с языком</button>
+        <button type="button" class="opt">Список всех переменных</button>
+        <button type="button" class="opt">Правила оформления кода</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 2</div>
+      <div class="qtext">Что такое модуль?</div>
+      <div class="opts">
+        <button type="button" class="opt">Отдельная команда языка</button>
+        <button type="button" class="opt" data-correct="true">Отдельный файл с командами по одной теме</button>
+        <button type="button" class="opt">Список функций пользователя</button>
+        <button type="button" class="opt">Тип данных</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 3</div>
+      <div class="qtext">Как подключить только функцию <code>randint</code> из модуля?</div>
+      <div class="opts">
+        <button type="button" class="opt"><code>import randint</code></button>
+        <button type="button" class="opt" data-correct="true"><code>from random import randint</code></button>
+        <button type="button" class="opt"><code>import random as randint</code></button>
+        <button type="button" class="opt"><code>from randint import random</code></button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 4</div>
+      <div class="qtext">Какие числа могут выпасть в <code>randint(2, 5)</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">2 3 4</button>
+        <button type="button" class="opt" data-correct="true">2 3 4 5</button>
+        <button type="button" class="opt">2 3 4 5 6</button>
+        <button type="button" class="opt">3 4 5</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 5</div>
+      <div class="qtext">Что делает <code>random()</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Целое число от 0 до 100</button>
+        <button type="button" class="opt" data-correct="true">Дробное число от 0 (включительно) до 1 (не включительно)</button>
+        <button type="button" class="opt">Любое целое число</button>
+        <button type="button" class="opt">Логическое True или False</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 6</div>
+      <div class="qtext">Что напечатает программа?</div>
+      <pre>from random import randint
+x = randint(1, 3)
+print(x)</pre>
+      <div class="opts">
+        <button type="button" class="opt">Всегда 1</button>
+        <button type="button" class="opt">Всегда 3</button>
+        <button type="button" class="opt" data-correct="true">Случайное: 1, 2 или 3</button>
+        <button type="button" class="opt">Ошибка</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 7</div>
+      <div class="qtext">Где принято ставить <code>import</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">В конце программы</button>
+        <button type="button" class="opt" data-correct="true">В самом начале, до других команд</button>
+        <button type="button" class="opt">Внутри функции</button>
+        <button type="button" class="opt">Где угодно</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score" id="kquizScore">Счёт: 0 из 7</div>
+  </div>
+
+  <div class="explain memo" style="margin-top:24px">
+    <div class="ttl">🎓 Что ты теперь знаешь</div>
+    <p>
+      <b>1.</b> Что такое стандартная библиотека и модуль.<br>
+      <b>2.</b> Три способа импорта модуля.<br>
+      <b>3.</b> Что <code>randint(a, b)</code> возвращает целое
+      число от a до b включительно.<br>
+      <b>4.</b> Что <code>random()</code> возвращает дробное
+      число от 0 до 1.<br>
+      <b>5.</b> Что импорт пишут в начале программы.<br>
+      <b>6.</b> Как использовать случайные числа в реальных задачах.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ИТОГОВЫЕ ЗАДАНИЯ -->
+<!-- ============================================================ -->
+<section class="tasks-wrap">
+
+  <span class="badge" style="background:linear-gradient(135deg,#0C7C86,#5B4BC4);color:#fff;padding:8px 18px;border-radius:99px;font:800 14px var(--font-ui);display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(12,124,134,.3)">
+    🏁 После урока · практика
+  </span>
+
+  <h2 style="margin:20px 0 8px;font-size:clamp(26px,3.6vw,34px);line-height:1.15">
+    Итоговые задания в Playground
+  </h2>
+  <p style="color:var(--muted);font-size:17px;margin:0">
+    Восемь задач на модуль random. Нажми «Открыть в Playground» —
+    стартовый код подставится сам.
+  </p>
+
+  <div class="tasks-intro">
+    <b>Как работать.</b> Каждая задача начинается с импорта модуля.
+    Не забудь: <code>import</code> — первой строкой.
+  </div>
+
+  <div class="tasks-grid">
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">01</span>
+        <span class="task-title">Случайный кубик</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Импортируй <code>randint</code> и выведи случайное число
+        от 1 до 6.
+      </p>
+      <button class="btn-play" data-task="1">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Импорт: <code>from random import randint</code>.
+        Вызов: <code>randint(1, 6)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from random import randint
+
+dice = randint(1, 6)
+print(dice)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">02</span>
+        <span class="task-title">Три броска</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Выведи три случайных кубика подряд.
+      </p>
+      <button class="btn-play" data-task="2">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Три вызова <code>randint(1, 6)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from random import randint
+
+print(randint(1, 6))
+print(randint(1, 6))
+print(randint(1, 6))</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">03</span>
+        <span class="task-title">Лотерейный билет</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Сгенерируй случайное четырёхзначное число (от 1000 до 9999)
+        и напечатай его.
+      </p>
+      <button class="btn-play" data-task="3">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Границы: 1000 и 9999.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from random import randint
+
+lottery = randint(1000, 9999)
+print("Ваш номер:", lottery)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">04</span>
+        <span class="task-title">Жеребьёвка</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спроси число команд и выведи случайную пару номеров
+        от 1 до N.
+      </p>
+      <button class="btn-play" data-task="4">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Два вызова <code>randint(1, total)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from random import randint
+
+total = int(input("Число команд: "))
+first = randint(1, total)
+second = randint(1, total)
+print("Команда", first, "— команда", second)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">05</span>
+        <span class="task-title">Распределение по командам</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Спрашивай имена спортсменов, пока не введут «off».
+        Каждому выпадает команда 1 или 2.
+      </p>
+      <button class="btn-play" data-task="5">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Внутри цикла <code>team = randint(1, 2)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from random import randint
+
+name = input("Имя спортсмена (off — стоп): ")
+while name != "off":
+    team = randint(1, 2)
+    print(name, ", команда", team)
+    name = input("Имя спортсмена (off — стоп): ")</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">06</span>
+        <span class="task-title">Случайный комплимент</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Выбери одну из трёх фраз случайно:
+        «Ты молодец!», «Отличная работа!», «Так держать!»
+      </p>
+      <button class="btn-play" data-task="6">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Сгенерируй <code>randint(1, 3)</code> и через
+        <code>if/elif/else</code> выбери фразу.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from random import randint
+
+n = randint(1, 3)
+if n == 1:
+    print("Ты молодец!")
+elif n == 2:
+    print("Отличная работа!")
+else:
+    print("Так держать!")</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">07</span>
+        <span class="task-title">Своя программа</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Придумай свою программу с использованием случайных
+        чисел. Например, игра «Камень-ножницы-бумага» или
+        случайный прогноз погоды.
+      </p>
+      <button class="btn-play" data-task="7">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Комбинируй random с условиями и циклами.</p>
+      </details>
+      <details>
+        <summary>✅ Решение (камень-ножницы-бумага)</summary>
+        <pre>from random import randint
+
+variants = ["камень", "ножницы", "бумага"]
+print("1 — камень, 2 — ножницы, 3 — бумага")
+player = int(input("Ваш выбор: "))
+comp = randint(1, 3)
+print("Компьютер выбрал:", variants[comp - 1])
+if player == comp:
+    print("Ничья!")
+elif (player == 1 and comp == 2) or (player == 2 and comp == 3) or (player == 3 and comp == 1):
+    print("Вы победили!")
+else:
+    print("Компьютер победил!")</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">08</span>
+        <span class="task-title">Найди и исправь</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        В коде ошибка: импорт стоит после вызова функции, и вызывается
+        <code>random.randint</code> без импорта. Исправь.
+      </p>
+      <button class="btn-play" data-task="8">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Импорт должен быть первой строкой. Если используешь
+        <code>randint()</code> — импортируй именно его.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from random import randint
+
+n = randint(1, 100)
+print(n)</pre>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- Стартовый код для Playground -->
+<div id="starters" hidden>
+  <template data-task="1"># Импортируй randint и брось кубик от 1 до 6
+
+</template>
+  <template data-task="2"># Три случайных кубика подряд
+
+</template>
+  <template data-task="3"># Четырёхзначный лотерейный номер (1000—9999)
+
+</template>
+  <template data-task="4"># Жеребьёвка: спроси число команд и выведи пару
+total = int(input("Число команд: "))
+
+</template>
+  <template data-task="5"># Распределение спортсменов по 2 командам
+name = input("Имя спортсмена (off — стоп): ")
+
+</template>
+  <template data-task="6"># Случайный комплимент из трёх вариантов
+n = ...  # сгенерируй 1, 2 или 3
+
+</template>
+  <template data-task="7"># Своя программа со случайными числами
+
+</template>
+  <template data-task="8"># Ошибка: импорт после вызова. Исправь.
+n = random.randint(1, 100)
+print(n)
+
+import random
+</template>
+</div>
+
+<!-- ============================================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🎉</span>
+  <h2>Жеребьёвка работает!</h2>
+  <p>
+    Ты научил Байта пользоваться стандартной библиотекой Python:
+    подключать модуль <code>random</code>, вызывать
+    <code>randint()</code> и <code>random()</code>. Теперь
+    программа умеет выбирать случайные числа — а это целый
+    мир возможностей. На следующем уроке — модуль <b>time</b>:
+    научимся делать паузы и считать время.
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+  <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="lesson-15-time.html">
+      Следующий урок: Модуль time →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 14 · Модуль random · 🏊 «Go Ahead!» · 🎲 стандартная библиотека
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 1: встроенная или из модуля
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g1code');
+  if (!codeEl) return;
+  var btns = document.querySelectorAll('.yn-btn');
+  var msg = document.getElementById('g1msg');
+  var scoreEl = document.getElementById('g1score');
+
+  var tasks = [
+    { code: 'print()', v: 'builtin' },
+    { code: 'input()', v: 'builtin' },
+    { code: 'len()', v: 'builtin' },
+    { code: 'randint()', v: 'module' },
+    { code: 'int()', v: 'builtin' },
+    { code: 'random()', v: 'module' }
+  ];
+  var i = 0, score = 0, answered = 0;
+  var locked = false;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      btns.forEach(function(b){ b.disabled = true; b.style.opacity = '.5'; });
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    msg.textContent = '';
+    btns.forEach(function(b){ b.disabled = false; b.style.opacity = '1'; });
+    locked = false;
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      if (locked) return;
+      locked = true;
+      var ok = b.dataset.v === tasks[i].v;
+      answered++;
+      if (ok){
+        score++;
+        msg.textContent = '✅ Верно!';
+        msg.style.color = 'var(--a5)';
+      } else {
+        msg.textContent = '❌ Правильный ответ: ' + (tasks[i].v === 'builtin' ? 'встроенная' : 'из модуля');
+        msg.style.color = 'var(--red)';
+      }
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+      setTimeout(function(){ i++; render(); }, 900);
+    });
+  });
+
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 2: как правильно вызвать
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g2code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g2answer');
+  var btn = document.getElementById('g2btn');
+  var msg = document.getElementById('g2msg');
+  var scoreEl = document.getElementById('g2score');
+
+  var tasks = [
+    {
+      code: 'import random',
+      answer: 'random.randint(1, 10)'
+    },
+    {
+      code: 'from random import randint',
+      answer: 'randint(1, 10)'
+    },
+    {
+      code: 'from random import *',
+      answer: 'randint(1, 10)'
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function norm(s){
+    return s.replace(/\s+/g, '').toLowerCase();
+  }
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = norm(ansEl.value);
+    var correct = norm(tasks[i].answer);
+    answered++;
+    if (user === correct){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1100);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 3: диапазон randint
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g3code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g3answer');
+  var btn = document.getElementById('g3btn');
+  var msg = document.getElementById('g3msg');
+  var scoreEl = document.getElementById('g3score');
+
+  var tasks = [
+    { code: 'randint(3, 6)', answer: '3 4 5 6' },
+    { code: 'randint(1, 4)', answer: '1 2 3 4' },
+    { code: 'randint(5, 7)', answer: '5 6 7' },
+    { code: 'randint(2, 2)', answer: '2' },
+    { code: 'randint(0, 3)', answer: '0 1 2 3' }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function norm(s){
+    return s.replace(/\s+/g, ' ').trim();
+  }
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = norm(ansEl.value);
+    var correct = norm(tasks[i].answer);
+    answered++;
+    if (user === correct){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1000);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   КУБИК
+   ============================================================ */
+(function(){
+  var box = document.getElementById('diceBox');
+  var btn = document.getElementById('rollBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', function(){
+    box.classList.add('spinning');
+    var ticks = 0;
+    var interval = setInterval(function(){
+      box.textContent = Math.floor(Math.random() * 6) + 1;
+      ticks++;
+      if (ticks > 8){
+        clearInterval(interval);
+        box.classList.remove('spinning');
+      }
+    }, 70);
+  });
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 4: сколько строк напечатает
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g4code');
+  if (!codeEl) return;
+  var inputEl = document.getElementById('g4input');
+  var ansEl = document.getElementById('g4answer');
+  var btn = document.getElementById('g4btn');
+  var msg = document.getElementById('g4msg');
+  var scoreEl = document.getElementById('g4score');
+
+  var code = "name = input()\nwhile name != 'off':\n    team = randint(1, 2)\n    print(name, ', команда', team)\n    name = input()";
+
+  var tasks = [
+    { input: 'Катя, Лера, off', answer: 2 },
+    { input: 'Катя, off', answer: 1 },
+    { input: 'Аня, Боря, Вика, Гена, off', answer: 4 },
+    { input: 'off', answer: 0 }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      inputEl.textContent = '';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = code;
+    inputEl.textContent = 'Ввод: ' + tasks[i].input;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = parseInt(ansEl.value, 10);
+    answered++;
+    if (user === tasks[i].answer){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1000);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   КВИЗ
+   ============================================================ */
+(function(){
+  var quiz = document.getElementById('kquiz');
+  if (!quiz) return;
+
+  var qs = quiz.querySelectorAll('.q');
+  var total = qs.length;
+  var score = 0, answered = 0;
+  var scoreEl = document.getElementById('kquizScore');
+
+  qs.forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var fb = q.querySelector('.fb');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (q.dataset.done) return;
+        q.dataset.done = '1';
+        var ok = opt.dataset.correct === 'true';
+        opts.forEach(function(o){
+          if (o.dataset.correct === 'true') o.classList.add('right');
+          o.disabled = true;
+        });
+        if (!ok) opt.classList.add('wrong');
+        fb.classList.add(ok ? 'ok' : 'no');
+        fb.textContent = ok ? '✅ Верно!' : '❌ Неверно — правильный ответ подсвечен зелёным.';
+        if (ok) score++;
+        answered++;
+        if (answered === total){
+          var verdict = score === total ? ' — идеально! 🎉'
+                       : score >= total * 0.7 ? ' — хорошо! 👍'
+                       : ' — стоит повторить 🤔';
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total + verdict;
+        } else {
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total;
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   КНОПКИ PLAYGROUND
+   ============================================================ */
+(function(){
+  function encodeForPlayground(str){
+    return btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  document.querySelectorAll('.btn-play').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.task;
+      var tpl = document.querySelector('template[data-task="' + id + '"]');
+      var code = tpl ? tpl.content.textContent.trim() : '';
+      var url = 'python-compiler.html#code=' + encodeForPlayground(code);
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+})();
+
+/* ============================================================
+   ОТМЕТКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var LS_KEY = 'py_course_progress';
+  var LESSON_NUM = 14;
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  function readArr(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeArr(arr){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+
+  if (readArr().indexOf(LESSON_NUM) !== -1){
+    btn.textContent = '✓ Урок пройден';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+  }
+
+  btn.addEventListener('click', function(){
+    var arr = readArr();
+    if (arr.indexOf(LESSON_NUM) === -1){
+      arr.push(LESSON_NUM);
+      writeArr(arr);
+    }
+    btn.textContent = '✓ Урок пройден!';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+    nextWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>

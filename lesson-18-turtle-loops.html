@@ -1,0 +1,2492 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Turtle. Циклы — урок 18</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 18 · TURTLE. ЦИКЛЫ · фестиваль «Ни дня без прекрасного»
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(91,75,196,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(185,102,10,.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(12,124,134,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#5B4BC4}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+.byte-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.06));
+  border-radius:20px;
+}
+.byte-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(12,124,134,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.byte-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.byte-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.byte-says .bubble b{color:var(--a1)}
+@media(max-width:520px){
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:15.5px/1.75 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .imp{color:#FF8FB0;font-weight:800}
+
+.term{
+  margin:18px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:18px 22px;
+  font:16px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+.scene{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:22px;padding:26px;margin:24px 0;
+}
+.scene h4{
+  margin:0 0 8px;font-size:19px;
+  display:flex;align-items:center;gap:10px;
+}
+.scene h4::before{content:"🎯";font-size:22px}
+.scene .hint{margin:0 0 18px;font-size:16px;color:var(--muted);line-height:1.5}
+
+.kid-input{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.kid-input input{
+  flex:1;min-width:150px;padding:16px 18px;
+  font:800 20px var(--font-code);
+  border:4px solid var(--line);border-radius:16px;
+  outline:none;background:var(--card);color:var(--text);
+  text-align:center;transition:.15s;
+}
+.kid-input input:focus{
+  border-color:var(--a1);
+  box-shadow:0 0 0 5px rgba(12,124,134,.15);
+  transform:scale(1.02);
+}
+.kid-input button{
+  padding:16px 24px;font:800 17px var(--font-ui);
+  border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  transition:.15s ease;
+}
+.kid-input button:hover{transform:translateY(-2px) scale(1.03)}
+.kid-input button:active{transform:scale(.98)}
+
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35;color:var(--text)}
+
+.rules{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:22px 0;
+}
+.rule{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;border-left:6px solid var(--a3);
+  font-size:16.5px;line-height:1.55;
+}
+.rule .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;border-radius:50%;
+  background:var(--a3);color:#fff;
+  font:800 16px var(--font-ui);
+  margin-right:10px;vertical-align:middle;
+}
+
+.print-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.06);
+  font-size:15.5px;
+}
+.print-table th, .print-table td{
+  padding:12px 16px;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.print-table th{
+  background:var(--bg);color:var(--muted);
+  font:700 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.print-table td:first-child{
+  font-family:var(--font-code);font-size:14.5px;color:var(--text);
+}
+.print-table td:first-child code{
+  background:var(--bg);padding:2px 8px;border-radius:6px;
+}
+.print-table tr:last-child td{border-bottom:none}
+
+/* ---------- Сравнение длинного и короткого кода ---------- */
+.compare-cards{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:14px;align-items:stretch;margin:22px 0;
+}
+@media(max-width:760px){
+  .compare-cards{grid-template-columns:1fr;gap:10px}
+}
+.compare-cards .card{
+  background:var(--bg);border-radius:16px;padding:16px;
+}
+.compare-cards .card .title{
+  font:800 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  text-align:center;margin-bottom:12px;
+}
+.compare-cards .card.long{border:3px dashed var(--a2)}
+.compare-cards .card.long .title{color:var(--a2)}
+.compare-cards .card.short{border:3px solid var(--a5)}
+.compare-cards .card.short .title{color:var(--a5)}
+.compare-cards .card pre{
+  margin:0;padding:12px;font:13px/1.6 var(--font-code);
+  background:#0F1A30;color:#E8EEF8;
+  border-radius:10px;overflow-x:auto;white-space:pre;
+}
+.compare-cards .arrow{
+  align-self:center;font-size:32px;color:var(--muted);
+  text-align:center;
+}
+@media(max-width:760px){
+  .compare-cards .arrow{transform:rotate(90deg);font-size:24px}
+}
+
+/* ---------- Симулятор turtle с анимацией цикла ---------- */
+.turtle-sim{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:16px;margin:20px 0;
+}
+@media(max-width:760px){.turtle-sim{grid-template-columns:1fr}}
+.turtle-sim .canvas-wrap{
+  background:#fff;border-radius:14px;
+  border:3px solid var(--line);
+  overflow:hidden;display:flex;
+  align-items:center;justify-content:center;
+  min-height:280px;
+}
+.turtle-sim .canvas-wrap svg{display:block;width:100%;height:auto;max-width:420px}
+.turtle-sim .code-wrap{
+  background:#0F1A30;border-radius:14px;
+  padding:16px 18px;color:#E8EEF8;
+  font:14px/1.8 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+  white-space:pre-wrap;
+  min-height:280px;
+}
+.turtle-sim .code-wrap .cur{
+  background:rgba(142,230,160,.18);
+  border-radius:4px;padding:0 4px;
+}
+.turtle-sim .code-wrap .loop-badge{
+  display:inline-block;
+  background:rgba(91,75,196,.35);
+  padding:1px 6px;border-radius:5px;
+  color:#C9B8FF;font-weight:700;
+  font-size:12px;margin-left:6px;
+}
+
+.sim-controls{
+  display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;
+}
+.sim-btn{
+  padding:12px 18px;
+  border:2px solid var(--line);
+  background:var(--card);color:var(--text);
+  border-radius:12px;cursor:pointer;
+  font:800 14px var(--font-ui);
+  transition:.15s ease;
+}
+.sim-btn:hover{border-color:var(--a3);color:var(--a3);transform:translateY(-2px)}
+.sim-btn.primary{
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;border-color:transparent;
+  box-shadow:0 8px 18px rgba(91,75,196,.3);
+}
+.sim-btn.primary:hover{color:#fff;transform:translateY(-2px) scale(1.03)}
+.sim-btn:disabled{
+  opacity:.5;cursor:not-allowed;transform:none;
+}
+
+/* ---------- Аналогия: чертёж со звездой ---------- */
+.star-diagram{
+  background:#fff;border:3px solid var(--line);
+  border-radius:14px;padding:20px;margin:18px 0;
+  display:flex;justify-content:center;
+}
+.star-diagram svg{display:block;width:100%;height:auto;max-width:400px}
+
+/* ---------- Галерея примеров ---------- */
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:14px;margin:22px 0;
+}
+.gallery .item{
+  background:var(--card);border-radius:16px;
+  padding:16px 12px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.06);
+  border:2px solid var(--line);
+}
+.gallery .item svg{
+  display:block;width:100%;height:auto;
+  max-width:140px;margin:0 auto 8px;
+}
+.gallery .item .cap{
+  font:700 13px var(--font-ui);
+  color:var(--muted);line-height:1.4;
+}
+
+/* ---------- Квиз ---------- */
+.kquiz{margin-top:8px}
+.kquiz .q{
+  background:var(--card);border-radius:16px;
+  padding:18px;margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+}
+.kquiz .q .qnum{
+  font:800 11px var(--font-code);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.kquiz .q .qtext{font:700 17px var(--font-ui);margin:6px 0 12px;line-height:1.45}
+.kquiz .q pre{
+  margin:0 0 12px;padding:12px;font-size:13.5px;
+  background:#0F1A30;border-radius:10px;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;
+}
+.kquiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kquiz .opt{
+  padding:12px 14px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);transition:.15s ease;
+}
+.kquiz .opt:hover:not(:disabled){border-color:var(--a3)}
+.kquiz .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.kquiz .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.kquiz .opt:disabled{cursor:default;opacity:.9}
+.kquiz .fb{margin-top:8px;font-weight:700;font-size:14.5px;min-height:20px}
+.kquiz .fb.ok{color:var(--a5)}
+.kquiz .fb.no{color:var(--red)}
+.kquiz .score{text-align:center;margin-top:14px;font:800 16px var(--font-ui);color:var(--a3)}
+
+/* ---------- Задания ---------- */
+.tasks-wrap{margin:56px 0 40px}
+.tasks-intro{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-left:6px solid var(--a1);border-radius:16px;
+  padding:20px 24px;margin:20px 0 26px;
+  font-size:17px;line-height:1.6;
+}
+.tasks-intro b{color:var(--a1)}
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:16px;margin-top:22px;
+}
+.play-task{
+  background:var(--card);border-radius:18px;padding:20px;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  display:flex;flex-direction:column;gap:12px;
+  border-left:5px solid var(--a3);transition:.18s ease;
+}
+.play-task:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(23,32,51,.14)}
+.play-task .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play-task .task-num{
+  font:800 12px var(--font-code);color:#fff;background:var(--a3);
+  padding:4px 10px;border-radius:8px;letter-spacing:.04em;
+}
+.play-task .task-title{font:800 16px var(--font-ui);flex:1;min-width:120px}
+.play-task .task-stars{font-size:13px;letter-spacing:2px}
+.play-task .task-desc{margin:0;font-size:14.5px;line-height:1.55;color:var(--text)}
+.play-task .task-desc code{
+  font:600 12.5px var(--font-code);
+  background:var(--bg);padding:1px 6px;border-radius:4px;
+}
+.btn-play{
+  align-self:flex-start;padding:11px 18px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;font:800 14px var(--font-ui);cursor:pointer;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+  transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(91,75,196,.45)}
+.play-task details{
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);overflow:hidden;font-size:14px;
+}
+.play-task details summary{
+  cursor:pointer;padding:10px 12px;list-style:none;
+  font-weight:700;color:var(--text);
+}
+.play-task details summary::-webkit-details-marker{display:none}
+.play-task details summary::before{
+  content:"▸ ";color:var(--a3);font-size:11px;
+  display:inline-block;transition:.2s;
+}
+.play-task details[open] summary::before{transform:rotate(90deg)}
+.play-task details[open] summary{
+  background:rgba(91,75,196,.1);color:var(--a3);
+  border-bottom:1px solid var(--line);
+}
+.play-task details pre{
+  margin:0;padding:12px;font-size:12.5px;
+  background:#0F1A30;border-radius:0;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;line-height:1.55;
+}
+.play-task details p{margin:8px 12px;color:var(--muted)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#FFD98E,#FFCCD2 50%,#C9B8FF);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🎆";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#7A2D0A}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#7A2D0A;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#B9660A,#B8325A);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(185,102,10,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#5B4BC4,#B8325A)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .kquiz .opts{grid-template-columns:1fr}
+  .code-full{font-size:13px;padding:16px}
+  .print-table{font-size:13.5px}
+  .print-table th, .print-table td{padding:10px 12px}
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px}
+  .compare-cards .card pre,
+  .turtle-sim .code-wrap{font-size:12px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>⭐</span>
+    <span>🎆</span>
+    <span>🤖</span>
+  </div>
+  <h1>Рисуем звёзды и узоры</h1>
+  <p class="lead">
+    Студия «Ваш уют» довольна. Теперь к Байту обратилось
+    <b>Министерство культуры</b>. Город готовится к фестивалю
+    «Ни дня без прекрасного». Нужно украсить улицы и нарисовать
+    афиши: звёзды, эмблемы, узоры. И тут на помощь придут
+    <b>циклы</b>!
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>⭐ for + turtle</span>
+    <span>🎆 Звёзды и узоры</span>
+    <span>🧩 Функции + циклы</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>💭</span>
+      <span>⭐</span>
+      <span>🎡</span>
+      <span>🎨</span>
+      <span>🎁</span>
+      <span>🏁</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- ПЛАН -->
+<!-- ============================================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–5 мин</span>
+    <span class="icon">💭</span>
+    <div class="ttl">Новый заказ</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">5–14 мин</span>
+    <span class="icon">⭐</span>
+    <div class="ttl">Звезда в цикле</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">14–24 мин</span>
+    <span class="icon">🎡</span>
+    <div class="ttl">Колесо обозрения</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">24–33 мин</span>
+    <span class="icon">🎨</span>
+    <div class="ttl">Функции + циклы</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">33–40 мин</span>
+    <span class="icon">🎁</span>
+    <div class="ttl">Узор для кинотеатра</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">40–45 мин</span>
+    <span class="icon">🏁</span>
+    <div class="ttl">Итог и квиз</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ШАГ 1 · НОВЫЙ ЗАКАЗ -->
+<!-- ============================================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–5 минут · 💭 Новый заказ</span>
+  <h2>Фестиваль в городе</h2>
+  <p class="sub">
+    Министерство культуры готовит большой городской фестиваль.
+    Понадобится много одинаковых картинок: звёзды на улицах,
+    эмблемы, узоры для баннеров.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Первая задача: к <b>Дню космонавтики</b> украсить город
+      тёмно-синими <b>звёздами</b>. Каждая звезда — пятиконечная,
+      расстояние между противоположными концами — 150 пикселей.
+      Цвет — <code>'darkblue'</code>. Кажется, ерунда, но таких
+      звёзд будет сотня!
+    </div>
+  </div>
+
+  <div class="scene" style="padding:16px">
+    <svg viewBox="0 0 300 260" width="100%" style="max-width:260px;display:block;margin:0 auto;background:#fff;border-radius:12px">
+      <polygon points="150,20 175,105 260,105 195,158 220,240 150,190 80,240 105,158 40,105 125,105"
+               fill="#00008B" stroke="#00008B" stroke-width="3" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <p>Как нарисовать такую звезду? Давай разберёмся шаг за шагом.</p>
+
+  <div class="explain memo">
+    <div class="ttl">💭 Идея от Байта</div>
+    <p>
+      У звезды <b>5 лучей</b>. Значит, нужно 5 раз сделать одно и то
+      же: пройти отрезок → повернуться. Только повернуться надо
+      не на 90°, не на 72° и не на 60°. А на <b>144°</b>.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 2 · ЗВЕЗДА В ЦИКЛЕ -->
+<!-- ============================================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 5–14 минут · ⭐ Оптимизация</span>
+  <h2>Сначала — без цикла. А потом — с циклом</h2>
+  <p class="sub">
+    Покажем два варианта: как рисует новичок и как рисует опытный
+    программист. Результат один и тот же, но код — разный.
+  </p>
+
+  <h3>Вариант 1. По одной строке</h3>
+
+  <p>
+    Сначала напишем всё вручную. Пять раз: пройти 150 → повернуть
+    на 144°. А чтобы звезда была закрашена — зажмём всё это
+    между <code>begin_fill()</code> и <code>end_fill()</code>.
+  </p>
+
+  <div class="code-full"><span class="imp">from turtle import *</span>
+
+color(<span class="str">"darkblue"</span>)
+begin_fill()
+
+forward(<span class="num">150</span>)
+left(<span class="num">144</span>)
+forward(<span class="num">150</span>)
+left(<span class="num">144</span>)
+forward(<span class="num">150</span>)
+left(<span class="num">144</span>)
+forward(<span class="num">150</span>)
+left(<span class="num">144</span>)
+forward(<span class="num">150</span>)
+left(<span class="num">144</span>)
+
+end_fill()
+exitonclick()</div>
+
+  <p>
+    Работает. Но заметь: <b>две команды повторяются пять раз</b>.
+    Если звёзд будет сотня, а мы вдруг решим, что длина должна быть
+    200 — придётся исправить <b>сто</b> строк. Ужасно!
+  </p>
+
+  <h3>Вариант 2. С циклом for</h3>
+
+  <p>
+    Мы уже знаем, что <code>for i in range(5)</code> повторяет
+    действия ровно 5 раз. Идеально!
+  </p>
+
+  <div class="code-full"><span class="imp">from turtle import *</span>
+
+color(<span class="str">"darkblue"</span>)
+begin_fill()
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+    forward(<span class="num">150</span>)
+    left(<span class="num">144</span>)
+
+end_fill()
+exitonclick()</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что появится на экране</em></div>
+    <pre class="term-body">Окно с тёмно-синей пятиконечной звездой,
+сторона которой — 150 пикселей.
+
+Каждая итерация цикла рисует
+один луч звезды.</pre>
+  </div>
+
+  <h3>Сравним два варианта</h3>
+
+  <div class="compare-cards">
+    <div class="card long">
+      <div class="title">Без цикла — 10 строк</div>
+      <pre>forward(150)
+left(144)
+forward(150)
+left(144)
+forward(150)
+left(144)
+forward(150)
+left(144)
+forward(150)
+left(144)</pre>
+    </div>
+    <div class="arrow">➜</div>
+    <div class="card short">
+      <div class="title">С циклом — 2 строки</div>
+      <pre>for i in range(5):
+    forward(150)
+    left(144)</pre>
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 В чём польза цикла</div>
+    <p>
+      <b>1.</b> Код короче — легко читается.<br>
+      <b>2.</b> Легко менять: поменял <code>5</code> на <code>10</code> —
+      получил десятиконечную звезду.<br>
+      <b>3.</b> Меньше ошибок: нет риска где-то забыть строчку
+      или опечататься.
+    </p>
+  </div>
+
+  <h3>Откуда взялось число 144?</h3>
+
+  <p>
+    Это самый интересный вопрос! Смотри:
+  </p>
+
+  <div class="star-diagram">
+    <svg viewBox="0 0 320 280">
+      <polygon points="160,40 185,125 270,125 205,178 230,260 160,210 90,260 115,178 50,125 135,125"
+               fill="none" stroke="#00008B" stroke-width="2"/>
+      <!-- стрелки и подписи угла -->
+      <line x1="160" y1="40" x2="185" y2="125" stroke="#B8325A" stroke-width="3" stroke-dasharray="6 4"/>
+      <line x1="160" y1="40" x2="135" y2="125" stroke="#B8325A" stroke-width="3" stroke-dasharray="6 4"/>
+      <path d="M 175,70 A 30 30 0 0 0 145,70" fill="none" stroke="#B8325A" stroke-width="2"/>
+      <text x="150" y="105" font-family="monospace" font-size="14" font-weight="700" fill="#B8325A">36°</text>
+      <text x="200" y="70" font-family="monospace" font-size="14" font-weight="700" fill="#B8325A">144°</text>
+      <path d="M 200,58 A 40 40 0 0 1 235,90" fill="none" stroke="#B8325A" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Объяснение «на пальцах»</div>
+    <p>
+      У пятиконечной звезды острый угол «внутри» луча —
+      <b>36°</b>. А черепашке нужен <b>внешний</b> угол.
+      Он равен <b>180° − 36° = 144°</b>.
+    </p>
+    <p>
+      Можно запомнить просто: <b>для пятиконечной звезды
+      всегда <code>left(144)</code></b>. Это как магическое
+      число, как <code>90</code> для квадрата.
+    </p>
+  </div>
+
+  <!-- ИНТЕРАКТИВ: смотрим шаг за шагом -->
+  <div class="scene">
+    <h4>Смотрим, как цикл рисует звезду</h4>
+    <p class="hint">
+      Нажми «Рисовать» — и увидишь, как выполняется каждая итерация
+      цикла. Обрати внимание на счётчик <code>i</code> в коде справа.
+    </p>
+
+    <div class="turtle-sim">
+      <div class="canvas-wrap">
+        <svg viewBox="0 0 400 320" id="starCanvas">
+          <g id="starGrid"></g>
+          <line x1="0" y1="160" x2="400" y2="160" stroke="#B0BDD0" stroke-width="1"/>
+          <line x1="200" y1="0" x2="200" y2="320" stroke="#B0BDD0" stroke-width="1"/>
+          <g id="starLines"></g>
+          <g id="starTurtle" transform="translate(200,160)">
+            <polygon points="0,0 -14,-8 -14,8" fill="#3A7D2C" stroke="#2E4A1F" stroke-width="1"/>
+          </g>
+        </svg>
+      </div>
+      <div class="code-wrap" id="starCode">
+from turtle import *
+color('darkblue')
+begin_fill()
+
+for i in range(5):
+    forward(150)
+    left(144)
+
+end_fill()
+      </div>
+    </div>
+
+    <div class="sim-controls">
+      <button type="button" class="sim-btn primary" id="starRun">▶ Рисовать</button>
+      <button type="button" class="sim-btn" id="starReset">↺ Сбросить</button>
+      <span id="starProgress" style="align-self:center;font:700 14px var(--font-code);color:var(--muted)">шаг 0 из 5</span>
+    </div>
+  </div>
+
+  <!-- Интерактив: сколько итераций -->
+  <div class="scene">
+    <h4>Сколько раз выполнится цикл?</h4>
+    <p class="hint">Смотри на программу и вводи число.</p>
+
+    <div id="g1task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 14px var(--font-code);line-height:1.9;color:var(--text);white-space:pre-wrap" id="g1code"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="number" id="g1answer" placeholder="Сколько раз?" style="text-align:center">
+      <button type="button" id="g1btn">Проверить</button>
+    </div>
+    <div id="g1msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g1score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 3 · КОЛЕСО ОБОЗРЕНИЯ -->
+<!-- ============================================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 14–24 минут · 🎡 Колесо</span>
+  <h2>Колесо обозрения из треугольников</h2>
+  <p class="sub">
+    Парк развлечений «Мечта» просит сделать эмблему — колесо
+    обозрения. Оказывается, оно состоит из множества маленьких
+    треугольников, повёрнутых друг относительно друга.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Посмотри на эмблему. Если приглядеться — это
+      <b>много треугольников</b>, каждый повёрнут на 10° относительно
+      предыдущего. Всего 36 штук. Писать 36 раз одно и то же?
+      Нет! Мы это уже умеем делать в цикле.
+    </div>
+  </div>
+
+  <div class="scene" style="padding:16px">
+    <svg viewBox="0 0 260 260" width="100%" style="max-width:240px;display:block;margin:0 auto;background:#fff;border-radius:12px">
+      <g id="wheelPreview" transform="translate(130,130)"></g>
+    </svg>
+  </div>
+
+  <h3>Разложим задачу на две части</h3>
+
+  <p>
+    Один треугольник — это <b>простой трёхразовый цикл</b>.
+    А всё колесо — это <b>36 повторов</b> этого треугольника
+    с поворотом на 10° между ними.
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 В чём хитрость</div>
+    <p>
+      Вспомним: у нас есть <b>функции</b>. Мы уже умеем
+      упаковывать повторяющиеся команды в функцию. Давай
+      вынесем рисование одного треугольника в функцию
+      <code>draw_triangle()</code> — и вызовем её в цикле.
+    </p>
+  </div>
+
+  <h3>Код колеса обозрения</h3>
+
+  <div class="code-full"><span class="imp">from turtle import *</span>
+speed(<span class="num">10</span>)
+color(<span class="str">"blue"</span>)
+
+<span class="kw">def</span> <span class="fn">draw_triangle</span>():
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+        forward(<span class="num">100</span>)
+        left(<span class="num">120</span>)
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">36</span>):
+    draw_triangle()
+    right(<span class="num">10</span>)
+
+hideturtle()
+exitonclick()</div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Как это работает</div>
+    <p>
+      <b>1.</b> Объявляем функцию <code>draw_triangle()</code> —
+      она рисует один треугольник.<br>
+      <b>2.</b> Запускаем цикл <code>range(36)</code>.<br>
+      <b>3.</b> На каждом шаге: рисуем треугольник и поворачиваем
+      черепашку на 10° вправо.<br>
+      <b>4.</b> После 36 повторов получается замкнутое колесо
+      (36 × 10° = 360°).
+    </p>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Две новые команды</div>
+    <p>
+      <b><code>speed(10)</code></b> — установить максимальную
+      скорость рисования. Иначе черепашка будет рисовать
+      36 треугольников целую вечность.<br>
+      <b><code>hideturtle()</code></b> — скрыть черепашку с экрана.
+      Остаётся только рисунок, без стрелочки. Так красивее.
+    </p>
+  </div>
+
+  <!-- ИНТЕРАКТИВ: колесо обозрения -->
+  <div class="scene">
+    <h4>Собери колесо обозрения шаг за шагом</h4>
+    <p class="hint">
+      Нажми «Старт» — программа будет добавлять по одному треугольнику.
+      Так можно увидеть, как из простых фигур получается красивый узор.
+    </p>
+
+    <div class="turtle-sim">
+      <div class="canvas-wrap">
+        <svg viewBox="0 0 400 320" id="wheelCanvas">
+          <g id="wheelLines"></g>
+          <g id="wheelTurtle" transform="translate(200,160)">
+            <polygon points="0,0 -14,-8 -14,8" fill="#3A7D2C" stroke="#2E4A1F" stroke-width="1"/>
+          </g>
+        </svg>
+      </div>
+      <div class="code-wrap" id="wheelCode">
+from turtle import *
+speed(10)
+color("blue")
+
+def draw_triangle():
+    for i in range(3):
+        forward(100)
+        left(120)
+
+for i in range(36):
+    draw_triangle()
+    right(10)
+
+hideturtle()
+exitonclick()
+      </div>
+    </div>
+
+    <div class="sim-controls">
+      <button type="button" class="sim-btn primary" id="wheelRun">▶ Старт</button>
+      <button type="button" class="sim-btn" id="wheelReset">↺ Сбросить</button>
+      <span id="wheelProgress" style="align-self:center;font:700 14px var(--font-code);color:var(--muted)">треугольник 0 из 36</span>
+    </div>
+  </div>
+
+  <!-- Задача со звездой-солнцем -->
+  <h3>Бонус: звезда-солнце</h3>
+
+  <p>
+    Другой заказчик хочет нарисовать <b>18-лучевое солнце</b>.
+    Тут принцип тот же — цикл, только число и угол другие.
+  </p>
+
+  <div class="code-full"><span class="imp">from turtle import *</span>
+
+color(<span class="str">"yellow"</span>)
+begin_fill()
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">18</span>):
+    forward(<span class="num">150</span>)
+    left(<span class="num">100</span>)
+end_fill()
+
+hideturtle()
+exitonclick()</div>
+
+  <div class="scene" style="padding:16px">
+    <svg viewBox="0 0 260 260" width="100%" style="max-width:220px;display:block;margin:0 auto;background:#fff;border-radius:12px">
+      <g id="sunPreview" transform="translate(130,130)"></g>
+    </svg>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🎨 Число лучей = число повторений</div>
+    <p>
+      Хочешь <b>пятиконечную звезду</b>? <code>range(5)</code>
+      и угол 144°.<br>
+      Хочешь <b>18-лучевое солнце</b>? <code>range(18)</code>
+      и угол 100°.<br>
+      Хочешь <b>десятиконечную</b>? <code>range(10)</code> и угол
+      … — попробуй подобрать сам!
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 4 · ФУНКЦИИ + ЦИКЛЫ -->
+<!-- ============================================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 24–33 минут · 🎨 Комбинируем</span>
+  <h2>Музей иллюзий: узор из окружностей</h2>
+  <p class="sub">
+    Следующий заказ — эмблема Музея иллюзий. Она состоит
+    из четырёх лепестков. Каждый лепесток — это 7 кружков
+    разного размера, которые растут от маленького к большому.
+  </p>
+
+  <div class="scene" style="padding:16px">
+    <svg viewBox="0 0 300 300" width="100%" style="max-width:260px;display:block;margin:0 auto;background:#fff;border-radius:12px">
+      <g id="emblemPreview" transform="translate(150,150)"></g>
+    </svg>
+  </div>
+
+  <h3>Идея</h3>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      Один лепесток — это <b>7 кругов</b> радиуса 10, 20, 30, …, 70.
+      Их удобно нарисовать в цикле.
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      Всего лепестков <b>четыре</b>. Значит, нужен второй цикл.
+    </div>
+    <div class="rule">
+      <span class="n">3</span>
+      После каждого лепестка черепашка поворачивается на 90°
+      (360° ÷ 4 = 90°).
+    </div>
+  </div>
+
+  <p>
+    Такой приём называется <b>вложенные циклы</b> — один цикл
+    внутри другого. Но чтобы код был понятным, мы упакуем
+    внутренний цикл в функцию.
+  </p>
+
+  <div class="def-card">
+    <div class="term">Функция + цикл</div>
+    <div class="def">
+      Часто удобно <b>вынести повторяющиеся действия в функцию</b>,
+      а потом вызывать её в цикле. Так код становится чистым
+      и понятным.
+    </div>
+    <div class="ex">
+      Один лепесток → <code>draw_petal()</code>. Четыре лепестка →
+      цикл <code>range(4)</code>.
+    </div>
+  </div>
+
+  <h3>Код эмблемы</h3>
+
+  <div class="code-full"><span class="imp">from turtle import *</span>
+
+<span class="kw">def</span> <span class="fn">draw_petal</span>():
+    size = <span class="num">10</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">7</span>):
+        circle(size)
+        size += <span class="num">10</span>
+
+speed(<span class="num">10</span>)
+color(<span class="str">"navy"</span>)
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">4</span>):
+    draw_petal()
+    left(<span class="num">90</span>)
+
+hideturtle()
+exitonclick()</div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Разбираем код по частям</div>
+    <p>
+      <b>1.</b> Функция <code>draw_petal()</code> — рисует 7 кругов.
+      Начинает с радиуса 10 и увеличивает на 10 с каждым шагом.
+    </p>
+    <p>
+      <b>2.</b> Основная программа ставит цвет, скорость.
+    </p>
+    <p>
+      <b>3.</b> Цикл <code>range(4)</code>: 4 раза рисует лепесток
+      и поворачивает на 90°. Получается цветок из четырёх
+      лепестков.
+    </p>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Про переменную size</div>
+    <p>
+      Обрати внимание: переменная <code>size</code> создаётся
+      <b>внутри функции</b> и увеличивается на 10 с каждым кругом.
+      Так мы получаем круги 10, 20, 30, …, 70.
+    </p>
+    <p>
+      Если бы мы не увеличивали <code>size</code>, все 7 кругов
+      были бы одинаковыми.
+    </p>
+  </div>
+
+  <!-- Интерактив: что получится -->
+  <div class="scene">
+    <h4>Что получится?</h4>
+    <p class="hint">
+      Выбери правильный ответ: что нарисует программа.
+    </p>
+
+    <div id="g2task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 14px var(--font-code);line-height:1.9;color:var(--text);white-space:pre-wrap" id="g2code"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px" id="g2opts"></div>
+    <div id="g2msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g2score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 5 · УЗОР ДЛЯ КИНОТЕАТРА -->
+<!-- ============================================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 33–40 минут · 🎁 Узор</span>
+  <h2>Узор для фестиваля кино</h2>
+  <p class="sub">
+    Ещё один заказ — украсить стены кинотеатра
+    к фестивалю чёрно-белого кино. Нужен узор из квадратов
+    разных размеров и цветов: чёрный, серый, белый, снова чёрный.
+  </p>
+
+  <div class="scene" style="padding:16px">
+    <svg viewBox="0 0 260 260" width="100%" style="max-width:220px;display:block;margin:0 auto;background:#fff;border-radius:12px">
+      <rect x="30" y="30" width="200" height="200" fill="#000"/>
+      <rect x="50" y="50" width="150" height="150" fill="#fff"/>
+      <rect x="70" y="70" width="100" height="100" fill="#E6E6FA"/>
+      <rect x="90" y="90" width="50" height="50" fill="#000"/>
+    </svg>
+  </div>
+
+  <h3>Идея</h3>
+
+  <p>
+    Четыре квадрата разных размеров, вложенных друг в друга.
+    Каждый — сплошного цвета. Рисуется из одной точки
+    <code>(-50, -50)</code>.
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Функция с параметрами</div>
+    <p>
+      Все четыре квадрата рисуются одинаково — просто с разной
+      длиной стороны и разным цветом. Значит, удобно сделать
+      функцию <code>draw_square(length, cur_color)</code>,
+      которая получает длину и цвет как <b>параметры</b>.
+    </p>
+  </div>
+
+  <h3>Код узора</h3>
+
+  <div class="code-full"><span class="imp">from turtle import *</span>
+
+goto(<span class="num">-50</span>, <span class="num">-50</span>)
+
+<span class="kw">def</span> <span class="fn">draw_square</span>(length, cur_color):
+    color(cur_color)
+    begin_fill()
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">4</span>):
+        forward(length)
+        left(<span class="num">90</span>)
+    end_fill()
+
+draw_square(<span class="num">200</span>, <span class="str">'black'</span>)
+draw_square(<span class="num">150</span>, <span class="str">'white'</span>)
+draw_square(<span class="num">100</span>, <span class="str">'lavender'</span>)
+draw_square(<span class="num">50</span>,  <span class="str">'black'</span>)
+
+hideturtle()
+exitonclick()</div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Что мы сделали</div>
+    <p>
+      <b>1.</b> Перешли в точку (-50, -50) командой
+      <code>goto()</code> — оттуда будем рисовать.<br>
+      <b>2.</b> Объявили функцию <code>draw_square(length, cur_color)</code>
+      с двумя параметрами.<br>
+      <b>3.</b> Внутри функции — стандартный цикл квадрата, только
+      сторона берётся из параметра <code>length</code>.<br>
+      <b>4.</b> Вызвали функцию 4 раза с разными параметрами.
+    </p>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Зачем функция</div>
+    <p>
+      Если бы мы рисовали каждый квадрат отдельно, это было бы
+      <b>4 × 6 = 24 строки</b> повторяющегося кода. А с функцией —
+      всего 6 строк внутри функции + 4 строки вызовов.
+    </p>
+    <p>
+      И ещё бонус: чтобы добавить пятый квадрат, достаточно
+      одной строки — <code>draw_square(250, 'grey')</code>.
+    </p>
+  </div>
+
+  <!-- Интерактив: что напечатает -->
+  <div class="scene">
+    <h4>Что нарисует программа?</h4>
+    <p class="hint">
+      Посмотри на код и выбери правильное описание.
+    </p>
+
+    <div id="g3task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 14px var(--font-code);line-height:1.9;color:var(--text);white-space:pre-wrap" id="g3code"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:10px" id="g3opts"></div>
+    <div id="g3msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g3score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 6 · ИТОГ И КВИЗ -->
+<!-- ============================================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 40–45 минут · 🏁 Итог</span>
+  <h2>Проверь себя</h2>
+  <p class="sub">
+    Семь вопросов по всему уроку. Счёт появится внизу.
+  </p>
+
+  <div class="kquiz" id="kquiz">
+
+    <div class="q">
+      <div class="qnum">Вопрос 1</div>
+      <div class="qtext">Зачем использовать циклы при рисовании фигур?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы картинка была красивее</button>
+        <button type="button" class="opt" data-correct="true">Чтобы не писать одни и те же команды много раз</button>
+        <button type="button" class="opt">Чтобы черепашка двигалась быстрее</button>
+        <button type="button" class="opt">Это требование Python</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 2</div>
+      <div class="qtext">На какой угол нужно поворачивать, чтобы нарисовать пятиконечную звезду?</div>
+      <div class="opts">
+        <button type="button" class="opt">90°</button>
+        <button type="button" class="opt">120°</button>
+        <button type="button" class="opt" data-correct="true">144°</button>
+        <button type="button" class="opt">180°</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 3</div>
+      <div class="qtext">Сколько раз выполнится тело цикла?</div>
+      <pre>for i in range(18):
+    forward(150)
+    left(100)</pre>
+      <div class="opts">
+        <button type="button" class="opt">10</button>
+        <button type="button" class="opt" data-correct="true">18</button>
+        <button type="button" class="opt">100</button>
+        <button type="button" class="opt">Бесконечно</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 4</div>
+      <div class="qtext">Что делает команда <code>speed(10)</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Рисует 10 фигур</button>
+        <button type="button" class="opt" data-correct="true">Устанавливает максимальную скорость рисования</button>
+        <button type="button" class="opt">Поворачивает на 10°</button>
+        <button type="button" class="opt">Меняет цвет на 10-й</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 5</div>
+      <div class="qtext">Что делает команда <code>hideturtle()</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Очищает экран</button>
+        <button type="button" class="opt" data-correct="true">Скрывает черепашку, оставляя рисунок</button>
+        <button type="button" class="opt">Закрывает окно</button>
+        <button type="button" class="opt">Поворачивает черепашку назад</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 6</div>
+      <div class="qtext">Сколько кругов нарисует этот код?</div>
+      <pre>def draw_petal():
+    size = 10
+    for i in range(7):
+        circle(size)
+        size += 10
+
+for i in range(4):
+    draw_petal()
+    left(90)</pre>
+      <div class="opts">
+        <button type="button" class="opt">4</button>
+        <button type="button" class="opt">7</button>
+        <button type="button" class="opt" data-correct="true">28 (7 × 4)</button>
+        <button type="button" class="opt">11</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 7</div>
+      <div class="qtext">Зачем выносить рисование фигуры в функцию?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы программа работала быстрее</button>
+        <button type="button" class="opt" data-correct="true">Чтобы вызывать её много раз с разными параметрами одной строкой</button>
+        <button type="button" class="opt">Потому что нельзя рисовать без функций</button>
+        <button type="button" class="opt">Чтобы черепашка сменила цвет</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score" id="kquizScore">Счёт: 0 из 7</div>
+  </div>
+
+  <div class="explain memo" style="margin-top:24px">
+    <div class="ttl">🎓 Что ты теперь знаешь</div>
+    <p>
+      <b>1.</b> Что цикл <code>for</code> может повторять не только
+      числа, но и <b>команды рисования</b>.<br>
+      <b>2.</b> Что для пятиконечной звезды нужен угол 144°.<br>
+      <b>3.</b> Что число повторений определяет фигуру:
+      18 раз → солнце, 36 раз → колесо.<br>
+      <b>4.</b> Как <b>соединять</b> циклы и функции: функция рисует
+      одну деталь, цикл вызывает её много раз.<br>
+      <b>5.</b> Что такое <code>speed(10)</code> и
+      <code>hideturtle()</code>.<br>
+      <b>6.</b> Как передавать в функцию параметры (длину, цвет),
+      чтобы рисовать разные фигуры одной командой.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ИТОГОВЫЕ ЗАДАНИЯ -->
+<!-- ============================================================ -->
+<section class="tasks-wrap">
+
+  <span class="badge" style="background:linear-gradient(135deg,#0C7C86,#5B4BC4);color:#fff;padding:8px 18px;border-radius:99px;font:800 14px var(--font-ui);display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(12,124,134,.3)">
+    🏁 После урока · практика
+  </span>
+
+  <h2 style="margin:20px 0 8px;font-size:clamp(26px,3.6vw,34px);line-height:1.15">
+    Итоговые задания в Playground
+  </h2>
+  <p style="color:var(--muted);font-size:17px;margin:0">
+    Восемь задач на циклы в turtle. Нажми «Открыть в Playground» —
+    стартовый код подставится сам.
+  </p>
+
+  <div class="tasks-intro">
+    <b>Важно про turtle.</b> Модуль работает только в настоящем
+    Python на компьютере — открывает отдельное окно. В браузере
+    окно не появится, но <b>код можно писать и проверять
+    синтаксис</b>. А ещё лучше — открой задачу в своём Python дома.
+  </div>
+
+  <div class="tasks-grid">
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">01</span>
+        <span class="task-title">Квадрат в цикле</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Нарисуй квадрат со стороной 100, используя цикл
+        <code>for i in range(4)</code>.
+      </p>
+      <button class="btn-play" data-task="1">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Внутри цикла — <code>forward(100)</code> и
+        <code>left(90)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+for i in range(4):
+    forward(100)
+    left(90)
+
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">02</span>
+        <span class="task-title">Шестиугольник</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Нарисуй правильный шестиугольник со стороной 80 через цикл.
+        Угол = 360 ÷ 6 = 60°.
+      </p>
+      <button class="btn-play" data-task="2">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p><code>for i in range(6)</code>: <code>forward(80)</code>,
+        <code>left(60)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+for i in range(6):
+    forward(80)
+    left(60)
+
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">03</span>
+        <span class="task-title">Красная звезда</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Нарисуй красную пятиконечную звезду со стороной 120.
+        Используй цикл и заливку.
+      </p>
+      <button class="btn-play" data-task="3">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Угол = 144°. Не забудь <code>begin_fill()</code>
+        и <code>end_fill()</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+color('red')
+begin_fill()
+for i in range(5):
+    forward(120)
+    left(144)
+end_fill()
+
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">04</span>
+        <span class="task-title">Солнце</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Нарисуй жёлтое 18-лучевое солнце: отрезок 100, угол 100°.
+      </p>
+      <button class="btn-play" data-task="4">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p><code>range(18)</code>, <code>forward(100)</code>,
+        <code>left(100)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+color('yellow')
+begin_fill()
+for i in range(18):
+    forward(100)
+    left(100)
+end_fill()
+
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">05</span>
+        <span class="task-title">Колесо обозрения</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Нарисуй 36 треугольников, повёрнутых друг относительно
+        друга на 10°. Используй функцию <code>draw_triangle()</code>.
+      </p>
+      <button class="btn-play" data-task="5">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Функция рисует треугольник через цикл, а снаружи
+        цикл на 36 повторов с <code>right(10)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+speed(10)
+color('blue')
+
+def draw_triangle():
+    for i in range(3):
+        forward(100)
+        left(120)
+
+for i in range(36):
+    draw_triangle()
+    right(10)
+
+hideturtle()
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">06</span>
+        <span class="task-title">Эмблема Музея иллюзий</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Четыре лепестка по 7 кругов. Функция <code>draw_petal()</code>
+        рисует 7 растущих кругов. Снаружи цикл на 4 повтора с
+        <code>left(90)</code>.
+      </p>
+      <button class="btn-play" data-task="6">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Внутри функции счётчик <code>size = 10</code>,
+        который растёт на 10 каждый шаг.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+speed(10)
+color('navy')
+
+def draw_petal():
+    size = 10
+    for i in range(7):
+        circle(size)
+        size += 10
+
+for i in range(4):
+    draw_petal()
+    left(90)
+
+hideturtle()
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">07</span>
+        <span class="task-title">Узор из квадратов</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Сделай узор из вложенных квадратов разных цветов:
+        200 — чёрный, 150 — белый, 100 — серый, 50 — чёрный.
+        Начни с точки (-50, -50).
+      </p>
+      <button class="btn-play" data-task="7">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Функция <code>draw_square(length, cur_color)</code>,
+        где <code>cur_color</code> — параметр цвета.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+goto(-50, -50)
+
+def draw_square(length, cur_color):
+    color(cur_color)
+    begin_fill()
+    for i in range(4):
+        forward(length)
+        left(90)
+    end_fill()
+
+draw_square(200, 'black')
+draw_square(150, 'white')
+draw_square(100, 'lavender')
+draw_square(50,  'black')
+
+hideturtle()
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">08</span>
+        <span class="task-title">Найди и исправь</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Программа должна рисовать пятиконечную звезду, но рисует
+        ерунду. Найди ошибку и исправь.
+      </p>
+      <button class="btn-play" data-task="8">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>У пятиконечной звезды угол <b>144°</b>, а не 72°.
+        А ещё <code>range()</code> должен быть на 5, а не на 10.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+color('darkblue')
+begin_fill()
+for i in range(5):
+    forward(150)
+    left(144)
+end_fill()
+
+exitonclick()</pre>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- Стартовый код для Playground -->
+<div id="starters" hidden>
+  <template data-task="1"># Квадрат через цикл for
+from turtle import *
+
+for i in range(4):
+    forward(100)
+    left(90)
+
+exitonclick()
+
+</template>
+  <template data-task="2"># Шестиугольник через цикл
+from turtle import *
+
+# for i in range(6):
+#     forward(80)
+#     left(60)
+
+</template>
+  <template data-task="3"># Красная пятиконечная звезда
+from turtle import *
+
+# color('red')
+# begin_fill()
+# for i in range(5):
+#     forward(120)
+#     left(144)
+# end_fill()
+
+</template>
+  <template data-task="4"># Жёлтое солнце с 18 лучами
+from turtle import *
+
+# color('yellow')
+# begin_fill()
+# for i in range(18):
+#     forward(100)
+#     left(100)
+# end_fill()
+
+</template>
+  <template data-task="5"># Колесо обозрения из 36 треугольников
+from turtle import *
+
+speed(10)
+color('blue')
+
+# def draw_triangle():
+#     for i in range(3):
+#         forward(100)
+#         left(120)
+#
+# for i in range(36):
+#     draw_triangle()
+#     right(10)
+
+hideturtle()
+exitonclick()
+
+</template>
+  <template data-task="6"># Эмблема Музея иллюзий — 4 лепестка
+from turtle import *
+
+speed(10)
+color('navy')
+
+# def draw_petal():
+#     size = 10
+#     for i in range(7):
+#         circle(size)
+#         size += 10
+#
+# for i in range(4):
+#     draw_petal()
+#     left(90)
+
+hideturtle()
+exitonclick()
+
+</template>
+  <template data-task="7"># Узор из вложенных квадратов
+from turtle import *
+
+goto(-50, -50)
+
+# def draw_square(length, cur_color):
+#     color(cur_color)
+#     begin_fill()
+#     for i in range(4):
+#         forward(length)
+#         left(90)
+#     end_fill()
+#
+# draw_square(200, 'black')
+# draw_square(150, 'white')
+# draw_square(100, 'lavender')
+# draw_square(50,  'black')
+
+hideturtle()
+exitonclick()
+
+</template>
+  <template data-task="8"># Программа должна рисовать звезду, но рисует ерунду. Исправь.
+from turtle import *
+
+color('darkblue')
+begin_fill()
+for i in range(10):
+    forward(150)
+    left(72)
+end_fill()
+
+exitonclick()
+</template>
+</div>
+
+<!-- ============================================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🎆</span>
+  <h2>Фестиваль украшен!</h2>
+  <p>
+    Ты научился рисовать звёзды, колесо обозрения, эмблему
+    и узоры с помощью циклов. Министерство культуры довольно:
+    все картинки для фестиваля готовы. А главное — ты понял
+    силу циклов и функций: одна короткая программа — и целая
+    галерея узоров. На следующем уроке — <b>условный оператор
+    в turtle</b>: научимся рисовать картинки, которые
+    реагируют на данные.
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+  <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="lesson-19-turtle-if.html">
+      Следующий урок: Turtle. Условный оператор →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 18 · Turtle. Циклы · 🎆 фестиваль «Ни дня без прекрасного» · ⭐ for + turtle
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   ПРЕВЬЮ: колесо обозрения и солнце (статичные) в шаге 3
+   ============================================================ */
+(function(){
+  // Солнце 18 лучей
+  var sun = document.getElementById('sunPreview');
+  if (sun){
+    var points = [];
+    var x = 0, y = 0, angle = 90;
+    for (var i = 0; i < 18; i++){
+      var rad = angle * Math.PI / 180;
+      var nx = x + 80 * Math.cos(rad);
+      var ny = y - 80 * Math.sin(rad);
+      points.push([nx, ny]);
+      x = nx; y = ny;
+      angle += 100;
+    }
+    var poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', points.map(function(p){ return p[0] + ',' + p[1]; }).join(' '));
+    poly.setAttribute('fill', '#FDD835');
+    poly.setAttribute('stroke', '#B9660A');
+    poly.setAttribute('stroke-width', '1.5');
+    sun.appendChild(poly);
+  }
+
+  // Колесо обозрения (упрощённое) — 36 поворотов на 10°
+  var wheel = document.getElementById('wheelPreview');
+  if (wheel){
+    var g = wheel;
+    for (var i = 0; i < 36; i++){
+      var turn = i * 10 * Math.PI / 180;
+      // треугольник радиуса ~90
+      var pts = [];
+      for (var k = 0; k < 3; k++){
+        var a = turn + k * 120 * Math.PI / 180 - Math.PI/2;
+        pts.push((90 * Math.cos(a)) + ',' + (90 * Math.sin(a)));
+      }
+      var t = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      t.setAttribute('points', pts.join(' '));
+      t.setAttribute('fill', 'none');
+      t.setAttribute('stroke', '#5B4BC4');
+      t.setAttribute('stroke-width', '0.9');
+      t.setAttribute('opacity', '0.7');
+      g.appendChild(t);
+    }
+  }
+
+  // Эмблема Музея иллюзий
+  var emblem = document.getElementById('emblemPreview');
+  if (emblem){
+    for (var p = 0; p < 4; p++){
+      var baseAngle = p * 90 * Math.PI / 180;
+      for (var sz = 1; sz <= 7; sz++){
+        var r = sz * 10;
+        // центр круга смещён по углу
+        var cx = Math.cos(baseAngle) * r * 1.2;
+        var cy = Math.sin(baseAngle) * r * 1.2;
+        var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', cx);
+        c.setAttribute('cy', cy);
+        c.setAttribute('r', r);
+        c.setAttribute('fill', 'none');
+        c.setAttribute('stroke', '#00008B');
+        c.setAttribute('stroke-width', '0.8');
+        emblem.appendChild(c);
+      }
+    }
+  }
+})();
+
+/* ============================================================
+   СИМУЛЯТОР ЗВЕЗДЫ (шаг 2)
+   ============================================================ */
+(function(){
+  var canvas = document.getElementById('starCanvas');
+  if (!canvas) return;
+
+  var W = 400, H = 320;
+  var cx = 200, cy = 160;
+
+  // сетка
+  var grid = document.getElementById('starGrid');
+  for (var i = 0; i <= 8; i++){
+    var l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', 0); l.setAttribute('y1', i * 40);
+    l.setAttribute('x2', W); l.setAttribute('y2', i * 40);
+    l.setAttribute('stroke', '#E5ECF3');
+    l.setAttribute('stroke-width', 1);
+    l.setAttribute('stroke-dasharray', '3 4');
+    grid.appendChild(l);
+  }
+  for (var j = 0; j <= 10; j++){
+    var l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l2.setAttribute('x1', j * 40); l2.setAttribute('y1', 0);
+    l2.setAttribute('x2', j * 40); l2.setAttribute('y2', H);
+    l2.setAttribute('stroke', '#E5ECF3');
+    l2.setAttribute('stroke-width', 1);
+    l2.setAttribute('stroke-dasharray', '3 4');
+    grid.appendChild(l2);
+  }
+
+  var linesGroup = document.getElementById('starLines');
+  var turtleEl = document.getElementById('starTurtle');
+  var progressEl = document.getElementById('starProgress');
+
+  var timer = null;
+  var step = 0;
+  var pos = { x: 0, y: 0, angle: 0 };
+
+  function toSvg(x, y){ return { sx: cx + x, sy: cy - y }; }
+
+  function render(){
+    turtleEl.setAttribute('transform', 'translate(' + toSvg(pos.x, pos.y).sx + ',' + toSvg(pos.x, pos.y).sy + ') rotate(' + (-pos.angle) + ')');
+    progressEl.textContent = 'шаг ' + step + ' из 5';
+  }
+
+  function reset(){
+    if (timer) clearInterval(timer);
+    timer = null;
+    step = 0;
+    pos = { x: 0, y: 0, angle: 0 };
+    linesGroup.innerHTML = '';
+    render();
+  }
+
+  function doStep(){
+    if (step >= 5) return;
+    var rad = pos.angle * Math.PI / 180;
+    var nx = pos.x + 150 * Math.cos(rad);
+    var ny = pos.y + 150 * Math.sin(rad);
+
+    // линия
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    var p1 = toSvg(pos.x, pos.y);
+    var p2 = toSvg(nx, ny);
+    line.setAttribute('x1', p1.sx);
+    line.setAttribute('y1', p1.sy);
+    line.setAttribute('x2', p2.sx);
+    line.setAttribute('y2', p2.sy);
+    line.setAttribute('stroke', '#00008B');
+    line.setAttribute('stroke-width', '3');
+    line.setAttribute('stroke-linecap', 'round');
+    linesGroup.appendChild(line);
+
+    pos.x = nx; pos.y = ny;
+    pos.angle += 144;
+    step++;
+    render();
+  }
+
+  document.getElementById('starRun').addEventListener('click', function(){
+    reset();
+    timer = setInterval(function(){
+      doStep();
+      if (step >= 5) clearInterval(timer);
+    }, 500);
+  });
+
+  document.getElementById('starReset').addEventListener('click', reset);
+
+  render();
+})();
+
+/* ============================================================
+   СИМУЛЯТОР КОЛЕСА ОБОЗРЕНИЯ (шаг 3)
+   ============================================================ */
+(function(){
+  var canvas = document.getElementById('wheelCanvas');
+  if (!canvas) return;
+
+  var W = 400, H = 320;
+  var cx = 200, cy = 160;
+  var linesGroup = document.getElementById('wheelLines');
+  var turtleEl = document.getElementById('wheelTurtle');
+  var progressEl = document.getElementById('wheelProgress');
+
+  // Сетка
+  var svgNS = 'http://www.w3.org/2000/svg';
+  // (сетка необязательна в этом симуляторе, рисуем просто)
+
+  var timer = null;
+  var step = 0;
+  var pos = { x: 0, y: 0, angle: 0 };
+
+  function toSvg(x, y){ return { sx: cx + x, sy: cy - y }; }
+
+  function render(){
+    var t = toSvg(pos.x, pos.y);
+    turtleEl.setAttribute('transform', 'translate(' + t.sx + ',' + t.sy + ') rotate(' + (-pos.angle) + ')');
+    progressEl.textContent = 'треугольник ' + step + ' из 36';
+  }
+
+  function reset(){
+    if (timer) clearInterval(timer);
+    timer = null;
+    step = 0;
+    pos = { x: 0, y: 0, angle: 0 };
+    linesGroup.innerHTML = '';
+    render();
+  }
+
+  function drawTriangle(){
+    // возвращаемся в начальную точку треугольника
+    var startX = pos.x, startY = pos.y, startAngle = pos.angle;
+    for (var k = 0; k < 3; k++){
+      var rad = pos.angle * Math.PI / 180;
+      var nx = pos.x + 100 * Math.cos(rad);
+      var ny = pos.y + 100 * Math.sin(rad);
+      var line = document.createElementNS(svgNS, 'line');
+      var p1 = toSvg(pos.x, pos.y);
+      var p2 = toSvg(nx, ny);
+      line.setAttribute('x1', p1.sx); line.setAttribute('y1', p1.sy);
+      line.setAttribute('x2', p2.sx); line.setAttribute('y2', p2.sy);
+      line.setAttribute('stroke', '#5B4BC4');
+      line.setAttribute('stroke-width', '1.5');
+      linesGroup.appendChild(line);
+      pos.x = nx; pos.y = ny;
+      pos.angle += 120;
+    }
+    // возвращаемся
+    pos.x = startX; pos.y = startY;
+    pos.angle = startAngle + 120 * 3; // на самом деле 360
+    // откатим на полные круги
+    pos.angle = startAngle;
+  }
+
+  function stepAll(){
+    if (step >= 36) return;
+    drawTriangle();
+    pos.angle -= 10;
+    step++;
+    render();
+  }
+
+  document.getElementById('wheelRun').addEventListener('click', function(){
+    reset();
+    timer = setInterval(function(){
+      stepAll();
+      if (step >= 36) clearInterval(timer);
+    }, 120);
+  });
+
+  document.getElementById('wheelReset').addEventListener('click', reset);
+
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 1: сколько итераций
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g1code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g1answer');
+  var btn = document.getElementById('g1btn');
+  var msg = document.getElementById('g1msg');
+  var scoreEl = document.getElementById('g1score');
+
+  var tasks = [
+    { code: 'for i in range(5):\n    forward(150)\n    left(144)', answer: 5 },
+    { code: 'for i in range(4):\n    forward(100)\n    left(90)', answer: 4 },
+    { code: 'for i in range(18):\n    forward(150)\n    left(100)', answer: 18 },
+    { code: 'for i in range(36):\n    draw_triangle()\n    right(10)', answer: 36 },
+    { code: 'for i in range(6):\n    forward(80)\n    left(60)', answer: 6 }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+  function check(){
+    var user = parseInt(ansEl.value, 10);
+    answered++;
+    if (user === tasks[i].answer){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 900);
+  }
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 2: что нарисует (функции + циклы)
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g2code');
+  if (!codeEl) return;
+  var optsEl = document.getElementById('g2opts');
+  var msg = document.getElementById('g2msg');
+  var scoreEl = document.getElementById('g2score');
+
+  var tasks = [
+    {
+      code: 'def draw_square():\n    for i in range(4):\n        forward(100)\n        left(90)\n\ndraw_square()',
+      ans: 'один квадрат',
+      opts: ['один квадрат', 'четыре квадрата', 'звезда', 'пустой экран']
+    },
+    {
+      code: 'def draw_petal():\n    for i in range(7):\n        circle(10)\n\nfor i in range(4):\n    draw_petal()\n    left(90)',
+      ans: 'четыре лепестка по 7 кругов',
+      opts: ['один лепесток', 'четыре лепестка по 7 кругов', '28 лепестков', 'ничего']
+    },
+    {
+      code: 'for i in range(5):\n    forward(150)\n    left(144)',
+      ans: 'пятиконечная звезда',
+      opts: ['пятиконечная звезда', 'пятиугольник', 'линия', 'звезда с 10 лучами']
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      optsEl.innerHTML = '';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    optsEl.innerHTML = '';
+    tasks[i].opts.forEach(function(t){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t;
+      b.style.cssText = 'padding:14px 16px;border:3px solid var(--line);background:var(--card);border-radius:14px;font:800 15px var(--font-ui);color:var(--text);cursor:pointer;transition:.15s ease;text-align:left';
+      b.addEventListener('click', function(){
+        if (b.dataset.locked) return;
+        optsEl.querySelectorAll('button').forEach(function(x){
+          x.dataset.locked = '1'; x.style.pointerEvents = 'none';
+        });
+        answered++;
+        if (t === tasks[i].ans){
+          score++;
+          b.style.background = 'rgba(58,125,44,.12)';
+          b.style.borderColor = 'var(--a5)';
+          b.style.color = 'var(--a5)';
+          msg.textContent = '✅ Верно!';
+          msg.style.color = 'var(--a5)';
+        } else {
+          b.style.background = 'rgba(180,35,24,.1)';
+          b.style.borderColor = 'var(--red)';
+          b.style.color = 'var(--red)';
+          optsEl.querySelectorAll('button').forEach(function(x){
+            if (x.textContent === tasks[i].ans){
+              x.style.background = 'rgba(58,125,44,.12)';
+              x.style.borderColor = 'var(--a5)';
+              x.style.color = 'var(--a5)';
+            }
+          });
+          msg.textContent = '❌ Правильный ответ подсвечен зелёным.';
+          msg.style.color = 'var(--red)';
+        }
+        scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+        setTimeout(function(){ i++; render(); }, 1300);
+      });
+      optsEl.appendChild(b);
+    });
+  }
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 3: узор из квадратов
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g3code');
+  if (!codeEl) return;
+  var optsEl = document.getElementById('g3opts');
+  var msg = document.getElementById('g3msg');
+  var scoreEl = document.getElementById('g3score');
+
+  var tasks = [
+    {
+      code: 'def draw_square(length, cur_color):\n    color(cur_color)\n    begin_fill()\n    for i in range(4):\n        forward(length)\n        left(90)\n    end_fill()\n\ndraw_square(200, "black")\ndraw_square(150, "white")',
+      ans: 'Два квадрата: сначала чёрный 200, потом белый 150',
+      opts: [
+        'Два квадрата: сначала чёрный 200, потом белый 150',
+        'Только чёрный квадрат',
+        'Только белый квадрат',
+        'Ошибка'
+      ]
+    },
+    {
+      code: 'draw_square(200, "black")\ndraw_square(150, "white")\ndraw_square(100, "lavender")\ndraw_square(50, "black")',
+      ans: 'Четыре квадрата разных размеров и цветов',
+      opts: [
+        'Четыре квадрата разных размеров и цветов',
+        'Один квадрат',
+        'Пять квадратов',
+        'Ошибка'
+      ]
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      optsEl.innerHTML = '';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    optsEl.innerHTML = '';
+    tasks[i].opts.forEach(function(t){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t;
+      b.style.cssText = 'padding:14px 16px;border:3px solid var(--line);background:var(--card);border-radius:14px;font:800 15px var(--font-ui);color:var(--text);cursor:pointer;transition:.15s ease;text-align:left';
+      b.addEventListener('click', function(){
+        if (b.dataset.locked) return;
+        optsEl.querySelectorAll('button').forEach(function(x){
+          x.dataset.locked = '1'; x.style.pointerEvents = 'none';
+        });
+        answered++;
+        if (t === tasks[i].ans){
+          score++;
+          b.style.background = 'rgba(58,125,44,.12)';
+          b.style.borderColor = 'var(--a5)';
+          b.style.color = 'var(--a5)';
+          msg.textContent = '✅ Верно!';
+          msg.style.color = 'var(--a5)';
+        } else {
+          b.style.background = 'rgba(180,35,24,.1)';
+          b.style.borderColor = 'var(--red)';
+          b.style.color = 'var(--red)';
+          optsEl.querySelectorAll('button').forEach(function(x){
+            if (x.textContent === tasks[i].ans){
+              x.style.background = 'rgba(58,125,44,.12)';
+              x.style.borderColor = 'var(--a5)';
+              x.style.color = 'var(--a5)';
+            }
+          });
+          msg.textContent = '❌ Правильный ответ подсвечен зелёным.';
+          msg.style.color = 'var(--red)';
+        }
+        scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+        setTimeout(function(){ i++; render(); }, 1400);
+      });
+      optsEl.appendChild(b);
+    });
+  }
+  render();
+})();
+
+/* ============================================================
+   КВИЗ
+   ============================================================ */
+(function(){
+  var quiz = document.getElementById('kquiz');
+  if (!quiz) return;
+
+  var qs = quiz.querySelectorAll('.q');
+  var total = qs.length;
+  var score = 0, answered = 0;
+  var scoreEl = document.getElementById('kquizScore');
+
+  qs.forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var fb = q.querySelector('.fb');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (q.dataset.done) return;
+        q.dataset.done = '1';
+        var ok = opt.dataset.correct === 'true';
+        opts.forEach(function(o){
+          if (o.dataset.correct === 'true') o.classList.add('right');
+          o.disabled = true;
+        });
+        if (!ok) opt.classList.add('wrong');
+        fb.classList.add(ok ? 'ok' : 'no');
+        fb.textContent = ok ? '✅ Верно!' : '❌ Неверно — правильный ответ подсвечен зелёным.';
+        if (ok) score++;
+        answered++;
+        if (answered === total){
+          var verdict = score === total ? ' — идеально! 🎉'
+                       : score >= total * 0.7 ? ' — хорошо! 👍'
+                       : ' — стоит повторить 🤔';
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total + verdict;
+        } else {
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total;
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   КНОПКИ PLAYGROUND
+   ============================================================ */
+(function(){
+  function encodeForPlayground(str){
+    return btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  document.querySelectorAll('.btn-play').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.task;
+      var tpl = document.querySelector('template[data-task="' + id + '"]');
+      var code = tpl ? tpl.content.textContent.trim() : '';
+      var url = 'python-compiler.html#code=' + encodeForPlayground(code);
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+})();
+
+/* ============================================================
+   ОТМЕТКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var LS_KEY = 'py_course_progress';
+  var LESSON_NUM = 18;
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  function readArr(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeArr(arr){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+
+  if (readArr().indexOf(LESSON_NUM) !== -1){
+    btn.textContent = '✓ Урок пройден';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+  }
+
+  btn.addEventListener('click', function(){
+    var arr = readArr();
+    if (arr.indexOf(LESSON_NUM) === -1){
+      arr.push(LESSON_NUM);
+      writeArr(arr);
+    }
+    btn.textContent = '✓ Урок пройден!';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+    nextWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>

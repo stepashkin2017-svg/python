@@ -1,0 +1,3117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Игра «Тир». Часть 2 — урок 30</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 30 · ИГРА «ТИР». ЧАСТЬ 2
+   Список мишеней, таймер, класс Game
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(58,125,44,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(184,50,90,.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(40,115,184,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#5B4BC4}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+.byte-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.06));
+  border-radius:20px;
+}
+.byte-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(12,124,134,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.byte-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.byte-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.byte-says .bubble b{color:var(--a1)}
+.byte-says.kostya .face{background:linear-gradient(135deg,#2873B8,#5B4BC4)}
+.byte-says.kostya .bubble b{color:var(--a6)}
+.byte-says.alena .face{background:linear-gradient(135deg,#B8325A,#B9660A)}
+.byte-says.alena .bubble b{color:var(--a4)}
+
+@media(max-width:520px){
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:20px 22px;border-radius:16px;margin:14px 0;
+  font:15px/1.7 var(--font-code);
+  box-shadow:0 8px 20px rgba(15,26,48,.25);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .mod{color:#8EE6A0;font-weight:700}
+.code-full .cls{color:#FFB454;font-weight:800;background:rgba(255,180,84,.14);border-radius:4px;padding:0 4px}
+.code-full .self{color:#FFA8B8;font-weight:800;background:rgba(184,50,90,.2);border-radius:4px;padding:0 3px}
+.code-full .init{color:#7FC4FF;font-weight:800;background:rgba(127,196,255,.16);border-radius:4px;padding:0 3px}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .imp{color:#FF8FB0;font-weight:800}
+.code-full .var{color:#FFA8B8;font-weight:700}
+.code-full .hl{background:rgba(255,180,84,.18);border-radius:4px;padding:0 4px}
+
+.term{
+  margin:16px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:16px 20px;
+  font:15px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+/* ---------- Карточка команды ---------- */
+.cmd-card{
+  background:var(--card);
+  border:3px solid var(--line);
+  border-radius:20px;
+  overflow:hidden;
+  margin:24px 0;
+  transition:.2s ease;
+}
+.cmd-card:hover{border-color:var(--a3)}
+.cmd-card .head{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;
+  background:linear-gradient(135deg,rgba(91,75,196,.1),rgba(12,124,134,.08));
+  border-bottom:2px dashed var(--line);
+}
+.cmd-card .head .num{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:36px;height:36px;padding:0 10px;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  color:#fff;
+  font:800 14px var(--font-code);
+}
+.cmd-card .head .name{
+  font:800 16px var(--font-code);
+  color:var(--a3);
+  word-break:break-all;
+}
+.cmd-card .body{padding:20px 22px}
+.cmd-card .body p{margin:0 0 12px;font-size:17px;line-height:1.6}
+.cmd-card .body p:last-child{margin-bottom:0}
+.cmd-card .what{
+  font:800 13px var(--font-ui);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+.cmd-card .analogy{
+  background:linear-gradient(135deg,rgba(255,217,142,.18),rgba(255,180,84,.08));
+  border:3px dashed var(--a2);
+  border-radius:16px;
+  padding:14px 18px;
+  margin:14px 0;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.cmd-card .analogy .em{font-size:36px;line-height:1;flex:0 0 auto}
+.cmd-card .analogy .txt{flex:1;font-size:16px;line-height:1.55}
+.cmd-card .analogy .txt b{color:var(--a2)}
+
+/* ---------- Анатомия класса ---------- */
+.class-anatomy{
+  background:var(--bg);
+  border-radius:18px;
+  padding:24px 22px;
+  margin:22px 0;
+  overflow-x:auto;
+}
+.class-anatomy pre{
+  margin:0;
+  font:14.5px/2 var(--font-code);
+  color:var(--text);
+  white-space:pre;
+}
+.class-anatomy .kw{color:var(--a2);font-weight:800}
+.class-anatomy .cls{color:var(--a3);font-weight:800;background:rgba(91,75,196,.12);padding:1px 5px;border-radius:4px}
+.class-anatomy .fn{color:var(--a1);font-weight:700}
+.class-anatomy .self{color:var(--a4);font-weight:700}
+.class-anatomy .cm{color:var(--muted);font-style:italic}
+
+/* ---------- План ---------- */
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35}
+
+/* ---------- Таблица ---------- */
+.print-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.06);
+  font-size:15px;
+}
+.print-table th, .print-table td{
+  padding:12px 14px;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.print-table th{
+  background:var(--bg);color:var(--muted);
+  font:700 12.5px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.print-table td:first-child{
+  font-family:var(--font-code);font-size:13.5px;color:var(--a3);
+  font-weight:700;
+}
+.print-table tr:last-child td{border-bottom:none}
+
+/* ---------- Визуализация списка мишеней ---------- */
+.list-anatomy{
+  background:var(--bg);
+  border-radius:18px;
+  padding:22px;
+  margin:22px 0;
+  text-align:center;
+}
+.list-anatomy .label{
+  font:800 13px var(--font-ui);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--muted);
+  margin-bottom:12px;
+}
+.list-anatomy .cells{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.list-anatomy .cell{
+  padding:14px 18px;
+  background:var(--card);
+  border:3px solid var(--a3);
+  border-radius:12px;
+  min-width:90px;
+  text-align:center;
+  transition:.2s ease;
+}
+.list-anatomy .cell .idx{
+  display:block;
+  font:700 10.5px var(--font-code);
+  color:var(--muted);
+  margin-bottom:4px;
+}
+.list-anatomy .cell .val{
+  font:800 13.5px var(--font-code);
+  color:var(--text);
+}
+.list-anatomy .cell.hit{
+  background:linear-gradient(180deg,#B5E7A0,#8FD97C);
+  border-color:#3A7D2C;
+  transform:scale(1.08);
+  box-shadow:0 8px 20px rgba(58,125,44,.3);
+}
+
+/* ---------- Симулятор игры ---------- */
+.game-sim{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin:20px 0;
+}
+@media(max-width:760px){.game-sim{grid-template-columns:1fr}}
+.game-sim .field{
+  background:linear-gradient(180deg,#EEF3F8,#F7FAFD);
+  border-radius:14px;
+  border:3px solid var(--line);
+  position:relative;
+  overflow:hidden;
+  min-height:340px;
+  cursor:crosshair;
+}
+.game-sim .field .target{
+  position:absolute;
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    #E53935 0%, #E53935 25%,
+    #fff 25%, #fff 45%,
+    #E53935 45%, #E53935 65%,
+    #fff 65%, #fff 85%,
+    #E53935 85%, #E53935 100%);
+  cursor:pointer;
+  transform:translate(-50%,-50%);
+  transition:transform .15s ease;
+  box-shadow:0 6px 16px rgba(23,32,51,.15);
+}
+.game-sim .field .target:hover{transform:translate(-50%,-50%) scale(1.05)}
+.game-sim .field .target.hit{
+  animation:pop .35s ease;
+}
+@keyframes pop{
+  0%{transform:translate(-50%,-50%) scale(1)}
+  50%{transform:translate(-50%,-50%) scale(1.3);opacity:.7}
+  100%{transform:translate(-50%,-50%) scale(1)}
+}
+.game-sim .field .hud{
+  position:absolute;top:10px;left:10px;
+  background:var(--card);
+  border-radius:10px;
+  padding:6px 12px;
+  font:800 13px var(--font-code);
+  color:var(--text);
+  box-shadow:0 4px 10px rgba(23,32,51,.08);
+}
+.game-sim .field .timer{
+  position:absolute;top:10px;right:10px;
+  background:linear-gradient(135deg,#B8325A,#B9660A);
+  color:#fff;
+  border-radius:10px;
+  padding:6px 14px;
+  font:800 13px var(--font-code);
+  box-shadow:0 4px 10px rgba(184,50,90,.3);
+}
+.game-sim .code{
+  background:#0F1A30;
+  color:#E8EEF8;
+  border-radius:14px;
+  padding:16px 18px;
+  font:13px/1.7 var(--font-code);
+  white-space:pre-wrap;
+  overflow-x:auto;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+  min-height:340px;
+}
+.game-sim .code .cur{
+  background:rgba(142,230,160,.18);
+  border-radius:4px;
+  padding:0 4px;
+}
+
+/* ---------- Квиз ---------- */
+.kquiz{margin-top:8px}
+.kquiz .q{
+  background:var(--card);border-radius:16px;
+  padding:18px;margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+}
+.kquiz .q .qnum{
+  font:800 11px var(--font-code);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.kquiz .q .qtext{font:700 17px var(--font-ui);margin:6px 0 12px;line-height:1.45}
+.kquiz .q pre{
+  margin:0 0 12px;padding:12px;font-size:13px;
+  background:#0F1A30;border-radius:10px;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;
+}
+.kquiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kquiz .opt{
+  padding:12px 14px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);transition:.15s ease;
+}
+.kquiz .opt:hover:not(:disabled){border-color:var(--a3)}
+.kquiz .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.kquiz .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.kquiz .opt:disabled{cursor:default;opacity:.9}
+.kquiz .fb{margin-top:8px;font-weight:700;font-size:14.5px;min-height:20px}
+.kquiz .fb.ok{color:var(--a5)}
+.kquiz .fb.no{color:var(--red)}
+.kquiz .score{text-align:center;margin-top:14px;font:800 16px var(--font-ui);color:var(--a3)}
+
+/* ---------- Задания ---------- */
+.tasks-wrap{margin:56px 0 40px}
+.tasks-intro{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-left:6px solid var(--a1);border-radius:16px;
+  padding:20px 24px;margin:20px 0 26px;
+  font-size:17px;line-height:1.6;
+}
+.tasks-intro b{color:var(--a1)}
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:16px;margin-top:22px;
+}
+.play-task{
+  background:var(--card);border-radius:18px;padding:20px;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  display:flex;flex-direction:column;gap:12px;
+  border-left:5px solid var(--a3);transition:.18s ease;
+}
+.play-task:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(23,32,51,.14)}
+.play-task .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play-task .task-num{
+  font:800 12px var(--font-code);color:#fff;background:var(--a3);
+  padding:4px 10px;border-radius:8px;letter-spacing:.04em;
+}
+.play-task .task-title{font:800 16px var(--font-ui);flex:1;min-width:120px}
+.play-task .task-stars{font-size:13px;letter-spacing:2px}
+.play-task .task-desc{margin:0;font-size:14.5px;line-height:1.55;color:var(--text)}
+.play-task .task-desc code{
+  font:600 12.5px var(--font-code);
+  background:var(--bg);padding:1px 6px;border-radius:4px;
+}
+.btn-play{
+  align-self:flex-start;padding:11px 18px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;font:800 14px var(--font-ui);cursor:pointer;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+  transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(91,75,196,.45)}
+.play-task details{
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);overflow:hidden;font-size:14px;
+}
+.play-task details summary{
+  cursor:pointer;padding:10px 12px;list-style:none;
+  font-weight:700;color:var(--text);
+}
+.play-task details summary::-webkit-details-marker{display:none}
+.play-task details summary::before{
+  content:"▸ ";color:var(--a3);font-size:11px;
+  display:inline-block;transition:.2s;
+}
+.play-task details[open] summary::before{transform:rotate(90deg)}
+.play-task details[open] summary{
+  background:rgba(91,75,196,.1);color:var(--a3);
+  border-bottom:1px solid var(--line);
+}
+.play-task details pre{
+  margin:0;padding:12px;font-size:12.5px;
+  background:#0F1A30;border-radius:0;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;line-height:1.55;
+}
+.play-task details p{margin:8px 12px;color:var(--muted)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#B5E7A0,#C9B8FF 50%,#FFD98E);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🎯";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#2E4A1F}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#2E4A1F;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#3A7D2C,#0C7C86);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(58,125,44,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#5B4BC4,#B8325A)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .kquiz .opts{grid-template-columns:1fr}
+  .code-full{font-size:13px;padding:16px}
+  .print-table{font-size:13px}
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px}
+  .cmd-card .head .name{font-size:14px}
+  .class-anatomy pre{font-size:12px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>🎯</span>
+    <span>⏱️</span>
+    <span>🤖</span>
+  </div>
+  <h1>Игра «Тир». Часть 2</h1>
+  <p class="lead">
+    Первая версия тира работает. Но Костя хочет больше:
+    <b>несколько мишеней сразу</b>, <b>таймер</b> и <b>уровни
+    сложности</b>. Сегодня мы соберём полноценную игру, где
+    мишени — это <b>список объектов</b>, а вся игра — тоже объект.
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>📋 Список мишеней</span>
+    <span>⏱️ Таймер в игре</span>
+    <span>🎮 Класс Game</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>💭</span>
+      <span>📋</span>
+      <span>⏱</span>
+      <span>🎮</span>
+      <span>🏆</span>
+      <span>🏁</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- ПЛАН -->
+<!-- ============================================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–5 мин</span>
+    <span class="icon">💭</span>
+    <div class="ttl">Новая задача Кости</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">5–14 мин</span>
+    <span class="icon">📋</span>
+    <div class="ttl">Список мишеней</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">14–23 мин</span>
+    <span class="icon">⏱</span>
+    <div class="ttl">Таймер обратного отсчёта</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">23–32 мин</span>
+    <span class="icon">🎮</span>
+    <div class="ttl">Класс Game</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">32–40 мин</span>
+    <span class="icon">🏆</span>
+    <div class="ttl">Уровни и рекорд</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">40–45 мин</span>
+    <div class="ttl">Итог и квиз</div>
+    <span class="icon">🏁</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ШАГ 1 · НОВАЯ ЗАДАЧА -->
+<!-- ============================================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–5 минут · 💭 Новая задача</span>
+  <h2>Костя хочет больше</h2>
+  <p class="sub">
+    Первая версия тира с одной мишенью уже работает. Но Костя
+    посмотрел на неё и сказал: «Слишком просто. Давай сделаем
+    настоящую игру».
+  </p>
+
+  <div class="byte-says kostya">
+    <div class="face">👨‍💻</div>
+    <div class="bubble">
+      Смотри, Байт. У нас одна мишень, и она прыгает по экрану.
+      А давай сделаем так: пусть будет <b>сразу 3–5 мишеней</b>,
+      они будут двигаться, и у игрока будет <b>30 секунд</b>,
+      чтобы набрать максимум очков. А ещё — <b>уровни
+      сложности</b>: чем выше, тем быстрее двигаются мишени.
+    </div>
+  </div>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Задачи понятные. Но чтобы управиться, мне нужно два
+      инструмента. <b>Первый:</b> хранить несколько мишеней —
+      для этого подойдёт <b>список</b> из урока 28. <b>Второй:</b>
+      отмерять время — тут помогут модуль <code>time</code>
+      из урока 15 и <code>pygame.time</code>.
+    </div>
+  </div>
+
+  <div class="byte-says alena">
+    <div class="face">👩‍💼</div>
+    <div class="bubble">
+      И ещё одно важное улучшение. Сейчас код игры живёт в
+      отдельных переменных. А если упаковать всю игру в
+      <b>класс</b> <code>Game</code> — станет намного чище.
+      И меню, и счёт, и список мишеней — всё в одном объекте.
+    </div>
+  </div>
+
+  <h3>Что должна делать новая версия</h3>
+
+  <div class="rules" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:22px 0">
+    <div style="background:var(--card);border-radius:16px;padding:18px 20px;border-left:6px solid var(--a3);font-size:16.5px;line-height:1.55">
+      <b>1.</b> Несколько мишеней одновременно (список).
+    </div>
+    <div style="background:var(--card);border-radius:16px;padding:18px 20px;border-left:6px solid var(--a3);font-size:16.5px;line-height:1.55">
+      <b>2.</b> Таймер на 30 секунд.
+    </div>
+    <div style="background:var(--card);border-radius:16px;padding:18px 20px;border-left:6px solid var(--a3);font-size:16.5px;line-height:1.55">
+      <b>3.</b> Мишени двигаются после каждого попадания.
+    </div>
+    <div style="background:var(--card);border-radius:16px;padding:18px 20px;border-left:6px solid var(--a3);font-size:16.5px;line-height:1.55">
+      <b>4.</b> После игры — «Игра окончена» и итоговый счёт.
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🎯 Что мы узнаем сегодня</div>
+    <p>
+      <b>1.</b> Как хранить <b>список объектов</b> в переменной.<br>
+      <b>2.</b> Как перебирать этот список в цикле.<br>
+      <b>3.</b> Как считать <b>прошедшее время</b> через
+      <code>pygame.time.get_ticks()</code>.<br>
+      <b>4.</b> Как упаковать игру в <b>класс</b>
+      <code>Game</code>.<br>
+      <b>5.</b> Как сделать <b>состояния</b> игры — «идёт»
+      и «закончена».
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 2 · СПИСОК МИШЕНЕЙ -->
+<!-- ============================================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 5–14 минут · 📋 Список мишеней</span>
+  <h2>Как хранить несколько мишеней?</h2>
+  <p class="sub">
+    Обычная переменная хранит одно значение. У нас мишеней
+    несколько. Значит, нужен <b>список</b> — структура, которую
+    мы разбирали в уроке 28.
+  </p>
+
+  <div class="def-card">
+    <div class="term">Список объектов</div>
+    <div class="def">
+      Это список, элементами которого могут быть <b>не только
+      числа или строки</b>, но и <b>целые объекты</b> — например,
+      наши мишени. Каждый элемент — отдельный <code>Target</code>
+      со своими координатами.
+    </div>
+    <div class="ex">
+      <code>targets = [Target(...), Target(...), Target(...)]</code> —
+      список из трёх мишеней.
+    </div>
+  </div>
+
+  <h3>Знакомый список</h3>
+
+  <p>
+    Раньше мы хранили в списке числа: <code>[181, 176, 160]</code>.
+    Теперь — объекты:
+  </p>
+
+  <div class="list-anatomy">
+    <div class="label">targets = [ t1, t2, t3, t4 ]</div>
+    <div class="cells">
+      <div class="cell">
+        <span class="idx">[0]</span>
+        <span class="val">Target #1</span>
+      </div>
+      <div class="cell">
+        <span class="idx">[1]</span>
+        <span class="val">Target #2</span>
+      </div>
+      <div class="cell">
+        <span class="idx">[2]</span>
+        <span class="val">Target #3</span>
+      </div>
+      <div class="cell">
+        <span class="idx">[3]</span>
+        <span class="val">Target #4</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Как перебрать список мишеней</h3>
+
+  <p>
+    Вспомним цикл <code>for</code> из урока 28. Нам нужно
+    пройти по всем мишеням — нарисовать, проверить попадание.
+  </p>
+
+  <div class="cmd-card">
+    <div class="head">
+      <span class="num">1</span>
+      <span class="name">for target in targets:</span>
+    </div>
+    <div class="body">
+      <div class="what">Что делает</div>
+      <p>
+        Перебирает все объекты из списка. На каждом шаге
+        переменная <code>target</code> — это <b>очередная
+        мишень</b>.
+      </p>
+
+      <div class="analogy">
+        <span class="em">📖</span>
+        <div class="txt">
+          <b>Аналогия.</b> Как будто мы идём по полке и по очереди
+          берём каждую мишень: «эта мишень, эта, эта…». С каждой
+          делаем одно и то же.
+        </div>
+      </div>
+
+      <div class="what">Как пишется</div>
+      <div class="code-full"><span class="cm"># создаём список мишеней</span>
+targets = []
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">4</span>):
+    t = <span class="cls">Target</span>(<span class="num">100</span>, <span class="num">100</span>, <span class="num">40</span>)
+    t.<span class="fn">move_random</span>()
+    targets.<span class="fn">append</span>(t)
+
+<span class="cm"># перебираем все мишени</span>
+<span class="kw">for</span> target <span class="kw">in</span> targets:
+    target.<span class="fn">draw</span>(window)</div>
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Как это работает</div>
+    <p>
+      <b>1.</b> Создаём пустой список <code>targets = []</code>.<br>
+      <b>2.</b> В цикле <code>range(4)</code> четыре раза
+      создаём объект <code>Target</code> и добавляем в список
+      через <code>append</code>.<br>
+      <b>3.</b> Потом перебираем этот список и работаем с каждой
+      мишенью отдельно.
+    </p>
+    <p>
+      Так можно сделать сколько угодно мишеней — хоть 100.
+    </p>
+  </div>
+
+  <h3>Проверка попадания</h3>
+
+  <p>
+    Когда игрок кликает, надо проверить: попал ли он в
+    какую-нибудь из мишеней? Перебираем список:
+  </p>
+
+  <div class="code-full"><span class="kw">if</span> event.type == <span class="mod">pygame</span>.<span class="attr">MOUSEBUTTONDOWN</span>:
+    <span class="kw">for</span> target <span class="kw">in</span> targets:
+        <span class="kw">if</span> target.<span class="fn">is_hit</span>(event.pos):
+            <span class="var">score</span> += <span class="num">1</span>
+            target.<span class="fn">move_random</span>()
+            <span class="kw">break</span>  <span class="cm"># выходим из цикла — попали в одну мишень</span></div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Зачем break</div>
+    <p>
+      Кликом игрок попадает только в <b>одну</b> мишень. Если
+      мы не выйдем из цикла сразу — можем случайно засчитать
+      несколько попаданий, если мишени перекрываются.
+    </p>
+    <p>
+      <code>break</code> выходит из цикла <code>for</code> сразу
+      после первого попадания.
+    </p>
+  </div>
+
+  <!-- Интерактив: как работает список -->
+  <div class="scene">
+    <h4>Что произойдёт при клике?</h4>
+    <p class="hint">
+      Посмотри на код и данные — что случится, если кликнуть
+      в точку (150, 200)?
+    </p>
+
+    <div id="g1task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.8;color:var(--text);white-space:pre-wrap" id="g1code"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:10px" id="g1opts"></div>
+    <div id="g1msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g1score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 3 · ТАЙМЕР ОБРАТНОГО ОТСЧЁТА -->
+<!-- ============================================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 14–23 минут · ⏱️ Таймер</span>
+  <h2>Считаем время игры</h2>
+  <p class="sub">
+    Вспомним урок 15: там мы делали секундомер через модуль
+    <code>time</code>. В Pygame есть своя функция для этого —
+    она удобнее, потому что считает миллисекунды с момента
+    старта Pygame.
+  </p>
+
+  <div class="cmd-card">
+    <div class="head">
+      <span class="num">2</span>
+      <span class="name">pygame.time.get_ticks()</span>
+    </div>
+    <div class="body">
+      <div class="what">Что делает</div>
+      <p>
+        Возвращает <b>количество миллисекунд</b>, прошедших
+        с момента запуска <code>pygame.init()</code>. Одна
+        секунда = 1000 миллисекунд.
+      </p>
+
+      <div class="analogy">
+        <span class="em">⏱️</span>
+        <div class="txt">
+          <b>Аналогия.</b> Это как <b>секундомер, включённый
+          в самом начале</b>. Он тикает всё время, пока игра
+          работает. Мы в любой момент можем посмотреть, сколько
+          миллисекунд прошло.
+        </div>
+      </div>
+
+      <div class="what">Как пишется</div>
+      <div class="code-full"><span class="cm"># узнать, сколько прошло с начала игры</span>
+now = <span class="mod">pygame</span>.<span class="attr">time</span>.<span class="fn">get_ticks</span>()
+<span class="fn">print</span>(now)   <span class="cm"># например: 3542 (≈ 3.5 сек)</span></div>
+    </div>
+  </div>
+
+  <h3>Как сделать таймер обратного отсчёта</h3>
+
+  <p>
+    У нас есть «всё время» в миллисекундах. Чтобы сделать
+    обратный отсчёт, сделаем так:
+  </p>
+
+  <div class="rules" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:22px 0">
+    <div style="background:var(--card);border-radius:16px;padding:18px 20px;border-left:6px solid var(--a3);font-size:16.5px;line-height:1.55">
+      <b>1.</b> Запоминаем момент старта в переменной.
+    </div>
+    <div style="background:var(--card);border-radius:16px;padding:18px 20px;border-left:6px solid var(--a3);font-size:16.5px;line-height:1.55">
+      <b>2.</b> На каждом кадре считаем прошедшее время:
+      <code>now − start</code>.
+    </div>
+    <div style="background:var(--card);border-radius:16px;padding:18px 20px;border-left:6px solid var(--a3);font-size:16.5px;line-height:1.55">
+      <b>3.</b> Вычитаем его из 30 секунд — получаем
+      остаток.
+    </div>
+    <div style="background:var(--card);border-radius:16px;padding:18px 20px;border-left:6px solid var(--a3);font-size:16.5px;line-height:1.55">
+      <b>4.</b> Когда остаток ≤ 0 — игра заканчивается.
+    </div>
+  </div>
+
+  <div class="code-full"><span class="var">start_ticks</span> = <span class="mod">pygame</span>.<span class="attr">time</span>.<span class="fn">get_ticks</span>()   <span class="cm"># момент старта</span>
+<span class="var">GAME_TIME</span> = <span class="num">30</span>   <span class="cm"># секунд на игру</span>
+
+<span class="cm"># внутри игрового цикла:</span>
+seconds_passed = (<span class="mod">pygame</span>.<span class="attr">time</span>.<span class="fn">get_ticks</span>() - <span class="var">start_ticks</span>) / <span class="num">1000</span>
+time_left = <span class="var">GAME_TIME</span> - seconds_passed
+
+<span class="kw">if</span> time_left &lt;= <span class="num">0</span>:
+    <span class="cm"># время вышло!</span>
+    running = <span class="kw">False</span>
+
+<span class="cm"># показать на экране</span>
+text = font1.<span class="fn">render</span>(<span class="str">'Время: '</span> + <span class="fn">str</span>(<span class="fn">int</span>(time_left)), <span class="kw">True</span>, (<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>))</div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Разбор</div>
+    <p>
+      <b>1.</b> <code>get_ticks()</code> возвращает миллисекунды.
+      Делим на 1000 — получаем секунды.<br>
+      <b>2.</b> <code>time_left</code> — сколько секунд осталось.<br>
+      <b>3.</b> Если ≤ 0 — время вышло, игра заканчивается.<br>
+      <b>4.</b> <code>int(time_left)</code> — целая часть, чтобы
+      показать «28» вместо «28.345».
+    </p>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Не путай</div>
+    <p>
+      <code>pygame.time.get_ticks()</code> — миллисекунды
+      <b>с начала работы программы</b>. Это не дата, не текущий
+      час, а просто «сколько прошло с запуска».
+    </p>
+    <p>
+      Если перезапустить игру — счёт начнётся с нуля.
+    </p>
+  </div>
+
+  <h3>Смотрим, как тикает таймер</h3>
+
+  <p>
+    Нажми «Старт» — увидишь обратный отсчёт в действии.
+  </p>
+
+  <div class="scene">
+    <div id="timerArea" style="
+      background:linear-gradient(135deg,#0B1220,#131D31);
+      border-radius:16px;
+      padding:30px 24px;
+      text-align:center;
+      color:#E8EEF8;
+      min-height:160px;
+      display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;
+    ">
+      <div style="font:800 11px var(--font-ui);color:#7F90B0;letter-spacing:.08em;text-transform:uppercase">
+        Осталось времени
+      </div>
+      <div id="timerBig" style="font:900 64px var(--font-code);color:#8EE6A0;text-shadow:0 0 20px rgba(142,230,160,.4);line-height:1">
+        30
+      </div>
+      <div style="display:flex;gap:10px">
+        <button type="button" class="sim-btn primary" id="timerStart" style="padding:10px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--a1),var(--a3));color:#fff;font:800 14px var(--font-ui);cursor:pointer">
+          ▶ Запустить
+        </button>
+        <button type="button" class="sim-btn" id="timerReset" style="padding:10px 20px;border:2px solid rgba(255,255,255,.2);border-radius:10px;background:transparent;color:#E8EEF8;font:800 14px var(--font-ui);cursor:pointer">
+          ↺ Сброс
+        </button>
+      </div>
+      <div style="font:700 12px var(--font-code);color:#7F90B0">
+        pygame.time.get_ticks()
+      </div>
+    </div>
+  </div>
+
+  <!-- Интерактив: что покажет таймер -->
+  <div class="scene">
+    <h4>Что покажет таймер?</h4>
+    <p class="hint">
+      Игра началась в момент <code>start_ticks = 0</code>,
+      длится 30 секунд. Сколько секунд осталось в момент,
+      указанный в задании?
+    </p>
+
+    <div id="g2task" style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
+      <div style="font:800 15px var(--font-ui);color:var(--muted);margin-bottom:10px">Прошло времени:</div>
+      <div style="font:800 24px var(--font-code);color:var(--a3);line-height:1.4" id="g2code">5 секунд</div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="number" id="g2answer" placeholder="Осталось секунд" style="text-align:center">
+      <button type="button" id="g2btn">Проверить</button>
+    </div>
+    <div id="g2msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g2score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 4 · КЛАСС GAME -->
+<!-- ============================================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 23–32 минут · 🎮 Класс Game</span>
+  <h2>Упаковываем всю игру в класс</h2>
+  <p class="sub">
+    Сейчас у нас много отдельных переменных: <code>targets</code>,
+    <code>score</code>, <code>start_ticks</code>, <code>running</code>…
+    И каждая новая игра потребует свой набор. Пора упаковать
+    всю игру в <b>класс</b> <code>Game</code>.
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Зачем класс Game</div>
+    <p>
+      <b>1.</b> Все данные игры в одном месте: мишени, счёт,
+      время, состояние.<br>
+      <b>2.</b> Легко сделать <b>несколько игр</b> с разными
+      настройками — например, лёгкую и сложную.<br>
+      <b>3.</b> Код становится короче: вместо десяти переменных
+      — один объект.
+    </p>
+  </div>
+
+  <h3>Класс Game — каркас</h3>
+
+  <div class="code-full"><span class="kw">class</span> <span class="cls">Game</span>():
+    <span class="kw">def</span> <span class="init">__init__</span>(<span class="self">self</span>, targets_count, game_time):
+        <span class="self">self</span>.targets = []
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(targets_count):
+            t = <span class="cls">Target</span>(<span class="num">300</span>, <span class="num">250</span>, <span class="num">40</span>)
+            t.<span class="fn">move_random</span>()
+            <span class="self">self</span>.targets.<span class="fn">append</span>(t)
+
+        <span class="self">self</span>.score = <span class="num">0</span>
+        <span class="self">self</span>.game_time = game_time
+        <span class="self">self</span>.start_ticks = <span class="mod">pygame</span>.<span class="attr">time</span>.<span class="fn">get_ticks</span>()
+        <span class="self">self</span>.finished = <span class="kw">False</span>
+
+    <span class="kw">def</span> <span class="fn">time_left</span>(<span class="self">self</span>):
+        elapsed = (<span class="mod">pygame</span>.<span class="attr">time</span>.<span class="fn">get_ticks</span>() - <span class="self">self</span>.start_ticks) / <span class="num">1000</span>
+        <span class="kw">return</span> <span class="self">self</span>.game_time - elapsed
+
+    <span class="kw">def</span> <span class="fn">handle_click</span>(<span class="self">self</span>, pos):
+        <span class="kw">if</span> <span class="self">self</span>.finished:
+            <span class="kw">return</span>
+        <span class="kw">for</span> t <span class="kw">in</span> <span class="self">self</span>.targets:
+            <span class="kw">if</span> t.<span class="fn">is_hit</span>(pos):
+                <span class="self">self</span>.score += <span class="num">1</span>
+                t.<span class="fn">move_random</span>()
+                <span class="kw">break</span>
+
+    <span class="kw">def</span> <span class="fn">update</span>(<span class="self">self</span>):
+        <span class="kw">if</span> <span class="self">self</span>.time_left() &lt;= <span class="num">0</span>:
+            <span class="self">self</span>.finished = <span class="kw">True</span>
+
+    <span class="kw">def</span> <span class="fn">draw</span>(<span class="self">self</span>, surface):
+        <span class="kw">for</span> t <span class="kw">in</span> <span class="self">self</span>.targets:
+            t.<span class="fn">draw</span>(surface)</div>
+
+  <div class="class-anatomy">
+<pre><span class="kw">class</span> <span class="cls">Game</span>():
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, targets_count, game_time):
+        <span class="self">self</span>.targets = []         <span class="cm">← список мишеней</span>
+        <span class="self">self</span>.score = 0            <span class="cm">← счёт игрока</span>
+        <span class="self">self</span>.game_time = game_time <span class="cm">← сколько секунд играть</span>
+        <span class="self">self</span>.start_ticks = ...     <span class="cm">← момент старта</span>
+        <span class="self">self</span>.finished = False     <span class="cm">← состояние игры</span>
+
+    <span class="kw">def</span> <span class="fn">time_left</span>(<span class="self">self</span>):       <span class="cm">← сколько секунд осталось</span>
+    <span class="kw">def</span> <span class="fn">handle_click</span>(<span class="self">self</span>, pos): <span class="cm">← обработка клика</span>
+    <span class="kw">def</span> <span class="fn">update</span>(<span class="self">self</span>):         <span class="cm">← обновление каждый кадр</span>
+    <span class="kw">def</span> <span class="fn">draw</span>(<span class="self">self</span>, surface):   <span class="cm">← отрисовка</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Разбор по шагам</div>
+    <p>
+      <b>1. <code>__init__</code></b> — создаёт <b>список мишеней</b>
+      через цикл <code>range</code>, ставит счёт 0, запоминает
+      момент старта.
+    </p>
+    <p>
+      <b>2. <code>time_left()</code></b> — возвращает, сколько
+      секунд осталось. Считается каждый раз заново.
+    </p>
+    <p>
+      <b>3. <code>handle_click(pos)</code></b> — что делать
+      при клике. Перебирает все мишени, если попадание — +1.
+    </p>
+    <p>
+      <b>4. <code>update()</code></b> — обновляет состояние
+      (например, когда время вышло, <code>finished = True</code>).
+    </p>
+    <p>
+      <b>5. <code>draw(surface)</code></b> — рисует все мишени.
+    </p>
+  </div>
+
+  <h3>Как играть через класс Game</h3>
+
+  <div class="code-full"><span class="imp">import pygame</span>
+<span class="imp">from random import randint</span>
+
+<span class="mod">pygame</span>.<span class="fn">init</span>()
+window = <span class="mod">pygame</span>.<span class="attr">display</span>.<span class="fn">set_mode</span>((<span class="num">600</span>, <span class="num">500</span>))
+clock  = <span class="mod">pygame</span>.<span class="attr">time</span>.<span class="fn">Clock</span>()
+font1  = <span class="mod">pygame</span>.<span class="attr">font</span>.<span class="fn">Font</span>(<span class="kw">None</span>, <span class="num">36</span>)
+
+<span class="cm"># ... классы Target и Game ...</span>
+
+<span class="var">game</span> = <span class="cls">Game</span>(targets_count=<span class="num">4</span>, game_time=<span class="num">30</span>)
+
+running = <span class="kw">True</span>
+<span class="kw">while</span> running:
+    <span class="kw">for</span> event <span class="kw">in</span> <span class="mod">pygame</span>.<span class="attr">event</span>.<span class="fn">get</span>():
+        <span class="kw">if</span> event.type == <span class="mod">pygame</span>.<span class="attr">QUIT</span>:
+            running = <span class="kw">False</span>
+        <span class="kw">if</span> event.type == <span class="mod">pygame</span>.<span class="attr">MOUSEBUTTONDOWN</span>:
+            game.<span class="fn">handle_click</span>(event.pos)
+
+    game.<span class="fn">update</span>()
+
+    window.<span class="fn">fill</span>((<span class="num">240</span>, <span class="num">245</span>, <span class="num">250</span>))
+    game.<span class="fn">draw</span>(window)
+
+    <span class="cm"># счёт и таймер на экране</span>
+    score_text = font1.<span class="fn">render</span>(<span class="str">'Очки: '</span> + <span class="fn">str</span>(game.score), <span class="kw">True</span>, (<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>))
+    window.<span class="fn">blit</span>(score_text, (<span class="num">20</span>, <span class="num">20</span>))
+
+    time_text = font1.<span class="fn">render</span>(<span class="str">'Время: '</span> + <span class="fn">str</span>(<span class="fn">int</span>(game.<span class="fn">time_left</span>())), <span class="kw">True</span>, (<span class="num">184</span>, <span class="num">50</span>, <span class="num">90</span>))
+    window.<span class="fn">blit</span>(time_text, (<span class="num">420</span>, <span class="num">20</span>))
+
+    <span class="kw">if</span> game.finished:
+        end_text = font1.<span class="fn">render</span>(<span class="str">'Игра окончена!'</span>, <span class="kw">True</span>, (<span class="num">180</span>, <span class="num">35</span>, <span class="num">24</span>))
+        window.<span class="fn">blit</span>(end_text, (<span class="num">180</span>, <span class="num">220</span>))
+
+    <span class="mod">pygame</span>.<span class="attr">display</span>.<span class="fn">update</span>()
+    clock.<span class="fn">tick</span>(<span class="num">40</span>)
+
+<span class="mod">pygame</span>.<span class="fn">quit</span>()</div>
+
+  <!-- Интерактив: что делает метод -->
+  <div class="scene">
+    <h4>Что делает метод?</h4>
+    <p class="hint">
+      Посмотри на фрагмент кода и выбери, что он делает.
+    </p>
+
+    <div id="g3task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 14px var(--font-code);line-height:1.8;color:var(--text);white-space:pre-wrap" id="g3code"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:10px" id="g3opts"></div>
+    <div id="g3msg" style="text-align:center;margin-top:14px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g3score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 5 · УРОВНИ И РЕКОРД -->
+<!-- ============================================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 32–40 минут · 🏆 Уровни</span>
+  <h2>Уровни сложности и рекорд</h2>
+  <p class="sub">
+    Финальный штрих: игра должна быть интересной. Добавим
+    <b>уровни сложности</b> — чем выше уровень, тем быстрее
+    двигаются мишени. А ещё — <b>рекорд</b>, чтобы было к
+    чему стремиться.
+  </p>
+
+  <h3>Идея уровней</h3>
+
+  <p>
+    Уровень меняет одну-две настройки. Например:
+  </p>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Уровень</th><th>Мишеней</th><th>Время</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Лёгкий</td><td>3</td><td>30 сек</td></tr>
+      <tr><td>Средний</td><td>5</td><td>30 сек</td></tr>
+      <tr><td>Сложный</td><td>5</td><td>20 сек</td></tr>
+    </tbody>
+  </table>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Что меняем</div>
+    <p>
+      Наш класс <code>Game</code> уже принимает параметры
+      <code>targets_count</code> и <code>game_time</code>.
+      Значит, для каждого уровня мы просто создаём свою игру
+      с разными числами!
+    </p>
+  </div>
+
+  <h3>Выбор уровня перед игрой</h3>
+
+  <p>
+    Добавим простую переменную <code>difficulty</code> — до
+    создания игры.
+  </p>
+
+  <div class="code-full"><span class="var">difficulty</span> = <span class="fn">input</span>(<span class="str">'Уровень (easy / normal / hard): '</span>)
+
+<span class="kw">if</span> difficulty == <span class="str">'easy'</span>:
+    count = <span class="num">3</span>
+    game_time = <span class="num">30</span>
+<span class="kw">elif</span> difficulty == <span class="str">'normal'</span>:
+    count = <span class="num">5</span>
+    game_time = <span class="num">30</span>
+<span class="kw">else</span>:
+    count = <span class="num">5</span>
+    game_time = <span class="num">20</span>
+
+game = <span class="cls">Game</span>(count, game_time)</div>
+
+  <h3>Рекорд</h3>
+
+  <p>
+    Рекорд можно сохранять в файл или в простой переменной,
+    пока игра работает. Простой вариант — держать рекорд в
+    <b>отдельной переменной</b> вне класса Game:
+  </p>
+
+  <div class="code-full"><span class="var">best_score</span> = <span class="num">0</span>
+
+<span class="cm"># когда игра завершилась:</span>
+<span class="kw">if</span> game.finished <span class="kw">and</span> game.score &gt; <span class="var">best_score</span>:
+    <span class="var">best_score</span> = game.score</div>
+
+  <div class="explain warn">
+    <div class="ttl">💡 Что дальше</div>
+    <p>
+      Чтобы рекорд сохранялся <b>между запусками программы</b>,
+      нужно писать в файл. Это тема отдельного урока. Пока
+      оставим рекорд в памяти — при перезапуске он сбросится.
+    </p>
+  </div>
+
+  <h3>Пробуем все вместе</h3>
+
+  <p>
+    Игра «Тир» в браузере — упрощённая модель того, что мы
+    написали. Внизу — выбор уровня, сверху — таймер.
+  </p>
+
+  <div class="scene">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <button type="button" id="diffEasy" class="sim-btn primary" data-diff="easy" style="padding:10px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--a5),var(--a1));color:#fff;font:800 14px var(--font-ui);cursor:pointer">
+        🟢 Лёгкий · 3 мишени · 30 сек
+      </button>
+      <button type="button" id="diffNormal" class="sim-btn" data-diff="normal" style="padding:10px 20px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font:800 14px var(--font-ui);cursor:pointer">
+        🟡 Средний · 5 мишеней · 30 сек
+      </button>
+      <button type="button" id="diffHard" class="sim-btn" data-diff="hard" style="padding:10px 20px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font:800 14px var(--font-ui);cursor:pointer">
+        🔴 Сложный · 5 мишеней · 20 сек
+      </button>
+    </div>
+
+    <div class="game-sim">
+      <div class="field" id="gameField" style="min-height:400px">
+        <div class="hud">Очки: <span id="gameScore">0</span></div>
+        <div class="timer">⏱ <span id="gameTimer">30</span></div>
+        <!-- мишени добавляются JS -->
+      </div>
+      <div class="code" id="gameCode">
+        <span class="cm"># выбери уровень выше и начни кликать по мишеням</span>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <button type="button" id="startGame" style="padding:14px 26px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--a1),var(--a3));color:#fff;font:800 16px var(--font-ui);cursor:pointer;box-shadow:0 8px 20px rgba(91,75,196,.35)">
+        ▶ Начать игру
+      </button>
+      <button type="button" id="resetGame" style="padding:14px 26px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);font:800 16px var(--font-ui);cursor:pointer">
+        ↺ Сбросить
+      </button>
+    </div>
+
+    <div id="gameInfo" style="text-align:center;margin-top:14px;font:700 15px var(--font-code);color:var(--muted);min-height:22px">
+      Выбери уровень и нажми «Начать игру»
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 6 · ИТОГ И КВИЗ -->
+<!-- ============================================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 40–45 минут · 🏁 Итог</span>
+  <h2>Проверь себя</h2>
+  <p class="sub">
+    Семь вопросов по всему уроку. Счёт появится внизу.
+  </p>
+
+  <div class="kquiz" id="kquiz">
+
+    <div class="q">
+      <div class="qnum">Вопрос 1</div>
+      <div class="qtext">Зачем хранить мишени в списке?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы игра работала быстрее</button>
+        <button type="button" class="opt" data-correct="true">Чтобы было много мишеней и их можно было перебирать в цикле</button>
+        <button type="button" class="opt">Это требование Pygame</button>
+        <button type="button" class="opt">Это заменяет классы</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 2</div>
+      <div class="qtext">Что делает <code>pygame.time.get_ticks()</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Возвращает текущий час</button>
+        <button type="button" class="opt" data-correct="true">Возвращает миллисекунды с момента запуска Pygame</button>
+        <button type="button" class="opt">Показывает, сколько FPS</button>
+        <button type="button" class="opt">Возвращает дату в виде строки</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 3</div>
+      <div class="qtext">Сколько секунд останется, если прошло 8 секунд, а всего 30?</div>
+      <div class="opts">
+        <button type="button" class="opt">30</button>
+        <button type="button" class="opt">8</button>
+        <button type="button" class="opt" data-correct="true">22</button>
+        <button type="button" class="opt">0</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 4</div>
+      <div class="qtext">Зачем нужен класс <code>Game</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы ускорить программу</button>
+        <button type="button" class="opt" data-correct="true">Чтобы вся игра — мишени, счёт, таймер — была в одном объекте</button>
+        <button type="button" class="opt">Это обязательное требование Pygame</button>
+        <button type="button" class="opt">Чтобы сделать мишени цветными</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 5</div>
+      <div class="qtext">Что делает этот код?</div>
+      <pre>for t in game.targets:
+    if t.is_hit(pos):
+        game.score += 1
+        t.move_random()
+        break</pre>
+      <div class="opts">
+        <button type="button" class="opt">Рисует мишени</button>
+        <button type="button" class="opt" data-correct="true">Проверяет попадание клика в какую-либо мишень и увеличивает счёт</button>
+        <button type="button" class="opt">Меняет время</button>
+        <button type="button" class="opt">Очищает экран</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 6</div>
+      <div class="qtext">Зачем нужен <code>break</code> в переборе мишеней?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы остановить игру</button>
+        <button type="button" class="opt" data-correct="true">Чтобы остановиться после первого попадания — клик попал только в одну мишень</button>
+        <button type="button" class="opt">Чтобы ускорить отрисовку</button>
+        <button type="button" class="opt">Он не нужен</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 7</div>
+      <div class="qtext">Как сделать разные уровни сложности?</div>
+      <div class="opts">
+        <button type="button" class="opt">Переписать класс Target</button>
+        <button type="button" class="opt" data-correct="true">Передавать в Game разные параметры — количество мишеней и время</button>
+        <button type="button" class="opt">Использовать другой модуль</button>
+        <button type="button" class="opt">Никак — это невозможно</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score" id="kquizScore">Счёт: 0 из 7</div>
+  </div>
+
+  <div class="explain memo" style="margin-top:24px">
+    <div class="ttl">🎓 Что ты теперь знаешь</div>
+    <p>
+      <b>1.</b> Как хранить несколько объектов в <b>списке</b>.<br>
+      <b>2.</b> Как перебирать список мишеней в цикле <code>for</code>.<br>
+      <b>3.</b> Как считать <b>прошедшее время</b> через
+      <code>pygame.time.get_ticks()</code>.<br>
+      <b>4.</b> Как сделать <b>таймер обратного отсчёта</b>.<br>
+      <b>5.</b> Как упаковать всю игру в <b>класс</b>
+      <code>Game</code>.<br>
+      <b>6.</b> Как делать <b>уровни сложности</b> через параметры
+      конструктора.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ИТОГОВЫЕ ЗАДАНИЯ -->
+<!-- ============================================================ -->
+<section class="tasks-wrap">
+
+  <span class="badge" style="background:linear-gradient(135deg,#0C7C86,#5B4BC4);color:#fff;padding:8px 18px;border-radius:99px;font:800 14px var(--font-ui);display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(12,124,134,.3)">
+    🏁 После урока · практика
+  </span>
+
+  <h2 style="margin:20px 0 8px;font-size:clamp(26px,3.6vw,34px);line-height:1.15">
+    Итоговые задания в Playground
+  </h2>
+  <p style="color:var(--muted);font-size:17px;margin:0">
+    Восемь задач на список мишеней, таймер и класс Game.
+    Нажми «Открыть в Playground» — стартовый код подставится сам.
+  </p>
+
+  <div class="tasks-intro">
+    <b>Важно про Pygame.</b> Модуль открывает отдельное окно
+    и работает только в настоящем Python на компьютере.
+    В браузере окно не появится, но <b>код можно писать
+    и проверять синтаксис</b>.
+  </div>
+
+  <div class="tasks-grid">
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">01</span>
+        <span class="task-title">Список мишеней</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Создай список из трёх мишеней через цикл и нарисуй
+        их всех в игровом цикле.
+      </p>
+      <button class="btn-play" data-task="1">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p><code>targets = []</code>, потом цикл <code>range(3)</code>
+        с <code>append</code>. В игровом цикле — <code>for t in targets:
+        t.draw(window)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+targets = []
+for i in range(3):
+    t = Target(300, 250, 40)
+    t.move_random()
+    targets.append(t)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    window.fill((240, 245, 250))
+    for t in targets:
+        t.draw(window)
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">02</span>
+        <span class="task-title">Попадание в любую мишень</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        При клике перебирай список мишеней. Если попал хотя бы
+        в одну — увеличь счёт и перепрыгни её.
+      </p>
+      <button class="btn-play" data-task="2">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Не забудь <code>break</code> после попадания —
+        чтобы не увеличить счёт несколько раз за один клик.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def is_hit(self, pos):
+        mx, my = pos
+        dx = mx - self.x
+        dy = my - self.y
+        return dx * dx + dy * dy <= self.radius * self.radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+targets = []
+for i in range(4):
+    t = Target(300, 250, 40)
+    t.move_random()
+    targets.append(t)
+
+score = 0
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for t in targets:
+                if t.is_hit(event.pos):
+                    score += 1
+                    t.move_random()
+                    break
+
+    window.fill((240, 245, 250))
+    for t in targets:
+        t.draw(window)
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">03</span>
+        <span class="task-title">Счётчик времени</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Выведи на экран количество секунд, прошедших с начала
+        игры. Используй <code>pygame.time.get_ticks()</code>.
+      </p>
+      <button class="btn-play" data-task="3">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p><code>elapsed = (get_ticks() - start) / 1000</code>.
+        <code>int(elapsed)</code> — целые секунды.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>import pygame
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+font1 = pygame.font.Font(None, 50)
+
+start_ticks = pygame.time.get_ticks()
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    elapsed = (pygame.time.get_ticks() - start_ticks) / 1000
+
+    window.fill((240, 245, 250))
+    text = font1.render(str(int(elapsed)) + ' сек',
+                        True, (23, 32, 51))
+    window.blit(text, (250, 220))
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">04</span>
+        <span class="task-title">Обратный отсчёт</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Сделай таймер обратного отсчёта: с 30 секунд до 0.
+        Когда дойдёт до 0 — печатай «Время вышло!» один раз.
+      </p>
+      <button class="btn-play" data-task="4">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Флаг <code>game_over = False</code>. Когда
+        <code>time_left &lt;= 0 and not game_over</code> —
+        печатать и ставить True.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>import pygame
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+font1 = pygame.font.Font(None, 80)
+
+start_ticks = pygame.time.get_ticks()
+GAME_TIME = 30
+game_over = False
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    elapsed = (pygame.time.get_ticks() - start_ticks) / 1000
+    time_left = GAME_TIME - elapsed
+
+    if time_left <= 0 and not game_over:
+        game_over = True
+        print('Время вышло!')
+
+    window.fill((240, 245, 250))
+    if not game_over:
+        text = font1.render(str(int(time_left)),
+                            True, (23, 32, 51))
+        window.blit(text, (270, 200))
+    else:
+        text = font1.render('Готово!', True, (180, 35, 24))
+        window.blit(text, (210, 200))
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">05</span>
+        <span class="task-title">Класс Game</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Упакуй игру в класс <code>Game</code>: список мишеней,
+        счёт, время, состояние. Два метода — <code>update</code>
+        и <code>draw</code>.
+      </p>
+      <button class="btn-play" data-task="5">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>В <code>__init__</code> создавай мишени через цикл.
+        <code>update</code> проверяет время, <code>draw</code>
+        рисует все мишени.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def is_hit(self, pos):
+        mx, my = pos
+        dx = mx - self.x
+        dy = my - self.y
+        return dx * dx + dy * dy <= self.radius * self.radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+class Game():
+    def __init__(self, count, duration):
+        self.targets = []
+        for i in range(count):
+            t = Target(300, 250, 40)
+            t.move_random()
+            self.targets.append(t)
+        self.score = 0
+        self.duration = duration
+        self.start_ticks = pygame.time.get_ticks()
+        self.finished = False
+
+    def time_left(self):
+        elapsed = (pygame.time.get_ticks() - self.start_ticks) / 1000
+        return self.duration - elapsed
+
+    def handle_click(self, pos):
+        if self.finished:
+            return
+        for t in self.targets:
+            if t.is_hit(pos):
+                self.score += 1
+                t.move_random()
+                break
+
+    def update(self):
+        if self.time_left() <= 0:
+            self.finished = True
+
+    def draw(self, surface):
+        for t in self.targets:
+            t.draw(surface)
+
+game = Game(4, 30)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            game.handle_click(event.pos)
+
+    game.update()
+
+    window.fill((240, 245, 250))
+    game.draw(window)
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">06</span>
+        <span class="task-title">Счёт и таймер на экране</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Доработай класс <code>Game</code> — выведи на экран
+        счёт игрока и оставшееся время. Когда время вышло —
+        надпись «Игра окончена».
+      </p>
+      <button class="btn-play" data-task="6">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Шрифт создай до цикла. Каждый кадр заново рисуй
+        <code>score</code> и <code>int(game.time_left())</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+font1 = pygame.font.Font(None, 36)
+font_big = pygame.font.Font(None, 60)
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def is_hit(self, pos):
+        mx, my = pos
+        dx = mx - self.x
+        dy = my - self.y
+        return dx * dx + dy * dy <= self.radius * self.radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+class Game():
+    def __init__(self, count, duration):
+        self.targets = []
+        for i in range(count):
+            t = Target(300, 250, 40)
+            t.move_random()
+            self.targets.append(t)
+        self.score = 0
+        self.duration = duration
+        self.start_ticks = pygame.time.get_ticks()
+        self.finished = False
+
+    def time_left(self):
+        elapsed = (pygame.time.get_ticks() - self.start_ticks) / 1000
+        return self.duration - elapsed
+
+    def handle_click(self, pos):
+        if self.finished:
+            return
+        for t in self.targets:
+            if t.is_hit(pos):
+                self.score += 1
+                t.move_random()
+                break
+
+    def update(self):
+        if self.time_left() <= 0:
+            self.finished = True
+
+    def draw(self, surface):
+        for t in self.targets:
+            t.draw(surface)
+
+game = Game(4, 30)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            game.handle_click(event.pos)
+
+    game.update()
+
+    window.fill((240, 245, 250))
+    game.draw(window)
+
+    score_text = font1.render('Очки: ' + str(game.score),
+                              True, (23, 32, 51))
+    window.blit(score_text, (20, 20))
+
+    time_text = font1.render('Время: ' + str(int(game.time_left())),
+                             True, (184, 50, 90))
+    window.blit(time_text, (420, 20))
+
+    if game.finished:
+        end_text = font_big.render('Игра окончена!',
+                                   True, (180, 35, 24))
+        window.blit(end_text, (150, 220))
+
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">07</span>
+        <span class="task-title">Уровни сложности</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Сделай три уровня сложности. Пользователь выбирает
+        уровень через <code>input</code> до игры. От уровня
+        зависят количество мишеней и время.
+      </p>
+      <button class="btn-play" data-task="7">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Класс <code>Game</code> принимает параметры. Выбирай
+        их через <code>if / elif / else</code> по вводу.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+font1 = pygame.font.Font(None, 36)
+font_big = pygame.font.Font(None, 60)
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def is_hit(self, pos):
+        mx, my = pos
+        dx = mx - self.x
+        dy = my - self.y
+        return dx * dx + dy * dy <= self.radius * self.radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+class Game():
+    def __init__(self, count, duration):
+        self.targets = []
+        for i in range(count):
+            t = Target(300, 250, 40)
+            t.move_random()
+            self.targets.append(t)
+        self.score = 0
+        self.duration = duration
+        self.start_ticks = pygame.time.get_ticks()
+        self.finished = False
+
+    def time_left(self):
+        elapsed = (pygame.time.get_ticks() - self.start_ticks) / 1000
+        return self.duration - elapsed
+
+    def handle_click(self, pos):
+        if self.finished:
+            return
+        for t in self.targets:
+            if t.is_hit(pos):
+                self.score += 1
+                t.move_random()
+                break
+
+    def update(self):
+        if self.time_left() <= 0:
+            self.finished = True
+
+    def draw(self, surface):
+        for t in self.targets:
+            t.draw(surface)
+
+difficulty = input('Уровень (easy / normal / hard): ')
+if difficulty == 'easy':
+    count, duration = 3, 30
+elif difficulty == 'normal':
+    count, duration = 5, 30
+else:
+    count, duration = 5, 20
+
+game = Game(count, duration)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            game.handle_click(event.pos)
+
+    game.update()
+
+    window.fill((240, 245, 250))
+    game.draw(window)
+
+    score_text = font1.render('Очки: ' + str(game.score),
+                              True, (23, 32, 51))
+    window.blit(score_text, (20, 20))
+
+    time_text = font1.render('Время: ' + str(int(game.time_left())),
+                             True, (184, 50, 90))
+    window.blit(time_text, (420, 20))
+
+    if game.finished:
+        end_text = font_big.render('Игра окончена!',
+                                   True, (180, 35, 24))
+        window.blit(end_text, (150, 220))
+
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">08</span>
+        <span class="task-title">Найди и исправь</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Программа считает попадания, но мишени не перепрыгивают,
+        и счёт увеличивается несколько раз за один клик. Найди
+        и исправь ошибки.
+      </p>
+      <button class="btn-play" data-task="8">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Проверь: 1) есть ли вызов <code>move_random()</code>
+        после попадания; 2) есть ли <code>break</code> после
+        увеличения счёта.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def is_hit(self, pos):
+        mx, my = pos
+        dx = mx - self.x
+        dy = my - self.y
+        return dx * dx + dy * dy <= self.radius * self.radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+targets = []
+for i in range(4):
+    t = Target(300, 250, 40)
+    t.move_random()
+    targets.append(t)
+
+score = 0
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for t in targets:
+                if t.is_hit(event.pos):
+                    score += 1
+                    t.move_random()   # ← перескакивает
+                    break              # ← выходим из цикла
+
+    window.fill((240, 245, 250))
+    for t in targets:
+        t.draw(window)
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()</pre>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- Стартовый код для Playground -->
+<div id="starters" hidden>
+  <template data-task="1"># Список из трёх мишеней + отрисовка
+import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+# targets = []
+# for i in range(3):
+#     ...
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    window.fill((240, 245, 250))
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()
+</template>
+  <template data-task="2"># Попадание в любую мишень
+import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def is_hit(self, pos):
+        mx, my = pos
+        dx = mx - self.x
+        dy = my - self.y
+        return dx * dx + dy * dy <= self.radius * self.radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+targets = []
+for i in range(4):
+    t = Target(300, 250, 40)
+    t.move_random()
+    targets.append(t)
+
+# score = 0
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        # if event.type == pygame.MOUSEBUTTONDOWN:
+        #     for t in targets: ...
+
+    window.fill((240, 245, 250))
+    for t in targets:
+        t.draw(window)
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()
+</template>
+  <template data-task="3"># Сколько секунд прошло с начала
+import pygame
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+font1 = pygame.font.Font(None, 50)
+
+# start_ticks = pygame.time.get_ticks()
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # elapsed = (pygame.time.get_ticks() - start_ticks) / 1000
+
+    window.fill((240, 245, 250))
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()
+</template>
+  <template data-task="4"># Обратный отсчёт с 30 до 0
+import pygame
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+font1 = pygame.font.Font(None, 80)
+
+# start_ticks = pygame.time.get_ticks()
+# GAME_TIME = 30
+# game_over = False
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    window.fill((240, 245, 250))
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()
+</template>
+  <template data-task="5"># Класс Game
+import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+
+# class Target(): ...
+# class Game():
+#     def __init__(self, count, duration): ...
+#     def time_left(self): ...
+#     def handle_click(self, pos): ...
+#     def update(self): ...
+#     def draw(self, surface): ...
+
+# game = Game(4, 30)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    window.fill((240, 245, 250))
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()
+</template>
+  <template data-task="6"># Счёт и таймер на экране
+import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+font1 = pygame.font.Font(None, 36)
+font_big = pygame.font.Font(None, 60)
+
+# ... классы Target и Game ...
+
+# game = Game(4, 30)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    window.fill((240, 245, 250))
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()
+</template>
+  <template data-task="7"># Три уровня сложности
+import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+font1 = pygame.font.Font(None, 36)
+
+# ... классы Target и Game ...
+
+# difficulty = input(...)
+# if / elif / else → count, duration
+# game = Game(count, duration)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    window.fill((240, 245, 250))
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()
+</template>
+  <template data-task="8"># Мишени не перепрыгивают, счёт + несколько раз за клик. Исправь.
+import pygame
+from random import randint
+
+pygame.init()
+window = pygame.display.set_mode((600, 500))
+clock = pygame.time.Clock()
+
+class Target():
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+    def is_hit(self, pos):
+        mx, my = pos
+        dx = mx - self.x
+        dy = my - self.y
+        return dx * dx + dy * dy <= self.radius * self.radius
+
+    def move_random(self):
+        self.x = randint(80, 520)
+        self.y = randint(80, 420)
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, (229, 57, 53),
+                           (self.x, self.y), self.radius)
+
+targets = []
+for i in range(4):
+    t = Target(300, 250, 40)
+    t.move_random()
+    targets.append(t)
+
+score = 0
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for t in targets:
+                if t.is_hit(event.pos):
+                    score += 1
+                    # TODO: добавить move_random и break
+
+    window.fill((240, 245, 250))
+    for t in targets:
+        t.draw(window)
+    pygame.display.update()
+    clock.tick(40)
+
+pygame.quit()
+</template>
+</div>
+
+<!-- ============================================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🏆</span>
+  <h2>Полноценная игра готова!</h2>
+  <p>
+    Ты собрал настоящий тир: несколько мишеней, таймер,
+    уровни сложности, рекорд. И всё это — через класс
+    <code>Game</code> и список объектов. ProTeam получила
+    готовую игру для сайта. Впереди — новые проекты и
+    модули. Молодец!
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+  <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="lesson-31.html">
+      Следующий урок →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 30 · Игра «Тир». Часть 2 · 📋 список · ⏱ таймер · 🎮 класс Game
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР УРОКА
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 1: список мишеней
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g1code');
+  if (!codeEl) return;
+  var optsEl = document.getElementById('g1opts');
+  var msg = document.getElementById('g1msg');
+  var scoreEl = document.getElementById('g1score');
+
+  var tasks = [
+    {
+      code: 'targets = [t1, t2, t3]\n# клик в точку (150, 200)\n# t1 в точке (150, 200)\n# t2 в точке (300, 100)\n# t3 в точке (400, 400)',
+      ans: 'Счёт увеличится на 1, мишень t1 перепрыгнет',
+      opts: [
+        'Счёт увеличится на 1, мишень t1 перепрыгнет',
+        'Счёт увеличится на 3 (все мишени засчитаются)',
+        'Ничего не произойдёт',
+        'Игра завершится'
+      ]
+    },
+    {
+      code: 'targets = [t1, t2, t3]\n# клик в точку (500, 500)\n# ни одна мишень не в этой точке',
+      ans: 'Ничего — клик мимо',
+      opts: [
+        'Счёт увеличится на 1',
+        'Счёт увеличится на 3',
+        'Ничего — клик мимо',
+        'Игра сломается'
+      ]
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      optsEl.innerHTML = '';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    optsEl.innerHTML = '';
+    tasks[i].opts.forEach(function(t){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t;
+      b.style.cssText = 'padding:14px 16px;border:3px solid var(--line);background:var(--card);border-radius:14px;font:800 15px var(--font-ui);color:var(--text);cursor:pointer;transition:.15s ease;text-align:left';
+      b.addEventListener('click', function(){
+        if (b.dataset.locked) return;
+        optsEl.querySelectorAll('button').forEach(function(x){
+          x.dataset.locked = '1'; x.style.pointerEvents = 'none';
+        });
+        answered++;
+        if (t === tasks[i].ans){
+          score++;
+          b.style.background = 'rgba(58,125,44,.12)';
+          b.style.borderColor = 'var(--a5)';
+          b.style.color = 'var(--a5)';
+          msg.textContent = '✅ Верно!';
+          msg.style.color = 'var(--a5)';
+        } else {
+          b.style.background = 'rgba(180,35,24,.1)';
+          b.style.borderColor = 'var(--red)';
+          b.style.color = 'var(--red)';
+          optsEl.querySelectorAll('button').forEach(function(x){
+            if (x.textContent === tasks[i].ans){
+              x.style.background = 'rgba(58,125,44,.12)';
+              x.style.borderColor = 'var(--a5)';
+              x.style.color = 'var(--a5)';
+            }
+          });
+          msg.textContent = '❌ Правильный ответ подсвечен зелёным.';
+          msg.style.color = 'var(--red)';
+        }
+        scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+        setTimeout(function(){ i++; render(); }, 1300);
+      });
+      optsEl.appendChild(b);
+    });
+  }
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 2: таймер
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g2code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g2answer');
+  var btn = document.getElementById('g2btn');
+  var msg = document.getElementById('g2msg');
+  var scoreEl = document.getElementById('g2score');
+
+  var tasks = [
+    { code: '5 секунд',  answer: 25 },
+    { code: '12 секунд', answer: 18 },
+    { code: '20 секунд', answer: 10 },
+    { code: '29 секунд', answer: 1 },
+    { code: '30 секунд', answer: 0 }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+  function check(){
+    var user = parseInt(ansEl.value, 10);
+    answered++;
+    if (user === tasks[i].answer){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 900);
+  }
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ДЕМО ТАЙМЕР
+   ============================================================ */
+(function(){
+  var big = document.getElementById('timerBig');
+  var startBtn = document.getElementById('timerStart');
+  var resetBtn = document.getElementById('timerReset');
+  if (!big) return;
+
+  var timer = null;
+  var startTime = 0;
+  var GAME_TIME = 30;
+
+  function update(){
+    var elapsed = (performance.now() - startTime) / 1000;
+    var left = GAME_TIME - elapsed;
+    if (left < 0) left = 0;
+    big.textContent = Math.ceil(left);
+    if (left <= 5){
+      big.style.color = '#FF8F8F';
+      big.style.textShadow = '0 0 20px rgba(255,143,143,.5)';
+    } else {
+      big.style.color = '#8EE6A0';
+      big.style.textShadow = '0 0 20px rgba(142,230,160,.4)';
+    }
+    if (left <= 0){
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  startBtn.addEventListener('click', function(){
+    if (timer) return;
+    startTime = performance.now();
+    big.textContent = GAME_TIME;
+    timer = setInterval(update, 50);
+  });
+
+  resetBtn.addEventListener('click', function(){
+    clearInterval(timer);
+    timer = null;
+    big.textContent = GAME_TIME;
+    big.style.color = '#8EE6A0';
+    big.style.textShadow = '0 0 20px rgba(142,230,160,.4)';
+  });
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 3: что делает метод
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g3code');
+  if (!codeEl) return;
+  var optsEl = document.getElementById('g3opts');
+  var msg = document.getElementById('g3msg');
+  var scoreEl = document.getElementById('g3score');
+
+  var tasks = [
+    {
+      code: 'def time_left(self):\n    elapsed = (pygame.time.get_ticks() - self.start_ticks) / 1000\n    return self.game_time - elapsed',
+      ans: 'Считает, сколько секунд осталось до конца игры',
+      opts: [
+        'Считает, сколько секунд осталось до конца игры',
+        'Рисует таймер',
+        'Обнуляет время',
+        'Завершает игру'
+      ]
+    },
+    {
+      code: 'def handle_click(self, pos):\n    for t in self.targets:\n        if t.is_hit(pos):\n            self.score += 1\n            t.move_random()\n            break',
+      ans: 'Проверяет попадание и увеличивает счёт',
+      opts: [
+        'Рисует мишени',
+        'Проверяет попадание и увеличивает счёт',
+        'Меняет скорость игры',
+        'Останавливает время'
+      ]
+    },
+    {
+      code: 'def update(self):\n    if self.time_left() <= 0:\n        self.finished = True',
+      ans: 'Завершает игру, когда время вышло',
+      opts: [
+        'Рисует финальный экран',
+        'Перезапускает игру',
+        'Завершает игру, когда время вышло',
+        'Двигает мишени'
+      ]
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      optsEl.innerHTML = '';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    optsEl.innerHTML = '';
+    tasks[i].opts.forEach(function(t){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t;
+      b.style.cssText = 'padding:14px 16px;border:3px solid var(--line);background:var(--card);border-radius:14px;font:800 15px var(--font-ui);color:var(--text);cursor:pointer;transition:.15s ease;text-align:left';
+      b.addEventListener('click', function(){
+        if (b.dataset.locked) return;
+        optsEl.querySelectorAll('button').forEach(function(x){
+          x.dataset.locked = '1'; x.style.pointerEvents = 'none';
+        });
+        answered++;
+        if (t === tasks[i].ans){
+          score++;
+          b.style.background = 'rgba(58,125,44,.12)';
+          b.style.borderColor = 'var(--a5)';
+          b.style.color = 'var(--a5)';
+          msg.textContent = '✅ Верно!';
+          msg.style.color = 'var(--a5)';
+        } else {
+          b.style.background = 'rgba(180,35,24,.1)';
+          b.style.borderColor = 'var(--red)';
+          b.style.color = 'var(--red)';
+          optsEl.querySelectorAll('button').forEach(function(x){
+            if (x.textContent === tasks[i].ans){
+              x.style.background = 'rgba(58,125,44,.12)';
+              x.style.borderColor = 'var(--a5)';
+              x.style.color = 'var(--a5)';
+            }
+          });
+          msg.textContent = '❌ Правильный ответ подсвечен зелёным.';
+          msg.style.color = 'var(--red)';
+        }
+        scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+        setTimeout(function(){ i++; render(); }, 1400);
+      });
+      optsEl.appendChild(b);
+    });
+  }
+  render();
+})();
+
+/* ============================================================
+   ИГРА-СИМУЛЯТОР (шаг 5)
+   ============================================================ */
+(function(){
+  var field = document.getElementById('gameField');
+  if (!field) return;
+  var scoreEl = document.getElementById('gameScore');
+  var timerEl = document.getElementById('gameTimer');
+  var infoEl = document.getElementById('gameInfo');
+  var codeEl = document.getElementById('gameCode');
+  var startBtn = document.getElementById('startGame');
+  var resetBtn = document.getElementById('resetGame');
+  var diffButtons = document.querySelectorAll('[data-diff]');
+
+  var difficulty = 'easy';
+  var targets = []; // массив DOM-элементов
+  var score = 0;
+  var running = false;
+  var timerInterval = null;
+  var startTicks = 0;
+  var gameDuration = 30;
+
+  var CONFIG = {
+    easy:   { count: 3, duration: 30 },
+    normal: { count: 5, duration: 30 },
+    hard:   { count: 5, duration: 20 }
+  };
+
+  diffButtons.forEach(function(b){
+    b.addEventListener('click', function(){
+      difficulty = b.dataset.diff;
+      diffButtons.forEach(function(x){
+        x.style.background = 'var(--card)';
+        x.style.color = 'var(--text)';
+        x.style.border = '2px solid var(--line)';
+      });
+      b.style.background = 'linear-gradient(135deg,var(--a5),var(--a1))';
+      b.style.color = '#fff';
+      b.style.border = 'none';
+      infoEl.textContent = 'Уровень: ' + difficulty +
+                          ' · мишеней ' + CONFIG[difficulty].count +
+                          ' · время ' + CONFIG[difficulty].duration + ' сек';
+    });
+  });
+
+  function makeTarget(){
+    var t = document.createElement('div');
+    t.className = 'target';
+    t.style.left = '50%';
+    t.style.top = '50%';
+    moveTargetEl(t);
+    t.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (!running) return;
+      score++;
+      scoreEl.textContent = score;
+      t.classList.add('hit');
+      setTimeout(function(){ t.classList.remove('hit'); }, 320);
+      moveTargetEl(t);
+      updateCode();
+    });
+    return t;
+  }
+
+  function moveTargetEl(t){
+    var w = field.clientWidth;
+    var h = field.clientHeight;
+    var x = 50 + Math.random() * (w - 100);
+    var y = 50 + Math.random() * (h - 100);
+    t.style.left = x + 'px';
+    t.style.top  = y + 'px';
+  }
+
+  function updateCode(){
+    codeEl.innerHTML =
+      '<span class="cm"># мишеней в списке: </span>' +
+      '<span class="ok">' + targets.length + '</span>\n' +
+      '<span class="cm"># счёт: </span>' +
+      '<span class="ok">' + score + '</span>\n' +
+      '<span class="cm"># время: </span>' +
+      '<span class="ok">' + Math.max(0, Math.ceil(timerLeft())) + ' сек</span>\n\n' +
+      '<span class="kw">for</span> t <span class="kw">in</span> self.targets:\n' +
+      '    <span class="kw">if</span> t.<span class="fn">is_hit</span>(event.pos):\n' +
+      '        <span class="cur">self.score += 1</span>\n' +
+      '        t.<span class="fn">move_random</span>()\n' +
+      '        <span class="kw">break</span>';
+  }
+
+  function timerLeft(){
+    if (!running) return gameDuration;
+    var elapsed = (performance.now() - startTicks) / 1000;
+    return Math.max(0, gameDuration - elapsed);
+  }
+
+  function tick(){
+    var left = timerLeft();
+    timerEl.textContent = Math.ceil(left);
+    updateCode();
+    if (left <= 0){
+      clearInterval(timerInterval);
+      running = false;
+      infoEl.textContent = '🏁 Игра окончена! Счёт: ' + score;
+      infoEl.style.color = 'var(--a3)';
+    }
+  }
+
+  function startGame(){
+    resetGame();
+    var cfg = CONFIG[difficulty];
+    gameDuration = cfg.duration;
+    score = 0;
+    scoreEl.textContent = 0;
+    timerEl.textContent = gameDuration;
+
+    for (var i = 0; i < cfg.count; i++){
+      var t = makeTarget();
+      field.appendChild(t);
+      targets.push(t);
+    }
+
+    running = true;
+    startTicks = performance.now();
+    infoEl.textContent = 'Игра идёт! Кликай по мишеням';
+    infoEl.style.color = 'var(--a3)';
+    timerInterval = setInterval(tick, 100);
+    updateCode();
+  }
+
+  function resetGame(){
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    running = false;
+    score = 0;
+    scoreEl.textContent = 0;
+    timerEl.textContent = CONFIG[difficulty].duration;
+    targets.forEach(function(t){ t.remove(); });
+    targets = [];
+    infoEl.textContent = 'Выбери уровень и нажми «Начать игру»';
+    infoEl.style.color = 'var(--muted)';
+    codeEl.innerHTML = '<span class="cm"># выбери уровень и нажми «Начать игру»</span>';
+  }
+
+  startBtn.addEventListener('click', startGame);
+  resetBtn.addEventListener('click', resetGame);
+
+  // Стартовое состояние
+  resetGame();
+})();
+
+/* ============================================================
+   КВИЗ
+   ============================================================ */
+(function(){
+  var quiz = document.getElementById('kquiz');
+  if (!quiz) return;
+  var scoreEl = document.getElementById('kquizScore');
+  var questions = quiz.querySelectorAll('.q');
+  var total = questions.length;
+  var score = 0;
+  var answered = 0;
+
+  questions.forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var fb   = q.querySelector('.fb');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (opt.disabled) return;
+        opts.forEach(function(o){ o.disabled = true; });
+        answered++;
+
+        var correct = opt.dataset.correct === 'true';
+        if (correct){
+          opt.classList.add('right');
+          fb.textContent = '✅ Верно!';
+          fb.className = 'fb ok';
+          score++;
+        } else {
+          opt.classList.add('wrong');
+          fb.textContent = '❌ Неверно. Правильный ответ подсвечен зелёным.';
+          fb.className = 'fb no';
+          opts.forEach(function(o){
+            if (o.dataset.correct === 'true') o.classList.add('right');
+          });
+        }
+        scoreEl.textContent = 'Счёт: ' + score + ' из ' + total;
+
+        if (answered === total){
+          var tail = score === total ? ' 🏆 Идеально!' :
+                     score >= total - 2 ? ' 👍 Хороший результат!' :
+                     ' 💪 Повтори урок и попробуй снова.';
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total + tail;
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   ЗАДАНИЯ: «Открыть в Playground»
+   ============================================================ */
+(function(){
+  var buttons = document.querySelectorAll('.btn-play');
+  var starters = document.getElementById('starters');
+  if (!buttons.length || !starters) return;
+
+  buttons.forEach(function(btn){
+    var original = btn.textContent;
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.task;
+      var tpl = starters.querySelector('template[data-task="' + id + '"]');
+      if (!tpl) return;
+
+      var text = (tpl.content ? tpl.content.textContent : tpl.textContent) || '';
+      text = text.trim();
+
+      try {
+        localStorage.setItem('playground_code', text);
+        localStorage.setItem('playground_task', id);
+      } catch(e){}
+
+      // Если на странице есть app.js с функцией открытия Playground —
+      // используем её, иначе показываем подтверждение на кнопке.
+      if (typeof window.openPlayground === 'function'){
+        window.openPlayground(text);
+      } else {
+        btn.textContent = '✓ Код загружен в Playground';
+        btn.disabled = true;
+        setTimeout(function(){
+          btn.textContent = original;
+          btn.disabled = false;
+        }, 1800);
+      }
+    });
+  });
+})();
+
+/* ============================================================
+   ФИНАЛЬНАЯ КНОПКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  // Если урок уже отмечен ранее — сразу показываем следующий
+  try {
+    if (localStorage.getItem('lesson30_done') === '1'){
+      btn.disabled = true;
+      btn.textContent = '✓ Урок пройден';
+      if (nextWrap) nextWrap.hidden = false;
+    }
+  } catch(e){}
+
+  btn.addEventListener('click', function(){
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = '✓ Урок пройден!';
+    try { localStorage.setItem('lesson30_done', '1'); } catch(e){}
+    if (nextWrap) nextWrap.hidden = false;
+    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+
+/* ============================================================
+   ПЛАВНАЯ ПРОКРУТКА ПО ЯКОРЯМ (если появятся ссылки внутри урока)
+   ============================================================ */
+(function(){
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if (el){
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

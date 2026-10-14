@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Знакомство с Python и среда — урок 1</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 1 · ЗНАКОМСТВО · Пик и его первый голос
+   Модуль 1. Основы языка
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(91,75,196,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(40,115,184,.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(58,125,44,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#B8325A;--c2:#5B4BC4}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+/* Говорит Пик */
+.pik-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(40,115,184,.06));
+  border-radius:20px;
+}
+.pik-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#5B4BC4,#2873B8);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.pik-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.pik-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.pik-says .bubble b{color:var(--a3)}
+@media(max-width:520px){
+  .pik-says .face{width:52px;height:52px;font-size:28px}
+  .pik-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:15.5px/1.75 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .imp{color:#FF8FB0;font-weight:800}
+.code-full .err{color:#FF8F8F;background:rgba(255,143,143,.12);border-radius:4px;padding:0 4px}
+
+.term{
+  margin:18px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:18px 22px;
+  font:16px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+.scene{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:22px;padding:26px;margin:24px 0;
+}
+.scene h4{
+  margin:0 0 8px;font-size:19px;
+  display:flex;align-items:center;gap:10px;
+}
+.scene h4::before{content:"🎯";font-size:22px}
+.scene .hint{margin:0 0 18px;font-size:16px;color:var(--muted);line-height:1.5}
+
+.kid-input{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.kid-input input{
+  flex:1;min-width:150px;padding:16px 18px;
+  font:800 20px var(--font-code);
+  border:4px solid var(--line);border-radius:16px;
+  outline:none;background:var(--card);color:var(--text);
+  text-align:center;transition:.15s;
+}
+.kid-input input:focus{
+  border-color:var(--a1);
+  box-shadow:0 0 0 5px rgba(12,124,134,.15);
+  transform:scale(1.02);
+}
+.kid-input button{
+  padding:16px 24px;font:800 17px var(--font-ui);
+  border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  transition:.15s ease;
+}
+.kid-input button:hover{transform:translateY(-2px) scale(1.03)}
+.kid-input button:active{transform:scale(.98)}
+
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35}
+
+.rules{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:22px 0;
+}
+.rule{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;border-left:6px solid var(--a3);
+  font-size:16.5px;line-height:1.55;
+}
+.rule .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;border-radius:50%;
+  background:var(--a3);color:#fff;
+  font:800 16px var(--font-ui);
+  margin-right:10px;vertical-align:middle;
+}
+
+.print-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.06);
+  font-size:15.5px;
+}
+.print-table th, .print-table td{
+  padding:12px 16px;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.print-table th{
+  background:var(--bg);color:var(--muted);
+  font:700 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.print-table td:first-child{
+  font-family:var(--font-code);font-size:14.5px;color:var(--text);
+}
+.print-table td:first-child code{
+  background:var(--bg);padding:2px 8px;border-radius:6px;
+}
+.print-table td:last-child{
+  font-family:var(--font-code);font-weight:700;color:var(--a5);
+}
+.print-table tr:last-child td{border-bottom:none}
+
+/* ---------- Разминка: карточки ---------- */
+.warmup-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px;margin:20px 0;
+}
+.warmup-card{
+  background:var(--card);border-radius:18px;
+  padding:20px 20px 18px;
+  border:3px solid var(--line);
+  box-shadow:0 8px 20px rgba(23,32,51,.06);
+  transition:.2s ease;
+}
+.warmup-card:hover{transform:translateY(-3px);border-color:var(--a3)}
+.warmup-card .qnum{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:32px;height:32px;padding:0 10px;
+  background:var(--c,var(--a1));color:#fff;
+  font:800 13px var(--font-code);
+  border-radius:8px;margin-bottom:10px;
+}
+.warmup-card .q{font:800 16.5px var(--font-ui);line-height:1.4;margin-bottom:14px}
+.warmup-card .opts{display:flex;flex-direction:column;gap:8px}
+.warmup-card .opt{
+  padding:11px 14px;border-radius:10px;
+  background:var(--bg);border:2px solid transparent;
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);
+  transition:.15s ease;
+}
+.warmup-card .opt:hover:not(:disabled){border-color:var(--a3)}
+.warmup-card .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.warmup-card .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.warmup-card .fb{margin-top:10px;font:700 14px var(--font-ui);min-height:20px}
+
+/* ---------- Сцена с Пиком ---------- */
+.pik-stage{
+  background:#0B1220;
+  border-radius:22px;
+  padding:24px 20px;
+  margin:22px 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  box-shadow:0 12px 32px rgba(11,18,32,.4);
+}
+.pik-screen{
+  position:relative;
+  width:100%;
+  max-width:520px;
+  height:240px;
+  background:linear-gradient(180deg,#101a2e,#0B1220);
+  border-radius:16px;
+  border:2px solid #1e2c48;
+  overflow:hidden;
+}
+.pik-screen .pik{
+  position:absolute;
+  left:30px;top:50%;
+  transform:translateY(-50%);
+  width:80px;height:80px;
+  transition:.4s ease;
+}
+.pik-screen .pik svg{display:block;width:100%;height:100%}
+.pik-screen .pik.talking{
+  animation:pikTalk .5s ease infinite;
+}
+@keyframes pikTalk{
+  0%,100%{transform:translateY(-50%) scale(1)}
+  50%{transform:translateY(-50%) scale(1.08)}
+}
+.pik-screen .speech{
+  position:absolute;
+  left:140px;right:24px;
+  top:50%;transform:translateY(-50%);
+  font:700 22px var(--font-code);
+  color:#8EE6A0;
+  line-height:1.5;
+  white-space:pre-wrap;
+  min-height:60px;
+  padding:14px 18px;
+  border-radius:14px;
+  background:rgba(20,32,54,.75);
+  border-left:4px solid #8EE6A0;
+  opacity:0;
+  transition:opacity .3s ease;
+}
+.pik-screen .speech.show{opacity:1}
+.pik-screen .speech::before{
+  content:"Пик говорит:";
+  display:block;
+  font:700 12px var(--font-ui);
+  color:#7F90B0;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.pik-controls{
+  display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+}
+.pik-btn{
+  padding:14px 22px;
+  border:none;border-radius:14px;
+  font:800 15px var(--font-ui);
+  cursor:pointer;
+  transition:.15s ease;
+  background:linear-gradient(135deg,#5B4BC4,#2873B8);
+  color:#fff;
+  box-shadow:0 8px 20px rgba(91,75,196,.4);
+}
+.pik-btn:hover{transform:translateY(-2px) scale(1.03)}
+.pik-btn.gray{
+  background:rgba(255,255,255,.1);
+  color:#E8EEF8;
+  border:1px solid rgba(255,255,255,.15);
+  box-shadow:none;
+}
+.pik-btn.gray:hover{background:rgba(255,255,255,.15)}
+
+/* ---------- Разбор ошибок ---------- */
+.err-list{
+  display:grid;
+  gap:14px;margin:20px 0;
+}
+.err-card{
+  background:var(--card);border-radius:16px;
+  overflow:hidden;
+  border-left:6px solid var(--red);
+  box-shadow:0 8px 20px rgba(23,32,51,.06);
+}
+.err-card .head{
+  padding:14px 18px;
+  background:linear-gradient(135deg,rgba(180,35,24,.08),rgba(184,50,90,.05));
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.err-card .head .em{font-size:24px;line-height:1}
+.err-card .head .ttl{font:800 16px var(--font-ui);color:var(--red);flex:1}
+.err-card .body{padding:16px 18px}
+.err-card .body p{margin:0 0 10px;font-size:15.5px;line-height:1.6}
+.err-card .body p:last-child{margin-bottom:0}
+.err-card .bad-code,
+.err-card .fix-code{
+  font:13.5px/1.6 var(--font-code);
+  padding:10px 14px;border-radius:10px;
+  margin:8px 0;
+  white-space:pre;overflow-x:auto;
+}
+.err-card .bad-code{
+  background:rgba(180,35,24,.08);
+  color:#7A271A;
+  border-left:3px solid var(--red);
+}
+.err-card .fix-code{
+  background:rgba(58,125,44,.1);
+  color:#2E4A1F;
+  border-left:3px solid var(--a5);
+}
+@media (prefers-color-scheme:dark){
+  .err-card .bad-code{background:rgba(180,35,24,.18);color:#FFB4AB}
+  .err-card .fix-code{background:rgba(58,125,44,.18);color:#B5E7A0}
+}
+:root[data-theme="dark"] .err-card .bad-code{background:rgba(180,35,24,.18);color:#FFB4AB}
+:root[data-theme="dark"] .err-card .fix-code{background:rgba(58,125,44,.18);color:#B5E7A0}
+
+/* ---------- Практика: уровни ---------- */
+.level-block{
+  background:var(--card);
+  border-radius:22px;
+  padding:24px 24px 20px;
+  margin:22px 0;
+  border:3px solid var(--line);
+  border-top:8px solid var(--c,var(--a1));
+}
+.level-block.l1{--c:#3A7D2C;border-top-color:#3A7D2C}
+.level-block.l2{--c:#B9660A;border-top-color:#B9660A}
+.level-block.l3{--c:#B8325A;border-top-color:#B8325A}
+.level-block .head{
+  display:flex;align-items:center;gap:12px;
+  flex-wrap:wrap;margin-bottom:12px;
+}
+.level-block .stars{font-size:22px;line-height:1;letter-spacing:2px}
+.level-block .name{
+  font:800 19px var(--font-ui);
+  color:var(--c, var(--a1));
+  flex:1;min-width:140px;
+}
+.level-block .hint-text{
+  font-size:15.5px;color:var(--muted);
+  line-height:1.55;margin:0 0 16px;
+}
+
+/* ---------- Домашка ---------- */
+.hw-card{
+  background:linear-gradient(135deg,rgba(40,115,184,.08),rgba(91,75,196,.08));
+  border-radius:22px;
+  padding:24px 26px;
+  margin:22px 0;
+  border-left:6px solid var(--a6);
+}
+.hw-card h4{
+  margin:0 0 14px;
+  font-size:19px;
+  color:var(--a6);
+  display:flex;align-items:center;gap:10px;
+}
+.hw-card h4::before{content:"📬"}
+.hw-card ol{
+  margin:0;padding-left:22px;
+  font-size:16.5px;line-height:1.7;
+}
+.hw-card ol li{margin-bottom:12px}
+.hw-card ol li:last-child{margin-bottom:0}
+.hw-card .badge-hw{
+  display:inline-block;
+  font:800 11px var(--font-ui);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  padding:3px 10px;
+  border-radius:99px;
+  margin-right:8px;
+}
+.hw-card .badge-hw.must{background:#3A7D2C;color:#fff}
+.hw-card .badge-hw.opt{background:var(--a3);color:#fff}
+.hw-card .criteria{
+  margin-top:18px;
+  padding:14px 18px;
+  background:var(--card);
+  border-radius:12px;
+  border:1px dashed var(--line);
+  font-size:15.5px;
+  line-height:1.55;
+}
+.hw-card .criteria b{color:var(--a6)}
+
+/* ---------- Задания ---------- */
+.tasks-wrap{margin:56px 0 40px}
+.tasks-intro{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-left:6px solid var(--a1);border-radius:16px;
+  padding:20px 24px;margin:20px 0 26px;
+  font-size:17px;line-height:1.6;
+}
+.tasks-intro b{color:var(--a1)}
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:16px;margin-top:22px;
+}
+.play-task{
+  background:var(--card);border-radius:18px;padding:20px;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  display:flex;flex-direction:column;gap:12px;
+  border-left:5px solid var(--a3);transition:.18s ease;
+}
+.play-task:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(23,32,51,.14)}
+.play-task .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play-task .task-num{
+  font:800 12px var(--font-code);color:#fff;background:var(--a3);
+  padding:4px 10px;border-radius:8px;letter-spacing:.04em;
+}
+.play-task .task-title{font:800 16px var(--font-ui);flex:1;min-width:120px}
+.play-task .task-stars{font-size:13px;letter-spacing:2px}
+.play-task .task-desc{margin:0;font-size:14.5px;line-height:1.55;color:var(--text)}
+.play-task .task-desc code{
+  font:600 12.5px var(--font-code);
+  background:var(--bg);padding:1px 6px;border-radius:4px;
+}
+.btn-play{
+  align-self:flex-start;padding:11px 18px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;font:800 14px var(--font-ui);cursor:pointer;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+  transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(91,75,196,.45)}
+.play-task details{
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);overflow:hidden;font-size:14px;
+}
+.play-task details summary{
+  cursor:pointer;padding:10px 12px;list-style:none;
+  font-weight:700;color:var(--text);
+}
+.play-task details summary::-webkit-details-marker{display:none}
+.play-task details summary::before{
+  content:"▸ ";color:var(--a3);font-size:11px;
+  display:inline-block;transition:.2s;
+}
+.play-task details[open] summary::before{transform:rotate(90deg)}
+.play-task details[open] summary{
+  background:rgba(91,75,196,.1);color:var(--a3);
+  border-bottom:1px solid var(--line);
+}
+.play-task details pre{
+  margin:0;padding:12px;font-size:12.5px;
+  background:#0F1A30;border-radius:0;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;line-height:1.55;
+}
+.play-task details p{margin:8px 12px;color:var(--muted)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#B5E7A0,#C9B8FF 50%,#FFD98E);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🎉";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#2E4A1F}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#3A5F2A;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#3A7D2C,#0C7C86);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(58,125,44,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#5B4BC4,#B8325A)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .code-full{font-size:13px;padding:16px}
+  .print-table{font-size:13.5px}
+  .print-table th, .print-table td{padding:10px 12px}
+  .pik-says .face{width:52px;height:52px;font-size:28px}
+  .pik-says .bubble{font-size:16.5px}
+  .pik-screen{height:200px}
+  .pik-screen .pik{width:56px;height:56px;left:18px}
+  .pik-screen .speech{left:88px;right:16px;font-size:15px;padding:10px 12px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>🟣</span>
+    <span>💬</span>
+    <span>🐍</span>
+  </div>
+  <h1>Пик и его первый голос</h1>
+  <p class="lead">
+    Ты впервые открываешь Python — и вдруг на тёмном экране
+    загорается маленький пиксельный огонёк. Это <b>Пик</b>.
+    Он только что появился и пока не умеет говорить: ни одного
+    слова, ни звука. Сегодня ты станешь его первым учителем
+    и научишь его первой команде — <code>print</code>.
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>🐍 Знакомство с Python</span>
+    <span>💬 Команда print()</span>
+    <span>✍️ 3 уровня практики</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>👋</span>
+      <span>🎯</span>
+      <span>💡</span>
+      <span>👨‍💻</span>
+      <span>✍️</span>
+      <span>📬</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- ПЛАН УРОКА -->
+<!-- ============================================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–3 мин</span>
+    <span class="icon">👋</span>
+    <div class="ttl">Оргмомент, знакомство с Пиком</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">3–8 мин</span>
+    <span class="icon">🎯</span>
+    <div class="ttl">Разминка: 3 догадки</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">8–15 мин</span>
+    <span class="icon">💡</span>
+    <div class="ttl">Новая тема: print</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">15–25 мин</span>
+    <span class="icon">👨‍💻</span>
+    <div class="ttl">Live coding вместе</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">25–38 мин</span>
+    <span class="icon">✍️</span>
+    <div class="ttl">Практика в 3 уровня</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">38–45 мин</span>
+    <span class="icon">🔍</span>
+    <div class="ttl">Разбор и домашка</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ШАГ 1 · ОРГМОМЕНТ -->
+<!-- ============================================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–3 минуты · 👋 Оргмомент</span>
+  <h2>На экране кто-то есть</h2>
+  <p class="sub">
+    Привет! Это наш первый урок программирования. Сегодня мы
+    познакомимся с Python — языком, на котором говорят с
+    компьютером. А поможет нам в этом маленькое существо,
+    которое только что появилось на экране.
+  </p>
+
+  <p>
+    Посмотри: прямо сейчас, в тёмном окошке Python, загорелась
+    маленькая пиксельная точка. Она дрожит, будто хочет
+    что-то сказать. Это <b>Пик</b>.
+  </p>
+
+  <div class="pik-says">
+    <div class="face">🟣</div>
+    <div class="bubble">
+      … Я новенький. Меня только что создали в твоём компьютере.
+      Я вижу, слышу и очень хочу сказать «Привет». Но у меня
+      <b>нет голоса</b> — я не знаю, как говорить. Ты поможешь
+      мне научиться?
+    </div>
+  </div>
+
+  <p>
+    Чтобы Пик заговорил, нужно написать для него программу.
+    Но чтобы написать программу, надо сначала разобраться
+    с тремя простыми вещами. Проверим твою интуицию.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 2 · РАЗМИНКА -->
+<!-- ============================================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 3–8 минут · 🎯 Разминка</span>
+  <h2>Три догадки о компьютере</h2>
+  <p class="sub">
+    Здесь нет оценок и нет «правильных» ответов, которые надо
+    заучить. Мы просто проверим, как ты чувствуешь компьютер.
+    Выбирай вариант и смотри, что скажет Пик.
+  </p>
+
+  <div class="warmup-grid" id="warmup">
+    <div class="warmup-card" style="--c:#0C7C86">
+      <div class="qnum">Догадка 1</div>
+      <div class="q">Компьютер — это…</div>
+      <div class="opts">
+        <button type="button" class="opt" data-correct="false">умный друг, который сам всё понимает</button>
+        <button type="button" class="opt" data-correct="true">исполнитель, который делает ровно то, что ему сказали</button>
+        <button type="button" class="opt" data-correct="false">магический ящик, работающий сам по себе</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="warmup-card" style="--c:#B9660A">
+      <div class="qnum">Догадка 2</div>
+      <div class="q">Чтобы компьютер что-то сделал, ему нужно…</div>
+      <div class="opts">
+        <button type="button" class="opt" data-correct="true">дать точные команды на понятном ему языке</button>
+        <button type="button" class="opt" data-correct="false">попросить вежливо</button>
+        <button type="button" class="opt" data-correct="false">просто подождать — он сам догадается</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="warmup-card" style="--c:#5B4BC4">
+      <div class="qnum">Догадка 3</div>
+      <div class="q">Программа — это…</div>
+      <div class="opts">
+        <button type="button" class="opt" data-correct="false">файл с картинкой</button>
+        <button type="button" class="opt" data-correct="true">список команд, записанных по порядку</button>
+        <button type="button" class="opt" data-correct="false">название компьютера</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">💡 Что важно запомнить</div>
+    <p>
+      Компьютер — очень послушный, но <b>абсолютно недогадливый</b>
+      исполнитель. Он делает только то, что ему написано в программе.
+      Ни больше, ни меньше.
+    </p>
+    <p>
+      Поэтому язык, на котором мы ему пишем, должен быть очень
+      точным. Этот язык называется <b>Python</b>. Он читается почти
+      как обычный английский — поэтому его легко учить.
+    </p>
+  </div>
+
+  <div class="pik-says">
+    <div class="face">🟣</div>
+    <div class="bubble">
+      Понял! Значит, чтобы я сказал «Привет», кто-то должен
+      написать для меня <b>команду</b>. А как она выглядит?
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 3 · НОВАЯ ТЕМА -->
+<!-- ============================================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 8–15 минут · 💡 Новая тема</span>
+  <h2>Один инструмент — одна команда: print</h2>
+  <p class="sub">
+    Чтобы Пик что-то сказал, нужна всего одна команда.
+    Она называется <b>print</b> — «печатать, вывести на экран».
+    Разберём её за 5 минут.
+  </p>
+
+  <h3>Проблема</h3>
+
+  <p>
+    Пик стоит в тёмной комнате и молчит. Как сказать ему
+    «Скажи Привет»? Как передать это компьютеру, который
+    не понимает человеческий язык?
+  </p>
+
+  <h3>Идея</h3>
+
+  <p>
+    У Python есть <b>готовые команды</b> — как кнопки на пульте.
+    Одна из них так и называется: <code>print</code>. Ты вызываешь
+    эту команду, кладёшь в неё текст — и компьютер печатает
+    его на экране.
+  </p>
+
+  <div class="pik-stage">
+    <div class="pik-screen">
+      <div class="pik" id="pikFace">
+        <svg viewBox="0 0 80 80">
+          <rect x="12" y="12" width="56" height="56" rx="14" fill="#5B4BC4" stroke="#3A2A7D" stroke-width="3"/>
+          <circle cx="30" cy="34" r="5" fill="#fff"/>
+          <circle cx="50" cy="34" r="5" fill="#fff"/>
+          <circle cx="31" cy="35" r="2.5" fill="#172033"/>
+          <circle cx="51" cy="35" r="2.5" fill="#172033"/>
+          <path d="M 28 52 Q 40 62 52 52" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="speech" id="pikSpeech"></div>
+    </div>
+    <div class="pik-controls">
+      <button type="button" class="pik-btn" data-say="Привет!">print("Привет!")</button>
+      <button type="button" class="pik-btn" data-say="Меня зовут Пик">print("Меня зовут Пик")</button>
+      <button type="button" class="pik-btn" data-say="Я люблю Python">print("Я люблю Python")</button>
+      <button type="button" class="pik-btn gray" id="pikMute">✕ Стоп</button>
+    </div>
+  </div>
+
+  <p>
+    Нажимай на кнопки — увидишь, что произойдёт. Пик «скажет»
+    то, что было написано в команде. Это и есть первая программа.
+  </p>
+
+  <h3>Синтаксис — как устроена команда</h3>
+
+  <div class="code-full"><span class="fn">print</span>(<span class="str">'Привет!'</span>)</div>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      <b>print</b> — имя команды. Пишется маленькими буквами.
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      <b>( )</b> — круглые скобки. Внутрь кладём текст, который
+      надо напечатать.
+    </div>
+    <div class="rule">
+      <span class="n">3</span>
+      <b>'Привет!'</b> — текст в кавычках. Кавычки бывают
+      одинарные и двойные — оба варианта работают.
+    </div>
+  </div>
+
+  <h3>Правила языка — коротко</h3>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Правило</th><th>Пример</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Команда пишется маленькими буквами</td><td><code>print</code>, не <code>Print</code></td></tr>
+      <tr><td>Текст — в кавычках</td><td><code>'Привет'</code> или <code>"Привет"</code></td></tr>
+      <tr><td>Кавычки должны парно закрываться</td><td><code>'Привет'</code> — да, <code>'Привет</code> — ошибка</td></tr>
+      <tr><td>Скобки тоже парные</td><td><code>print(...)</code> — да, <code>print(...</code> — ошибка</td></tr>
+      <tr><td>Каждая строка — своя команда</td><td>Одна команда — одна строчка</td></tr>
+    </tbody>
+  </table>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Регистр и кавычки</div>
+    <p>
+      <code>print</code> и <code>Print</code> — для Python это
+      <b>разные слова</b>. Правильное — только с маленькой буквы.
+    </p>
+    <p>
+      Кавычки тоже важны. <code>print(Привет)</code> без кавычек
+      — ошибка: Python подумает, что <i>Привет</i> — это имя
+      переменной, а не текст.
+    </p>
+  </div>
+
+  <div class="pik-says">
+    <div class="face">🟣</div>
+    <div class="bubble">
+      Ого, всего одна команда — и я уже умею говорить! Пойдём
+      писать вместе? Хочу сказать сразу несколько вещей.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 4 · LIVE CODING -->
+<!-- ============================================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 15–25 минут · 👨‍💻 Live coding</span>
+  <h2>Пишем вместе первую программу</h2>
+  <p class="sub">
+    Откроем Playground и напишем первую программу для Пика.
+    От простого к сложному: от одной фразы — до целого
+    представления.
+  </p>
+
+  <h3>Шаг 1. Самое простое: одно слово</h3>
+
+  <p>
+    Первая программа в жизни любого программиста — поприветствовать
+    мир. Напишем вместе:
+  </p>
+
+  <div class="code-full"><span class="fn">print</span>(<span class="str">'Привет, мир!'</span>)</div>
+
+  <p>И нажмём «Запустить». На экране появится:</p>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="ok">Привет, мир!</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Что произошло</div>
+    <p>
+      Python увидел команду <code>print</code>, взял текст
+      из кавычек и вывел его на экран. Ничего лишнего — просто
+      выполнил приказ.
+    </p>
+  </div>
+
+  <h3>Шаг 2. Несколько строк</h3>
+
+  <p>
+    Пик хочет сказать сразу три вещи: поздороваться, представиться
+    и назвать любимое занятие. Каждая фраза — на своей строке.
+  </p>
+
+  <div class="code-full"><span class="fn">print</span>(<span class="str">'Привет!'</span>)
+<span class="fn">print</span>(<span class="str">'Меня зовут Пик'</span>)
+<span class="fn">print</span>(<span class="str">'Я люблю программировать'</span>)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="ok">Привет!
+Меня зовут Пик
+Я люблю программировать</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Каждая команда — своя строка</div>
+    <p>
+      Python выполняет команды <b>сверху вниз</b>, одну за другой.
+      Поэтому первая строка напечаталась первой, вторая —
+      второй и так далее.
+    </p>
+    <p>
+      Если написать все три команды в одной строке, Python
+      не поймёт, где заканчивается первая. Порядок и разбиение
+      на строки — часть языка.
+    </p>
+  </div>
+
+  <h3>Шаг 3. Числа без кавычек</h3>
+
+  <p>
+    А если Пик хочет назвать свой возраст — например, 2026?
+    Это число. Числа пишутся <b>без кавычек</b>. Просто
+    <code>2026</code>, а не <code>'2026'</code>.
+  </p>
+
+  <div class="code-full"><span class="fn">print</span>(<span class="str">'Я появился в'</span>, <span class="num">2026</span>, <span class="str">'году'</span>)</div>
+
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
+    <pre class="term-body"><span class="ok">Я появился в 2026 году</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Через запятую — много кусочков</div>
+    <p>
+      В <code>print()</code> можно передать несколько значений
+      через запятую. Python напечатает их в одну строку,
+      разделяя пробелом.
+    </p>
+    <p>
+      Текст — в кавычках, числа — без. Один <code>print</code>
+      отлично собирает целую фразу из разных кусочков.
+    </p>
+  </div>
+
+  <h3>Попробуй сам: мини-конструктор фразы</h3>
+
+  <p>
+    Собери фразу так, как Пик мог бы представиться. Пиши текст
+    в кавычках, числа — просто цифрами. Нажми «Собрать программу» —
+    увидишь готовый код и результат.
+  </p>
+
+  <div class="scene">
+    <div class="kid-input">
+      <input type="text" id="phraseName" placeholder="Имя" value="Пик">
+      <input type="text" id="phraseCity" placeholder="Где живёт" value="внутри Python">
+    </div>
+    <div class="kid-input">
+      <input type="number" id="phraseYear" placeholder="Год появления" value="2026">
+      <button type="button" id="phraseBtn">Собрать программу</button>
+    </div>
+    <div class="term" style="margin-top:6px">
+      <div class="term-bar"><i></i><i></i><i></i><em>Твоя программа</em></div>
+      <pre class="term-body" id="phraseOut"><span class="dim">// Введи данные и нажми «Собрать программу»</span></pre>
+    </div>
+  </div>
+
+  <div class="pik-says">
+    <div class="face">🟣</div>
+    <div class="bubble">
+      Отлично, я уже умею говорить! Теперь — твоя очередь.
+      В Playground есть задания по уровням. Начни с первого,
+      а если легко — переходи к следующему.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 5 · ПРАКТИКА В 3 УРОВНЯ -->
+<!-- ============================================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 25–38 минут · ✍️ Практика в 3 уровня</span>
+  <h2>Три уровня заданий</h2>
+  <p class="sub">
+    Все делают хотя бы первый уровень. Дальше — как получится.
+    Не спеши: лучше сделать один уровень хорошо, чем три
+    наспех.
+  </p>
+
+  <!-- УРОВЕНЬ 1 -->
+  <div class="level-block l1">
+    <div class="head">
+      <span class="stars">🌱</span>
+      <span class="name">Уровень 1 — базовый. По образцу</span>
+    </div>
+    <p class="hint-text">
+      Здесь нужно просто <b>дописать</b> код по образцу.
+      Ничего придумывать не надо — только повторить.
+    </p>
+
+    <div class="scene" style="margin:0 0 14px">
+      <h4>Задание 1.1 — поздоровайся с Пиком</h4>
+      <p class="hint">
+        Напиши одну команду <code>print()</code>, которая
+        напечатает <code>Привет, Пик!</code>. Не забудь кавычки!
+      </p>
+      <div class="code-full"><span class="cm"># Допиши команду ниже:</span>
+<span class="cm"># ...</span>
+
+<span class="cm"># Должно напечататься:</span>
+<span class="cm"># Привет, Пик!</span></div>
+      <button type="button" class="btn-play" data-task="1">▶ Открыть в Playground</button>
+    </div>
+
+    <div class="scene" style="margin:0">
+      <h4>Задание 1.2 — исправь ошибки</h4>
+      <p class="hint">
+        В программе три ошибки. Запусти, посмотри на сообщение
+        Python и исправь.
+      </p>
+      <div class="code-full"><span class="err">Print</span>(<span class="str">'Привет, Пик!</span>)     <span class="cm"># ← ошибка: заглавная P и нет закрывающей кавычки</span>
+<span class="err">print</span>(<span class="num">2026</span>            <span class="cm"># ← ошибка: нет закрывающей скобки</span></div>
+      <button type="button" class="btn-play" data-task="2">▶ Открыть в Playground</button>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 2 -->
+  <div class="level-block l2">
+    <div class="head">
+      <span class="stars">🌱🌱</span>
+      <span class="name">Уровень 2 — основной. Похожая задача</span>
+    </div>
+    <p class="hint-text">
+      Здесь уже нужно <b>самим написать</b> несколько строк.
+      Задача похожа на то, что мы делали вместе, но с новыми
+      данными.
+    </p>
+
+    <div class="scene" style="margin:0 0 14px">
+      <h4>Задание 2.1 — визитка Пика</h4>
+      <p class="hint">
+        Напиши три команды <code>print</code>, чтобы Пик
+        представился в три строки: имя, год появления и любимое
+        занятие. Числа — без кавычек.
+      </p>
+      <div class="code-full"><span class="cm"># Должно получиться примерно так:</span>
+<span class="cm"># Пик</span>
+<span class="cm"># 2026</span>
+<span class="cm"># программирование</span></div>
+      <button type="button" class="btn-play" data-task="3">▶ Открыть в Playground</button>
+    </div>
+
+    <div class="scene" style="margin:0">
+      <h4>Задание 2.2 — объявление для друзей</h4>
+      <p class="hint">
+        Пик хочет позвать друзей в свой первый «кружок» в
+        Playground. Напиши 3–4 строки: название, время,
+        что делаете, куда приходить.
+      </p>
+      <div class="code-full"><span class="cm"># Пример структуры:</span>
+<span class="cm"># «Кружок Пика!»</span>
+<span class="cm"># «Собираемся в Playground каждый вторник»</span>
+<span class="cm"># «Пишем первые программы на Python»</span>
+<span class="cm"># «Вход — одна улыбка»</span></div>
+      <button type="button" class="btn-play" data-task="4">▶ Открыть в Playground</button>
+    </div>
+  </div>
+
+  <!-- УРОВЕНЬ 3 -->
+  <div class="level-block l3">
+    <div class="head">
+      <span class="stars">🌱🌱🌱</span>
+      <span class="name">Уровень 3 — вызов. Придумай своё</span>
+    </div>
+    <p class="hint-text">
+      Здесь — полная свобода. Придумай что-нибудь интересное
+      и напиши для этого программу. Чем больше строк — тем лучше.
+    </p>
+
+    <div class="scene" style="margin:0 0 14px">
+      <h4>Задание 3.1 — стихотворение для Пика</h4>
+      <p class="hint">
+        Напиши маленькое стихотворение (4–6 строк) и выведи
+        его через <code>print</code>. Каждая строчка — отдельная
+        команда.
+      </p>
+      <button type="button" class="btn-play" data-task="5">▶ Открыть в Playground</button>
+    </div>
+
+    <div class="scene" style="margin:0 0 14px">
+      <h4>Задание 3.2 — пиксельная ёлочка</h4>
+      <p class="hint">
+        Сложное, но интересное. Выведи в консоль «ёлочку»
+        из звёздочек через несколько <code>print</code>.
+        Используй смесь текста и чисел.
+      </p>
+      <div class="code-full"><span class="cm"># Пример того, что должно получиться:</span>
+<span class="cm">#    *</span>
+<span class="cm">#   ***</span>
+<span class="cm">#  *****</span>
+<span class="cm"># *******</span>
+<span class="cm">#    |</span>
+<span class="cm"># С Новым годом! 2026</span></div>
+      <button type="button" class="btn-play" data-task="6">▶ Открыть в Playground</button>
+    </div>
+
+    <div class="scene" style="margin:0">
+      <h4>Задание 3.3 — своя история</h4>
+      <p class="hint">
+        А теперь придумай <b>своё</b>: поздравление, объявление,
+        рассказ, шутку — что угодно. Главное — использовать
+        хотя бы 5 команд <code>print</code>. Своими работами
+        поделимся в конце урока.
+      </p>
+      <button type="button" class="btn-play" data-task="7">▶ Открыть в Playground</button>
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Совет от Пика</div>
+    <p>
+      Если что-то не получается — начни с малого. Напиши одну
+      строку, запусти, проверь. Потом добавь вторую. Так ты
+      точно найдёшь, где ошибка.
+    </p>
+    <p>
+      Программирование — это <b>пошаговое</b> дело. Никто
+      не пишет сразу 100 строк и не надеется, что всё сработает.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 6 · РАЗБОР И ДОМАШКА -->
+<!-- ============================================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 38–45 минут · 🔍 Разбор и 📬 домашка</span>
+  <h2>Три самые частые ошибки и домашнее задание</h2>
+  <p class="sub">
+    Прежде чем расходиться, посмотрим, на чём спотыкаются
+    новички чаще всего. И получим маленькую домашку.
+  </p>
+
+  <div class="err-list">
+
+    <div class="err-card">
+      <div class="head">
+        <span class="em">❌</span>
+        <span class="ttl">Ошибка 1. Заглавная буква в Print</span>
+      </div>
+      <div class="body">
+        <p>Python очень придирчив к регистру. <code>Print</code> и <code>print</code> — это разные вещи.</p>
+        <pre class="bad-code">Print('Привет!')</pre>
+        <p>Что скажет Python:</p>
+        <pre class="bad-code">NameError: name 'Print' is not defined</pre>
+        <p>Как исправить — писать все маленькие буквы:</p>
+        <pre class="fix-code">print('Привет!')</pre>
+      </div>
+    </div>
+
+    <div class="err-card">
+      <div class="head">
+        <span class="em">❌</span>
+        <span class="ttl">Ошибка 2. Забыл кавычки</span>
+      </div>
+      <div class="body">
+        <p>Текст всегда в кавычках. Без них Python подумает, что это имя переменной.</p>
+        <pre class="bad-code">print(Привет)</pre>
+        <p>Что скажет Python:</p>
+        <pre class="bad-code">NameError: name 'Привет' is not defined</pre>
+        <p>Как исправить — добавить кавычки:</p>
+        <pre class="fix-code">print('Привет')</pre>
+      </div>
+    </div>
+
+    <div class="err-card">
+      <div class="head">
+        <span class="em">❌</span>
+        <span class="ttl">Ошибка 3. Незакрытая скобка или кавычка</span>
+      </div>
+      <div class="body">
+        <p>Если открыл — обязательно закрой. Кавычки и скобки всегда ходят парами.</p>
+        <pre class="bad-code">print('Привет
+print('Как дела?</pre>
+        <p>Что скажет Python:</p>
+        <pre class="bad-code">SyntaxError: unterminated string literal</pre>
+        <p>Как исправить — закрыть всё и не пропускать конец строки:</p>
+        <pre class="fix-code">print('Привет')
+print('Как дела?')</pre>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">💡 Главное правило чтения ошибок</div>
+    <p>
+      Когда Python выдаёт ошибку, он <b>подсказывает номер строки</b>,
+      где что-то сломалось. Не пугайся красного текста —
+      посмотри номер строки и сравни, всё ли там закрыто,
+      правильно ли написано слово.
+    </p>
+    <p>
+      <b>Ошибка — это не «провал».</b> Это подсказка от языка.
+      Настоящие программисты видят ошибки каждую минуту.
+    </p>
+  </div>
+
+  <div class="pik-says">
+    <div class="face">🟣</div>
+    <div class="bubble">
+      Спасибо, что научил меня говорить! Теперь я знаю, что
+      делать, если что-то не получится. Хочу тренироваться
+      ещё — а ты?
+    </div>
+  </div>
+
+  <div class="hw-card">
+    <h4>Домашнее задание</h4>
+    <ol>
+      <li>
+        <span class="badge-hw must">Обязательно</span>
+        Напиши три команды <code>print</code>, чтобы программа
+        вывела в столбик: <b>твоё имя</b>, <b>твой класс</b>
+        и <b>любимую игру</b>. Сохрани в Playground и пришли
+        ссылку или скриншот.
+      </li>
+      <li>
+        <span class="badge-hw opt">По желанию</span>
+        Добавь к своей программе ещё две строки: свой город
+        и любимую еду. Придумай, чтобы они красиво сочетались
+        с остальными — как будто ты представляешься новому
+        другу.
+      </li>
+    </ol>
+
+    <div class="criteria">
+      <b>Критерии:</b> каждая строка начинается с
+      <code>print</code> (маленькими буквами), текст — в кавычках,
+      кавычки и скобки закрыты, в программе минимум 3 строки.
+      За красивое оформление — плюс, но главное — чтобы работало.
+    </div>
+  </div>
+
+  <h3>Два вопроса на понимание</h3>
+
+  <p>
+    Ответь себе (или запиши в тетради) на два вопроса. Это
+    поможет тебе не просто запомнить команду, а понять,
+    как она работает.
+  </p>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      Что произойдёт, если написать <code>print('2026')</code>,
+      а потом <code>print(2026)</code>? Чем отличаются эти команды?
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      Как ты думаешь, почему компьютер не может «догадаться»,
+      что ты хочешь сказать, если написать просто
+      <code>print(Привет)</code>?
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">📅 Что дальше</div>
+    <p>
+      На следующем уроке мы начнём работать с <b>переменными</b> —
+      это «коробки с наклейками», в которых программа хранит
+      данные. Тогда Пик сможет не просто говорить, но и
+      <b>запоминать</b>: например, своё имя, возраст, любимый
+      цвет. Станет ещё интереснее.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ЗАДАНИЯ В PLAYGROUND -->
+<!-- ============================================================ -->
+<section class="tasks-wrap">
+
+  <span class="badge" style="background:linear-gradient(135deg,#0C7C86,#5B4BC4);color:#fff;padding:8px 18px;border-radius:99px;font:800 14px var(--font-ui);display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(12,124,134,.3)">
+    🏁 Все задания на одном экране
+  </span>
+
+  <h2 style="margin:20px 0 8px;font-size:clamp(26px,3.6vw,34px);line-height:1.15">
+    Три уровня — семь заданий
+  </h2>
+  <p style="color:var(--muted);font-size:17px;margin:0">
+    Открой любое задание в Playground. Стартовый код уже
+    подставлен — можно сразу писать.
+  </p>
+
+  <div class="tasks-intro">
+    <b>Как работать.</b> Открой задание, напиши код, нажми
+    <kbd>Ctrl</kbd>+<kbd>Enter</kbd>. Если что-то не получится —
+    посмотри подсказку. Но сначала попробуй сам!
+  </div>
+
+  <div class="tasks-grid">
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">1.1</span>
+        <span class="task-title">Поздоровайся с Пиком</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Выведи одной командой <code>print</code> текст
+        <code>Привет, Пик!</code>
+      </p>
+      <button class="btn-play" data-task="1">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Текст в кавычках, обязательно закрывай.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>print('Привет, Пик!')</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">1.2</span>
+        <span class="task-title">Исправь ошибки</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        В коде три ошибки: заглавная P, нет кавычки,
+        нет скобки. Найди и исправь.
+      </p>
+      <button class="btn-play" data-task="2">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Проверь регистр, кавычки и скобки — всё парное.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>print('Привет, Пик!')
+print(2026)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">2.1</span>
+        <span class="task-title">Визитка Пика</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Выведи имя, год появления и любимое занятие — три строки.
+      </p>
+      <button class="btn-play" data-task="3">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Три команды print, каждая на своей строке.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>print('Пик')
+print(2026)
+print('программирование')</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">2.2</span>
+        <span class="task-title">Объявление для друзей</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Пик зовёт друзей в свой кружок в Playground: название,
+        время, что делаете, куда приходить.
+      </p>
+      <button class="btn-play" data-task="4">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>3–4 строки. Каждая — свой <code>print</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>print('Кружок Пика!')
+print('Собираемся каждый вторник в Playground')
+print('Пишем первые программы на Python')
+print('Вход — одна улыбка')</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">3.1</span>
+        <span class="task-title">Стихотворение для Пика</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Маленькое стихотворение из 4–6 строк. Каждая строка —
+        отдельная команда.
+      </p>
+      <button class="btn-play" data-task="5">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Не забудь кавычки на каждой строке.</p>
+      </details>
+      <details>
+        <summary>✅ Решение (пример)</summary>
+        <pre>print('Однажды в тёмном интернете')
+print('Родился маленький Пик.')
+print('Он был без голоса, но всё же')
+print('Учить его я так привык!')</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">3.2</span>
+        <span class="task-title">Пиксельная ёлочка</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Выведи ёлочку из символов «*» — пять-шесть строк.
+      </p>
+      <button class="btn-play" data-task="6">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Просто текст со звёздочками внутри кавычек.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>print('    *')
+print('   ***')
+print('  *****')
+print(' *******')
+print('    |')
+print('С Новым годом!', 2026)</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">3.3</span>
+        <span class="task-title">Своя история</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Поздравление, объявление, рассказ, шутка — что угодно,
+        но минимум 5 команд <code>print</code>.
+      </p>
+      <button class="btn-play" data-task="7">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Чем интереснее текст — тем лучше. Можно смешивать
+        текст и числа.</p>
+      </details>
+      <details>
+        <summary>✅ Решение (пример)</summary>
+        <pre>print('Внимание! Внимание!')
+print('Сегодня в 18:00')
+print('В актовом зале')
+print('Выступает Пик')
+print('Вход свободный!')</pre>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- Стартовый код для Playground -->
+<div id="starters" hidden>
+  <template data-task="1"># Поздоровайся с Пиком одной командой print
+# Текст: Привет, Пик!
+
+</template>
+  <template data-task="2"># Исправь три ошибки в этом коде
+
+Print('Привет, Пик!)
+print(2026
+
+</template>
+  <template data-task="3"># Визитка Пика: имя, год появления, любимое занятие
+# Три строки, три команды print
+
+</template>
+  <template data-task="4"># Объявление для кружка Пика
+# 3-4 строки: название, время, что делаете, куда приходить
+
+</template>
+  <template data-task="5"># Стихотворение для Пика из 4-6 строк
+
+</template>
+  <template data-task="6"># Пиксельная ёлочка из звёздочек — 5-6 строк
+
+</template>
+  <template data-task="7"># Своя история: минимум 5 команд print
+
+</template>
+</div>
+
+<!-- ============================================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🟣</span>
+  <h2>Пик заговорил!</h2>
+  <p>
+    Сегодня ты не только написал свою первую программу — ты
+    научил говорить маленькое пиксельное существо. Ты узнал,
+    что компьютер — это исполнитель, а программа — это набор
+    точных команд. И что команда <code>print</code> умеет
+    превращать твои мысли в слова на экране.
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+  <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="lesson-02-variables.html">
+      Следующий урок: Переменные →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 1 · Знакомство с Python · 🟣 Пик и его первый голос · 💬 print()
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   РАЗМИНКА: три вопроса
+   ============================================================ */
+(function(){
+  var grid = document.getElementById('warmup');
+  if (!grid) return;
+
+  var cards = grid.querySelectorAll('.warmup-card');
+
+  cards.forEach(function(card){
+    var opts = card.querySelectorAll('.opt');
+    var fb = card.querySelector('.fb');
+    var done = false;
+
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (done) return;
+        done = true;
+        var ok = opt.dataset.correct === 'true';
+        opts.forEach(function(o){
+          if (o.dataset.correct === 'true') o.classList.add('right');
+          o.disabled = true;
+        });
+        if (!ok) opt.classList.add('wrong');
+        if (ok){
+          fb.textContent = '✅ Именно так!';
+          fb.style.color = 'var(--a5)';
+        } else {
+          fb.textContent = '🤔 Правильный ответ подсвечен зелёным.';
+          fb.style.color = 'var(--a2)';
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   ПИК ГОВОРИТ
+   ============================================================ */
+(function(){
+  var speech = document.getElementById('pikSpeech');
+  var face = document.getElementById('pikFace');
+  var mute = document.getElementById('pikMute');
+  if (!speech) return;
+
+  var timer = null;
+
+  function stop(){
+    if (timer) clearTimeout(timer);
+    speech.classList.remove('show');
+    face.classList.remove('talking');
+  }
+
+  document.querySelectorAll('.pik-btn[data-say]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      stop();
+      speech.textContent = btn.dataset.say;
+      speech.classList.add('show');
+      face.classList.add('talking');
+      timer = setTimeout(function(){
+        stop();
+      }, 3000);
+    });
+  });
+
+  if (mute){
+    mute.addEventListener('click', stop);
+  }
+})();
+
+/* ============================================================
+   МИНИ-КОНСТРУКТОР ФРАЗЫ
+   ============================================================ */
+(function(){
+  var nameEl = document.getElementById('phraseName');
+  if (!nameEl) return;
+  var cityEl = document.getElementById('phraseCity');
+  var yearEl = document.getElementById('phraseYear');
+  var btn = document.getElementById('phraseBtn');
+  var out = document.getElementById('phraseOut');
+
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+
+  function build(){
+    var name = nameEl.value.trim() || 'Пик';
+    var city = cityEl.value.trim() || 'внутри Python';
+    var year = parseInt(yearEl.value, 10);
+    if (isNaN(year)) year = 2026;
+
+    var html =
+      '<span class="fn">print</span>(<span class="str">\'Привет, я ' + esc(name) + '\'</span>)\n' +
+      '<span class="fn">print</span>(<span class="str">\'Я живу\'</span>, <span class="str">\'' + esc(city) + '\'</span>)\n' +
+      '<span class="fn">print</span>(<span class="str">\'Я появился в\'</span>, <span class="num">' + year + '</span>)\n\n' +
+      '<span class="dim"># Результат:</span>\n' +
+      '<span class="ok">Привет, я ' + esc(name) + '\n' +
+      'Я живу ' + esc(city) + '\n' +
+      'Я появился в ' + year + '</span>';
+
+    out.innerHTML = html;
+  }
+
+  btn.addEventListener('click', build);
+  [nameEl, cityEl, yearEl].forEach(function(el){
+    el.addEventListener('keydown', function(e){ if (e.key === 'Enter') build(); });
+  });
+
+  build();
+})();
+
+/* ============================================================
+   КНОПКИ PLAYGROUND
+   ============================================================ */
+(function(){
+  function encodeForPlayground(str){
+    return btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  document.querySelectorAll('.btn-play').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.task;
+      var tpl = document.querySelector('template[data-task="' + id + '"]');
+      var code = tpl ? tpl.content.textContent.trim() : '';
+      var url = 'python-compiler.html#code=' + encodeForPlayground(code);
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+})();
+
+/* ============================================================
+   ОТМЕТКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var LS_KEY = 'py_course_progress';
+  var LESSON_NUM = 1;
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  function readArr(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeArr(arr){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+
+  if (readArr().indexOf(LESSON_NUM) !== -1){
+    btn.textContent = '✓ Урок пройден';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+  }
+
+  btn.addEventListener('click', function(){
+    var arr = readArr();
+    if (arr.indexOf(LESSON_NUM) === -1){
+      arr.push(LESSON_NUM);
+      writeArr(arr);
+    }
+    btn.textContent = '✓ Урок пройден!';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+    nextWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>

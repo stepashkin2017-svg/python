@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ООП. События — урок 22</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<style>
+/* ============================================================
+   УРОК 22 · ООП. СОБЫТИЯ · «Поймай черепашку»
+   ============================================================ */
+
+body.kids{
+  background:
+    radial-gradient(circle at 15% 5%, rgba(184,50,90,.14), transparent 35%),
+    radial-gradient(circle at 85% 95%, rgba(58,125,44,.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(40,115,184,.06), transparent 60%),
+    var(--bg);
+  font-size:20px;line-height:1.65;
+}
+body.kids main{max-width:900px;padding:20px 20px 80px}
+
+.kid-bar{
+  position:sticky;top:var(--header-h, 58px);z-index:5;
+  background:var(--card);border-bottom:2px solid var(--line);
+  padding:12px 16px;box-shadow:0 4px 14px rgba(23,32,51,.08);
+}
+.kid-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kid-bar .clock{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 18px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  padding:8px 16px;border-radius:99px;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+}
+.kid-bar .steps{display:flex;gap:8px;flex:1;min-width:180px}
+.kid-bar .steps span{
+  flex:1;height:14px;border-radius:8px;background:var(--line);
+  transition:.3s ease;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kid-bar .steps span.done{background:linear-gradient(135deg,var(--a1),var(--a5))}
+.kid-bar .steps span.active{
+  background:linear-gradient(135deg,var(--a3),var(--a4));
+  transform:scale(1.15);box-shadow:0 4px 12px rgba(91,75,196,.35);
+}
+
+.kid-hero{text-align:center;padding:50px 20px 40px;max-width:900px;margin:0 auto}
+.kid-hero .bubbles{
+  display:flex;justify-content:center;gap:20px;margin-bottom:24px;
+  font-size:80px;line-height:1;
+}
+.kid-hero .bubbles span{display:inline-block;animation:float 3s ease-in-out infinite}
+.kid-hero .bubbles span:nth-child(2){animation-delay:.4s}
+.kid-hero .bubbles span:nth-child(3){animation-delay:.8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0)}
+  50%{transform:translateY(-14px) rotate(3deg)}
+}
+.kid-hero h1{
+  margin:0 0 16px;font-size:clamp(32px,5.2vw,52px);
+  line-height:1.1;letter-spacing:-.02em;
+}
+.kid-hero .lead{
+  color:var(--muted);font-size:20px;line-height:1.5;
+  max-width:640px;margin:0 auto 26px;
+}
+.kid-hero .chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.kid-hero .chips span{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:2px solid var(--line);
+  padding:10px 18px;border-radius:99px;
+  font:700 15px var(--font-ui);color:var(--text);
+}
+
+.kstep{
+  margin:44px 0;background:var(--card);border-radius:28px;
+  padding:32px 28px;box-shadow:0 12px 32px rgba(23,32,51,.1);
+  position:relative;overflow:hidden;
+}
+.kstep::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:10px;
+  background:linear-gradient(90deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+}
+.kstep .badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font:800 14px var(--font-ui);color:#fff;
+  background:linear-gradient(135deg,var(--c1,var(--a1)),var(--c2,var(--a3)));
+  padding:8px 18px;border-radius:99px;margin-bottom:18px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(12,124,134,.3);
+}
+.kstep h2{
+  margin:0 0 8px;font-size:clamp(24px,3.4vw,32px);
+  line-height:1.2;letter-spacing:-.01em;
+}
+.kstep .sub{color:var(--muted);font-size:17px;margin:0 0 22px;line-height:1.5}
+.kstep p{font-size:19px;line-height:1.65;margin:0 0 14px}
+.kstep h3{margin:26px 0 12px;font-size:21px;line-height:1.3}
+
+.kstep.s1{--c1:#B8325A;--c2:#B9660A}
+.kstep.s2{--c1:#B9660A;--c2:#B8325A}
+.kstep.s3{--c1:#5B4BC4;--c2:#B8325A}
+.kstep.s4{--c1:#0C7C86;--c2:#2873B8}
+.kstep.s5{--c1:#3A7D2C;--c2:#0C7C86}
+.kstep.s6{--c1:#2873B8;--c2:#B9660A}
+
+.byte-says{
+  display:flex;gap:16px;align-items:flex-start;
+  margin:22px 0;padding:20px 22px;
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.06));
+  border-radius:20px;
+}
+.byte-says .face{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;line-height:1;
+  box-shadow:0 8px 20px rgba(12,124,134,.35);
+  animation:float 3.4s ease-in-out infinite;
+}
+.byte-says .bubble{
+  flex:1;background:var(--card);border-radius:16px;
+  padding:16px 20px;font-size:18px;line-height:1.6;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+  position:relative;
+}
+.byte-says .bubble::before{
+  content:"";position:absolute;left:-10px;top:22px;
+  width:0;height:0;border:9px solid transparent;
+  border-right-color:var(--card);
+}
+.byte-says .bubble b{color:var(--a1)}
+@media(max-width:520px){
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px;padding:14px 16px}
+}
+
+.explain{
+  background:linear-gradient(135deg,rgba(12,124,134,.05),rgba(91,75,196,.05));
+  border-left:6px solid var(--a1);border-radius:14px;
+  padding:18px 22px;margin:18px 0;font-size:17px;line-height:1.65;
+}
+.explain .ttl{
+  display:inline-flex;align-items:center;gap:8px;
+  font:800 14px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+  color:var(--a1);margin-bottom:10px;
+}
+.explain p{margin:0 0 10px;font-size:17px}
+.explain p:last-child{margin-bottom:0}
+.explain.warn{
+  border-left-color:var(--a2);
+  background:linear-gradient(135deg,rgba(185,102,10,.08),rgba(184,50,90,.08));
+}
+.explain.warn .ttl{color:var(--a2)}
+.explain.memo{
+  border-left-color:var(--a3);
+  background:linear-gradient(135deg,rgba(91,75,196,.08),rgba(12,124,134,.06));
+}
+.explain.memo .ttl{color:var(--a3)}
+.explain.danger{
+  border-left-color:var(--red);
+  background:linear-gradient(135deg,rgba(180,35,24,.06),rgba(184,50,90,.06));
+}
+.explain.danger .ttl{color:var(--red)}
+
+.def-card{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-radius:20px;padding:22px 24px;margin:16px 0;
+  border-left:6px solid var(--a3);
+}
+.def-card .term{
+  font:800 20px var(--font-ui);color:var(--a3);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.def-card .term::before{content:"📘";font-size:22px}
+.def-card .def{font-size:18px;line-height:1.55}
+.def-card .def b{color:var(--a3)}
+.def-card .ex{
+  font-size:16px;color:var(--muted);margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.code-full{
+  background:#0F1A30;color:#E8EEF8;
+  padding:22px 24px;border-radius:18px;margin:18px 0;
+  font:15.5px/1.75 var(--font-code);
+  box-shadow:0 10px 26px rgba(15,26,48,.3);
+  overflow-x:auto;white-space:pre;
+}
+.code-full .kw{color:#FFB454;font-weight:600}
+.code-full .fn{color:#C9B8FF;font-weight:600}
+.code-full .str{color:#8EE6A0}
+.code-full .num{color:#7FC4FF}
+.code-full .cm{color:#7F90B0;font-style:italic}
+.code-full .imp{color:#FF8FB0;font-weight:800}
+.code-full .obj{color:#FFB454;font-weight:800;background:rgba(255,180,84,.14);border-radius:4px;padding:0 3px}
+.code-full .met{color:#8EE6A0;font-weight:800}
+
+.term{
+  margin:18px 0;background:#0F1A30;border:1px solid #1e2c48;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 26px rgba(15,26,48,.25);
+}
+.term-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:#182138;
+  border-bottom:1px solid #1e2c48;
+}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.term-bar i:nth-child(1){background:#FF5F56}
+.term-bar i:nth-child(2){background:#FFBD2E}
+.term-bar i:nth-child(3){background:#27C93F}
+.term-bar em{
+  font:700 13px var(--font-code);color:#7F90B0;
+  font-style:normal;margin-left:auto;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.term-body{
+  margin:0;padding:18px 22px;
+  font:16px/1.7 var(--font-code);color:#E8EEF8;
+  background:transparent;white-space:pre-wrap;overflow-x:auto;
+}
+.term-body .dim{color:#7F90B0}
+.term-body .hl{color:#FFB454}
+.term-body .ok{color:#8EE6A0}
+.term-body .err{color:#FF8F8F}
+
+.scene{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:22px;padding:26px;margin:24px 0;
+}
+.scene h4{
+  margin:0 0 8px;font-size:19px;
+  display:flex;align-items:center;gap:10px;
+}
+.scene h4::before{content:"🎯";font-size:22px}
+.scene .hint{margin:0 0 18px;font-size:16px;color:var(--muted);line-height:1.5}
+
+.kid-input{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.kid-input input{
+  flex:1;min-width:150px;padding:16px 18px;
+  font:800 20px var(--font-code);
+  border:4px solid var(--line);border-radius:16px;
+  outline:none;background:var(--card);color:var(--text);
+  text-align:center;transition:.15s;
+}
+.kid-input input:focus{
+  border-color:var(--a1);
+  box-shadow:0 0 0 5px rgba(12,124,134,.15);
+  transform:scale(1.02);
+}
+.kid-input button{
+  padding:16px 24px;font:800 17px var(--font-ui);
+  border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;cursor:pointer;
+  box-shadow:0 8px 20px rgba(91,75,196,.35);
+  transition:.15s ease;
+}
+.kid-input button:hover{transform:translateY(-2px) scale(1.03)}
+
+.plan-visual{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin:30px 0;
+}
+.plan-step{
+  background:var(--card);border-radius:18px;
+  padding:20px 14px;text-align:center;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  transition:.2s ease;
+}
+.plan-step:hover{transform:translateY(-4px)}
+.plan-step .time{
+  font:800 13px var(--font-code);color:#fff;
+  background:linear-gradient(135deg,#0C7C86,#5B4BC4);
+  padding:4px 12px;border-radius:99px;
+  display:inline-block;margin-bottom:12px;
+}
+.plan-step .icon{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.plan-step .ttl{font:700 15px var(--font-ui);line-height:1.35;color:var(--text)}
+
+.rules{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;margin:22px 0;
+}
+.rule{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;border-left:6px solid var(--a3);
+  font-size:16.5px;line-height:1.55;
+}
+.rule .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;border-radius:50%;
+  background:var(--a3);color:#fff;
+  font:800 16px var(--font-ui);
+  margin-right:10px;vertical-align:middle;
+}
+
+.print-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.06);
+  font-size:15.5px;
+}
+.print-table th, .print-table td{
+  padding:12px 16px;text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.print-table th{
+  background:var(--bg);color:var(--muted);
+  font:700 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.print-table td:first-child{
+  font-family:var(--font-code);font-size:14.5px;color:var(--text);
+}
+.print-table tr:last-child td{border-bottom:none}
+
+/* ---------- Жизненные аналогии событий ---------- */
+.life-scenes{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px;margin:22px 0;
+}
+.life-scene{
+  background:linear-gradient(180deg,var(--card),var(--bg));
+  border:3px solid var(--line);
+  border-radius:20px;
+  padding:20px 18px;
+  transition:.2s ease;
+}
+.life-scene:hover{
+  transform:translateY(-4px);
+  border-color:var(--a3);
+  box-shadow:0 14px 30px rgba(91,75,196,.15);
+}
+.life-scene .top{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:14px;
+}
+.life-scene .em{font-size:44px;line-height:1}
+.life-scene .ttl{
+  font:800 17px var(--font-ui);color:var(--text);
+}
+.life-scene .arrow{
+  font-size:22px;color:var(--a3);
+  text-align:center;margin:8px 0;
+}
+.life-scene .react{
+  background:var(--card);
+  padding:10px 14px;border-radius:12px;
+  font-size:15px;line-height:1.5;
+  border-left:4px solid var(--a5);
+}
+.life-scene .react b{color:var(--a5)}
+
+/* ---------- Схема «событие → система → обработчик» ---------- */
+.event-flow{
+  background:var(--bg);
+  border-radius:18px;
+  padding:24px 20px;
+  margin:22px 0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+}
+.event-flow .row{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.event-box{
+  padding:14px 20px;
+  border-radius:14px;
+  text-align:center;
+  font:800 14.5px var(--font-ui);
+  line-height:1.4;
+  min-width:180px;
+  max-width:240px;
+}
+.event-box.user{
+  background:linear-gradient(135deg,#FFD98E,#FFB454);
+  color:#7A2D0A;
+}
+.event-box.system{
+  background:linear-gradient(135deg,#C9B8FF,#A99BFF);
+  color:#3A2A7D;
+}
+.event-box.handler{
+  background:linear-gradient(135deg,#B5E7A0,#8FD97C);
+  color:#2E4A1F;
+}
+.event-box .lbl{
+  display:block;
+  font:700 11px var(--font-code);
+  letter-spacing:.05em;
+  opacity:.7;
+  margin-bottom:4px;
+  text-transform:uppercase;
+}
+.event-arrow{
+  font-size:26px;
+  color:var(--muted);
+  text-align:center;
+}
+
+/* ---------- Живой симулятор клика ---------- */
+.click-sim{
+  background:#fff;
+  border-radius:16px;
+  border:3px solid var(--line);
+  padding:14px;
+  margin:18px 0;
+  text-align:center;
+}
+.click-sim .field{
+  position:relative;
+  height:280px;
+  background:linear-gradient(180deg,#F7FAFD,#EEF3F8);
+  border-radius:12px;
+  overflow:hidden;
+  user-select:none;
+}
+.click-sim .turtle{
+  position:absolute;
+  width:64px;
+  height:64px;
+  cursor:pointer;
+  transition:left .25s ease, top .25s ease;
+  transform:translate(-50%, -50%);
+}
+.click-sim .turtle svg{
+  display:block;
+  width:100%;
+  height:100%;
+  filter:drop-shadow(0 4px 8px rgba(184,50,90,.3));
+}
+.click-sim .turtle:hover{
+  filter:brightness(1.15);
+}
+.click-sim .turtle.clicked{
+  animation:pop .3s ease;
+}
+@keyframes pop{
+  0%{transform:translate(-50%, -50%) scale(1)}
+  50%{transform:translate(-50%, -50%) scale(1.3)}
+  100%{transform:translate(-50%, -50%) scale(1)}
+}
+.click-sim .info{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+.click-sim .stat{
+  background:var(--card);
+  padding:10px 16px;
+  border-radius:12px;
+  border:2px solid var(--line);
+  font:800 14px var(--font-code);
+  color:var(--text);
+}
+.click-sim .stat .val{
+  color:var(--a3);
+  margin-left:6px;
+}
+.click-sim .stat.done{
+  border-color:var(--a5);
+  background:rgba(58,125,44,.1);
+}
+.click-sim .stat.done .val{color:var(--a5)}
+
+/* ---------- Условная схема программы ---------- */
+.program-scheme{
+  background:#0F1A30;
+  color:#E8EEF8;
+  border-radius:14px;
+  padding:18px 22px;
+  font:13.5px/1.75 var(--font-code);
+  overflow-x:auto;
+  white-space:pre;
+  margin:18px 0;
+}
+.program-scheme .cmt{color:#7F90B0;font-style:italic}
+.program-scheme .kw{color:#FFB454;font-weight:600}
+.program-scheme .fn{color:#C9B8FF;font-weight:600}
+.program-scheme .str{color:#8EE6A0}
+.program-scheme .num{color:#7FC4FF}
+.program-scheme .hl{
+  background:rgba(142,230,160,.18);
+  border-radius:4px;padding:0 3px;
+}
+
+/* ---------- Квиз ---------- */
+.kquiz{margin-top:8px}
+.kquiz .q{
+  background:var(--card);border-radius:16px;
+  padding:18px;margin-bottom:12px;
+  box-shadow:0 6px 16px rgba(23,32,51,.08);
+}
+.kquiz .q .qnum{
+  font:800 11px var(--font-code);color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.kquiz .q .qtext{font:700 17px var(--font-ui);margin:6px 0 12px;line-height:1.45}
+.kquiz .q pre{
+  margin:0 0 12px;padding:12px;font-size:13.5px;
+  background:#0F1A30;border-radius:10px;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;
+}
+.kquiz .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kquiz .opt{
+  padding:12px 14px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);
+  cursor:pointer;font:600 14.5px var(--font-ui);
+  text-align:left;color:var(--text);transition:.15s ease;
+}
+.kquiz .opt:hover:not(:disabled){border-color:var(--a3)}
+.kquiz .opt.right{background:rgba(58,125,44,.12);border-color:var(--a5);color:var(--a5)}
+.kquiz .opt.wrong{background:rgba(180,35,24,.1);border-color:var(--red);color:var(--red)}
+.kquiz .opt:disabled{cursor:default;opacity:.9}
+.kquiz .fb{margin-top:8px;font-weight:700;font-size:14.5px;min-height:20px}
+.kquiz .fb.ok{color:var(--a5)}
+.kquiz .fb.no{color:var(--red)}
+.kquiz .score{text-align:center;margin-top:14px;font:800 16px var(--font-ui);color:var(--a3)}
+
+/* ---------- Задания ---------- */
+.tasks-wrap{margin:56px 0 40px}
+.tasks-intro{
+  background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
+  border-left:6px solid var(--a1);border-radius:16px;
+  padding:20px 24px;margin:20px 0 26px;
+  font-size:17px;line-height:1.6;
+}
+.tasks-intro b{color:var(--a1)}
+.tasks-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:16px;margin-top:22px;
+}
+.play-task{
+  background:var(--card);border-radius:18px;padding:20px;
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+  display:flex;flex-direction:column;gap:12px;
+  border-left:5px solid var(--a3);transition:.18s ease;
+}
+.play-task:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(23,32,51,.14)}
+.play-task .task-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play-task .task-num{
+  font:800 12px var(--font-code);color:#fff;background:var(--a3);
+  padding:4px 10px;border-radius:8px;letter-spacing:.04em;
+}
+.play-task .task-title{font:800 16px var(--font-ui);flex:1;min-width:120px}
+.play-task .task-stars{font-size:13px;letter-spacing:2px}
+.play-task .task-desc{margin:0;font-size:14.5px;line-height:1.55;color:var(--text)}
+.play-task .task-desc code{
+  font:600 12.5px var(--font-code);
+  background:var(--bg);padding:1px 6px;border-radius:4px;
+}
+.btn-play{
+  align-self:flex-start;padding:11px 18px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--a1),var(--a3));
+  color:#fff;font:800 14px var(--font-ui);cursor:pointer;
+  box-shadow:0 6px 16px rgba(91,75,196,.3);
+  transition:.15s ease;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(91,75,196,.45)}
+.play-task details{
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);overflow:hidden;font-size:14px;
+}
+.play-task details summary{
+  cursor:pointer;padding:10px 12px;list-style:none;
+  font-weight:700;color:var(--text);
+}
+.play-task details summary::-webkit-details-marker{display:none}
+.play-task details summary::before{
+  content:"▸ ";color:var(--a3);font-size:11px;
+  display:inline-block;transition:.2s;
+}
+.play-task details[open] summary::before{transform:rotate(90deg)}
+.play-task details[open] summary{
+  background:rgba(91,75,196,.1);color:var(--a3);
+  border-bottom:1px solid var(--line);
+}
+.play-task details pre{
+  margin:0;padding:12px;font-size:12.5px;
+  background:#0F1A30;border-radius:0;
+  font-family:var(--font-code);color:#E8EEF8;
+  overflow-x:auto;white-space:pre;line-height:1.55;
+}
+.play-task details p{margin:8px 12px;color:var(--muted)}
+
+.kid-finale{
+  text-align:center;padding:56px 24px;
+  background:linear-gradient(135deg,#FFD98E,#FFCCD2 50%,#B5E7A0);
+  border-radius:28px;margin:60px 0 20px;
+  position:relative;overflow:hidden;
+}
+.kid-finale::before, .kid-finale::after{
+  content:"🎯";position:absolute;font-size:40px;
+  animation:float 3s ease-in-out infinite;
+}
+.kid-finale::before{top:20px;left:30px}
+.kid-finale::after{bottom:20px;right:30px;animation-delay:.6s}
+.kid-finale .big-emoji{
+  font-size:96px;line-height:1;margin-bottom:16px;
+  display:block;animation:float 2.6s ease-in-out infinite;
+}
+.kid-finale h2{margin:0 0 14px;font-size:clamp(28px,4vw,38px);color:#7A2D0A}
+.kid-finale p{
+  max-width:580px;margin:0 auto 26px;font-size:19px;
+  line-height:1.55;color:#7A2D0A;font-weight:600;
+}
+.kid-finale .cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 32px;font:800 19px var(--font-ui);
+  background:linear-gradient(135deg,#B9660A,#B8325A);
+  color:#fff;text-decoration:none;border:none;cursor:pointer;
+  border-radius:18px;box-shadow:0 14px 34px rgba(185,102,10,.45);
+  transition:.2s ease;margin:6px;
+}
+.kid-finale .cta:hover{transform:translateY(-3px) scale(1.04)}
+.kid-finale .cta[disabled]{opacity:.7;cursor:default;transform:none}
+.kid-finale .cta.next{background:linear-gradient(135deg,#5B4BC4,#B8325A)}
+
+@media (max-width:640px){
+  body.kids{font-size:18px}
+  .kid-hero .bubbles{font-size:60px}
+  .kstep{padding:24px 20px}
+  .kstep h2{font-size:22px}
+  .kstep p{font-size:17px}
+  .kquiz .opts{grid-template-columns:1fr}
+  .code-full{font-size:13px;padding:16px}
+  .print-table{font-size:13.5px}
+  .print-table th, .print-table td{padding:10px 12px}
+  .byte-says .face{width:52px;height:52px;font-size:28px}
+  .byte-says .bubble{font-size:16.5px}
+  .click-sim .field{height:220px}
+}
+</style>
+</head>
+<body class="kids">
+
+<!-- ============================================ -->
+<!-- ОБЛОЖКА -->
+<!-- ============================================ -->
+<header class="kid-hero">
+  <div class="bubbles">
+    <span>🐢</span>
+    <span>🖱️</span>
+    <span>🤖</span>
+  </div>
+  <h1>Клик по черепашке</h1>
+  <p class="lead">
+    Студии Press and Play понравились «Черепашьи гонки» — и она
+    заказала новую игру. Теперь черепашка бегает сама, а игрок
+    должен её <b>поймать</b> — кликнуть мышкой. При клике что-то
+    должно произойти! Сегодня мы узнаем, как научить программу
+    <b>реагировать на события</b>.
+  </p>
+  <div class="chips">
+    <span>⏱ 45 минут</span>
+    <span>🎯 Событие</span>
+    <span>🖱️ onclick</span>
+    <span>🐢 Игра</span>
+  </div>
+</header>
+
+<!-- прогресс-бар -->
+<div class="kid-bar">
+  <div class="kid-bar-inner">
+    <span class="clock" id="clock">00:00</span>
+    <div class="steps" id="steps">
+      <span>💭</span>
+      <span>🎯</span>
+      <span>🔗</span>
+      <span>🐢</span>
+      <span>🐢🐢🐢</span>
+      <span>🏁</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- ПЛАН -->
+<!-- ============================================================ -->
+<div class="plan-visual">
+  <div class="plan-step">
+    <span class="time">0–5 мин</span>
+    <span class="icon">💭</span>
+    <div class="ttl">Новый заказ</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">5–13 мин</span>
+    <span class="icon">🎯</span>
+    <div class="ttl">Что такое событие</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">13–22 мин</span>
+    <span class="icon">🔗</span>
+    <div class="ttl">Подписка и обработчик</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">22–33 мин</span>
+    <span class="icon">🐢</span>
+    <div class="ttl">Прототип 1: «Поймай»</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">33–42 мин</span>
+    <span class="icon">🐢🐢🐢</span>
+    <div class="ttl">Прототип 2: три черепашки</div>
+  </div>
+  <div class="plan-step">
+    <span class="time">42–45 мин</span>
+    <span class="icon">🏁</span>
+    <div class="ttl">Итог и квиз</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ШАГ 1 · НОВЫЙ ЗАКАЗ -->
+<!-- ============================================================ -->
+<section class="kstep s1">
+  <span class="badge">⏱ 0–5 минут · 💭 Новый заказ</span>
+  <h2>Студия хочет ещё одну игру</h2>
+  <p class="sub">
+    Директор Press and Play посмотрел на прототип «Черепашьих
+    гонок» и сказал: «Отличная работа! Но хочется чего-то
+    более интерактивного. Хочу, чтобы <b>игрок сам
+    участвовал</b>».
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Заказ: игра «Поймай черепашку». Черепашка прыгает по экрану,
+      а игрок должен по ней <b>кликнуть мышкой</b>. Если успел — плюс
+      одно очко. Нужно набрать 3 клика — и ты победил! А ещё
+      хотят второй прототип: три черепашки разбегаются
+      в стороны, а ты кликом меняешь их направление, чтобы они
+      не убежали.
+    </div>
+  </div>
+
+  <h3>Что здесь нового?</h3>
+
+  <p>
+    Раньше наши программы делали всё по порядку: сверху вниз.
+    Мы не знали, что делает игрок — программа просто бежала
+    свой алгоритм.
+  </p>
+
+  <p>
+    Теперь — иначе. Программа не может «угадать», когда игрок
+    кликнет мышкой. Она должна <b>реагировать</b>, когда что-то
+    происходит. Такие «происшествия» называются
+    <b>событиями</b>.
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">🎯 Что мы узнаем</div>
+    <p>
+      <b>1.</b> Что такое событие и как программа их замечает.<br>
+      <b>2.</b> Как «подписаться» на событие — сказать программе,
+      чего ждать.<br>
+      <b>3.</b> Что такое обработчик события — что делать,
+      когда событие случилось.<br>
+      <b>4.</b> Как запрограммировать игру «Поймай черепашку».
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 2 · ЧТО ТАКОЕ СОБЫТИЕ -->
+<!-- ============================================================ -->
+<section class="kstep s2">
+  <span class="badge">⏱ 5–13 минут · 🎯 Что такое событие</span>
+  <h2>Событие — это то, что произошло</h2>
+  <p class="sub">
+    На самом деле ты знаком с событиями очень давно. Это не
+    какая-то программистская магия, а самая обычная жизнь.
+    Давай разберём на примерах.
+  </p>
+
+  <h3>События вокруг нас</h3>
+
+  <div class="life-scenes">
+    <div class="life-scene">
+      <div class="top">
+        <span class="em">🔔</span>
+        <span class="ttl">Дверной звонок</span>
+      </div>
+      <div class="react">
+        Кто-то <b>нажал кнопку</b> звонка
+      </div>
+      <div class="arrow">↓</div>
+      <div class="react">
+        <b>Ты идёшь</b> открывать дверь
+      </div>
+    </div>
+    <div class="life-scene">
+      <div class="top">
+        <span class="em">📱</span>
+        <span class="ttl">Уведомление в телефоне</span>
+      </div>
+      <div class="react">
+        Пришло <b>новое сообщение</b>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="react">
+        Телефон <b>завибрировал</b> и показал иконку
+      </div>
+    </div>
+    <div class="life-scene">
+      <div class="top">
+        <span class="em">⏰</span>
+        <span class="ttl">Будильник</span>
+      </div>
+      <div class="react">
+        На часах <b>7:00</b>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="react">
+        Будильник <b>зазвенел</b>
+      </div>
+    </div>
+    <div class="life-scene">
+      <div class="top">
+        <span class="em">🚗</span>
+        <span class="ttl">Сигнализация машины</span>
+      </div>
+      <div class="react">
+        Кто-то <b>тронул машину</b>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="react">
+        Сигнализация <b>заорала</b> на всю улицу
+      </div>
+    </div>
+  </div>
+
+  <div class="def-card">
+    <div class="term">Событие</div>
+    <div class="def">
+      Это <b>что-то, что произошло во внешнем мире</b>, и о чём
+      компьютер может узнать. Чаще всего это <b>действия
+      пользователя</b>: клик мышкой, нажатие клавиши,
+      движение мыши.
+    </div>
+    <div class="ex">
+      Ты кликнул по черепашке — это событие. Ты нажал «Пробел» —
+      это тоже событие.
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Что значит «внешний мир»?</div>
+    <p>
+      Для программы «внешний мир» — это всё, что вокруг неё:
+      мышка, клавиатура, тачпад, экран. Программа сама
+      не знает, когда ты кликнешь. Но если ты кликнешь —
+      <b>система</b> (Windows, macOS или платформа) сообщит
+      программе: «Эй, тут событие!».
+    </p>
+    <p>
+      Программа как будто спит. А когда что-то происходит —
+      просыпается и реагирует.
+    </p>
+  </div>
+
+  <h3>Как программа узнаёт про событие?</h3>
+
+  <p>
+    Представь, что ты ждёшь курьера. Ты же не бегаешь каждые
+    10 секунд к двери с проверкой: «Пришёл? Нет? А теперь?
+    А теперь?». Это было бы очень глупо и утомительно.
+  </p>
+
+  <p>
+    Точно так же и программа <b>не проверяет постоянно</b>,
+    кликнул ли ты мышкой. Вместо этого она <b>подписывается
+    на событие</b> и ждёт — пока система сама не сообщит:
+    «Клик!».
+  </p>
+
+  <div class="explain warn">
+    <div class="ttl">💡 Три слова, которые надо знать</div>
+    <p>
+      <b>1. Событие</b> — что-то случилось (клик мышкой).<br>
+      <b>2. Подписка</b> — программа говорит: «Я жду это событие».<br>
+      <b>3. Обработчик</b> — что программа делает, когда событие
+      пришло.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 3 · ПОДПИСКА И ОБРАБОТЧИК -->
+<!-- ============================================================ -->
+<section class="kstep s3">
+  <span class="badge">⏱ 13–22 минут · 🔗 Подписка и обработчик</span>
+  <h2>Как подписаться на событие</h2>
+  <p class="sub">
+    Разберём, как это работает в коде. На самом деле — очень
+    просто: три коротких строчки.
+  </p>
+
+  <h3>Разбор на примере дверного звонка</h3>
+
+  <div class="event-flow">
+    <div class="row">
+      <div class="event-box user">
+        <span class="lbl">Событие</span>
+        Гость нажал кнопку звонка
+      </div>
+      <div class="event-arrow">→</div>
+      <div class="event-box system">
+        <span class="lbl">Система</span>
+        «Дзинь! У квартиры событие»
+      </div>
+      <div class="event-arrow">→</div>
+      <div class="event-box handler">
+        <span class="lbl">Обработчик</span>
+        Ты открываешь дверь
+      </div>
+    </div>
+  </div>
+
+  <p>
+    Точно так же и с программой. Только вместо звонка — клик
+    по черепашке, а вместо тебя — функция-обработчик.
+  </p>
+
+  <h3>Подписка на событие</h3>
+
+  <p>
+    Подписка делается одним вызовом метода:
+  </p>
+
+  <div class="code-full">t.onclick(catch)
+
+<span class="cm"># t — имя черепашки</span>
+<span class="cm"># onclick — «при клике»</span>
+<span class="cm"># catch — имя функции-обработчика</span></div>
+
+  <p>
+    Читается так: «<b>Черепашка t</b>, слушай: <b>когда по тебе
+    кликнут</b>, вызывай функцию <b>catch</b>».
+  </p>
+
+  <h3>Обработчик события</h3>
+
+  <p>
+    Обработчик — это функция, которая сработает при событии.
+    У неё должно быть <b>два параметра</b>: координаты клика.
+    Система сама передаст их.
+  </p>
+
+  <div class="code-full"><span class="kw">def</span> <span class="fn">catch</span>(x, y):
+    <span class="cm"># x, y — координаты того места, где кликнули</span>
+    <span class="fn">print</span>(<span class="str">'Поймали!'</span>)
+    <span class="fn">print</span>(<span class="str">'Клик был в точке:'</span>, x, y)</div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Куда девать x и y?</div>
+    <p>
+      Система всегда передаёт координаты клика. Даже если они
+      не нужны — параметры всё равно должны быть в скобках.
+    </p>
+    <p>
+      Мы их получим, но можем просто не использовать внутри.
+      Например: <code>def catch(x, y): print('Поймали!')</code>.
+    </p>
+  </div>
+
+  <h3>Простейший пример — целиком</h3>
+
+  <p>
+    Программа: черепашка стоит на месте. Кликаем по ней —
+    в консоли печатается сообщение.
+  </p>
+
+  <div class="code-full"><span class="imp">from turtle import *</span>
+
+t = <span class="obj">Turtle</span>()
+t.shape(<span class="str">'turtle'</span>)
+
+<span class="kw">def</span> <span class="fn">catch</span>(x, y):
+    <span class="fn">print</span>(<span class="str">'Попался!'</span>)
+
+t.onclick(catch)
+
+exitonclick()</div>
+
+  <p>
+    Запусти и кликни по черепашке — в консоли появится «Попался!».
+  </p>
+
+  <!-- ИНТЕРАКТИВ: клик по черепашке -->
+  <div class="scene">
+    <h4>Симулятор: подписка на клик</h4>
+    <p class="hint">
+      Вот черепашка. Кликни по ней — счётчик кликов вырастет.
+      Это и есть «событие → обработчик» в действии.
+    </p>
+
+    <div class="click-sim">
+      <div class="field" id="clickField">
+        <div class="turtle" id="clickTurtle" style="left:50%;top:50%">
+          <svg viewBox="0 0 64 64">
+            <ellipse cx="32" cy="36" rx="18" ry="12" fill="#B8325A"/>
+            <circle cx="32" cy="22" r="7" fill="#B8325A"/>
+            <ellipse cx="32" cy="36" rx="10" ry="6" fill="#FFCCD2"/>
+            <polygon points="14,36 4,30 10,44" fill="#B8325A"/>
+            <polygon points="50,36 60,30 54,44" fill="#B8325A"/>
+            <polygon points="14,44 6,50 10,40" fill="#B8325A"/>
+            <polygon points="50,44 58,50 54,40" fill="#B8325A"/>
+            <circle cx="29" cy="21" r="1.5" fill="#fff"/>
+            <circle cx="35" cy="21" r="1.5" fill="#fff"/>
+          </svg>
+        </div>
+      </div>
+      <div class="info">
+        <div class="stat">Кликов: <span class="val" id="clickCount">0</span></div>
+        <div class="stat">Код: <span class="val" id="clickCode">t.onclick(catch)</span></div>
+      </div>
+    </div>
+
+    <div class="explain memo" style="margin-top:16px">
+      <div class="ttl">🧠 Что произошло</div>
+      <p>
+        В этом симуляторе работает та же логика:
+        <b>1.</b> Ты кликнул по черепашке (событие).<br>
+        <b>2.</b> Сработал обработчик — счётчик увеличился.<br>
+        <b>3.</b> Черепашка сделала вид, что её поймали (подпрыгнула).
+      </p>
+    </div>
+  </div>
+
+  <h3>Ещё одна команда — write()</h3>
+
+  <p>
+    В игре нужно показывать надписи — «А!» при клике,
+    «WOW!» при победе. Для этого у черепашки есть метод
+    <code>write()</code>:
+  </p>
+
+  <div class="code-full">t.write(<span class="str">'А!'</span>, font=(<span class="str">'Arial'</span>, <span class="num">14</span>, <span class="str">'normal'</span>))</div>
+
+  <p>
+    Шрифт задаётся тремя частями в скобках: название,
+    размер и стиль. Как в текстовом редакторе!
+  </p>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Часть шрифта</th><th>Что означает</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>'Arial'</code></td><td>Название шрифта</td></tr>
+      <tr><td><code>14</code></td><td>Размер букв</td></tr>
+      <tr><td><code>'normal'</code></td><td>Стиль (можно <code>'bold'</code> или <code>'italic'</code>)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Интерактив 1: что произойдёт -->
+  <div class="scene">
+    <h4>Что произойдёт?</h4>
+    <p class="hint">
+      Прочитай код и определи, что случится при клике.
+    </p>
+
+    <div id="g1task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.7;color:var(--text);white-space:pre-wrap" id="g1code"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g1answer" placeholder="Что произойдёт?" style="text-align:center">
+      <button type="button" id="g1btn">Проверить</button>
+    </div>
+    <div id="g1msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g1score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 4 · ПРОТОТИП 1 -->
+<!-- ============================================================ -->
+<section class="kstep s4">
+  <span class="badge">⏱ 22–33 минут · 🐢 Прототип 1</span>
+  <h2>«Поймай черепашку» — первая версия</h2>
+  <p class="sub">
+    Теперь соберём всё вместе. Черепашка прыгает по экрану
+    в случайные места. Игрок кликает по ней. Нужно 3 попадания
+    — и победа!
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Есть одна сложность. Нужно <b>посчитать клики</b>
+      и закончить игру после третьего. Обычная переменная
+      тут не сработает: обработчик <code>catch(x, y)</code>
+      должен иметь ровно два параметра — x и y. Третьим
+      мы счётчик не передадим!
+    </div>
+  </div>
+
+  <h3>Как решить проблему со счётчиком?</h3>
+
+  <p>
+    Хитрость: сделаем счётчик <b>свойством объекта</b>!
+    У черепашки уже есть свойства: цвет, координаты, форма.
+    А можно добавить ещё одно — например, <code>t.points</code>.
+  </p>
+
+  <div class="def-card">
+    <div class="term">Своё свойство объекта</div>
+    <div class="def">
+      В Python можно добавить объекту <b>новое свойство</b> —
+      так же просто, как обычной переменной.
+    </div>
+    <div class="ex">
+      <code>t.points = 0</code> — создали свойство «очки» и сразу
+      поставили в 0.<br>
+      Теперь внутри функции-обработчика можно писать
+      <code>t.points += 1</code> — и это сработает, потому что
+      <code>t.points</code> живёт вместе с объектом.
+    </div>
+  </div>
+
+  <h3>Полная программа</h3>
+
+  <div class="code-full"><span class="imp">from turtle import *</span>
+<span class="imp">from time import sleep</span>
+<span class="imp">from random import randint</span>
+
+t = <span class="obj">Turtle</span>()
+t.color(<span class="str">'red'</span>)
+t.shape(<span class="str">'turtle'</span>)
+t.penup()
+t.speed(<span class="num">10</span>)
+t.points = <span class="num">0</span>                    <span class="cm"># ← создаём своё свойство</span>
+
+w = <span class="num">200</span>
+h = <span class="num">200</span>
+
+<span class="kw">def</span> <span class="fn">rand_move</span>():
+    x = <span class="fn">randint</span>(-w, w)
+    y = <span class="fn">randint</span>(-h, h)
+    t.goto(x, y)
+
+<span class="kw">def</span> <span class="fn">catch</span>(x, y):
+    t.write(<span class="str">'А!'</span>, font=(<span class="str">'Arial'</span>, <span class="num">14</span>, <span class="str">'normal'</span>))
+    t.points += <span class="num">1</span>           <span class="cm"># ← увеличиваем счётчик</span>
+    rand_move()
+
+t.onclick(catch)
+
+<span class="kw">while</span> t.points &lt; <span class="num">3</span>:            <span class="cm"># ← играем, пока меньше 3 очков</span>
+    sleep(<span class="num">1.5</span>)
+    rand_move()
+
+t.write(<span class="str">'WOW!'</span>, font=(<span class="str">'Arial'</span>, <span class="num">40</span>, <span class="str">'bold'</span>))
+exitonclick()</div>
+
+  <h3>Разбор по шагам</h3>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      <b>Создаём черепашку</b> и сразу добавляем ей своё свойство
+      <code>t.points = 0</code>. Пока очков — ноль.
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      <b>Пишем <code>rand_move()</code></b> — функция ставит
+      черепашку в случайное место.
+    </div>
+    <div class="rule">
+      <span class="n">3</span>
+      <b>Пишем обработчик <code>catch(x, y)</code></b> — что
+      делать при клике: написать «А!», добавить очко, переместить.
+    </div>
+    <div class="rule">
+      <span class="n">4</span>
+      <b>Подписываемся</b>: <code>t.onclick(catch)</code>.
+    </div>
+    <div class="rule">
+      <span class="n">5</span>
+      <b>Главный цикл:</b> пока очков меньше 3 — пауза 1,5 сек
+      и снова в случайное место. Прыгает!
+    </div>
+    <div class="rule">
+      <span class="n">6</span>
+      <b>Победа</b> — выводим «WOW!».
+    </div>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Как работает эта хитрость</div>
+    <p>
+      Обычная переменная <code>points</code>, созданная снаружи,
+      не изменилась бы внутри функции — Python посчитал бы, что
+      мы создаём новую <b>локальную</b> переменную (помнишь урок 12?).
+    </p>
+    <p>
+      А <code>t.points</code> — это свойство <b>объекта</b>.
+      Объект один и тот же и снаружи, и внутри функции. Значит,
+      изменение свойства видно везде.
+    </p>
+  </div>
+
+  <!-- Интерактив: полная игра-симулятор -->
+  <div class="scene">
+    <h4>Симулятор «Поймай черепашку»</h4>
+    <p class="hint">
+      Попробуй! Черепашка прыгает по полю каждые 1,5 секунды.
+      Успей кликнуть 3 раза — и увидишь «WOW!».
+    </p>
+
+    <div class="click-sim">
+      <div class="field" id="catchField">
+        <div class="turtle" id="catchTurtle" style="left:50%;top:50%">
+          <svg viewBox="0 0 64 64">
+            <ellipse cx="32" cy="36" rx="18" ry="12" fill="#B8325A"/>
+            <circle cx="32" cy="22" r="7" fill="#B8325A"/>
+            <ellipse cx="32" cy="36" rx="10" ry="6" fill="#FFCCD2"/>
+            <polygon points="14,36 4,30 10,44" fill="#B8325A"/>
+            <polygon points="50,36 60,30 54,44" fill="#B8325A"/>
+            <polygon points="14,44 6,50 10,40" fill="#B8325A"/>
+            <polygon points="50,44 58,50 54,40" fill="#B8325A"/>
+            <circle cx="29" cy="21" r="1.5" fill="#fff"/>
+            <circle cx="35" cy="21" r="1.5" fill="#fff"/>
+          </svg>
+        </div>
+        <div id="wowBadge" style="
+          position:absolute;top:50%;left:50%;
+          transform:translate(-50%,-50%);
+          font:800 64px var(--font-ui);
+          color:#B8325A;
+          text-shadow:0 0 20px rgba(184,50,90,.4);
+          opacity:0;
+          pointer-events:none;
+          transition:opacity .5s ease, transform .5s ease;
+          letter-spacing:-.02em;
+        ">WOW!</div>
+      </div>
+      <div class="info">
+        <div class="stat">Очки: <span class="val" id="catchPoints">0</span></div>
+        <div class="stat">Поймано из 3</div>
+      </div>
+      <div style="margin-top:14px">
+        <button type="button" class="cmd-btn" id="catchReset"
+                style="padding:12px 20px;border:2px solid var(--line);background:var(--card);border-radius:10px;cursor:pointer;font:800 14px var(--font-ui);color:var(--text)">
+          ↺ Начать заново
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Интерактив: что напечатает -->
+  <div class="scene">
+    <h4>Что напечатает программа?</h4>
+    <p class="hint">
+      Прочитай код и определи, что произойдёт.
+    </p>
+
+    <div id="g2task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.7;color:var(--text);white-space:pre-wrap" id="g2code"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g2answer" placeholder="Что напечатает?" style="text-align:center">
+      <button type="button" id="g2btn">Проверить</button>
+    </div>
+    <div id="g2msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g2score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 5 · ПРОТОТИП 2 -->
+<!-- ============================================================ -->
+<section class="kstep s5">
+  <span class="badge">⏱ 33–42 минут · 🐢🐢🐢 Прототип 2</span>
+  <h2>Три черепашки — второй прототип</h2>
+  <p class="sub">
+    Второй заказ посложнее: три черепашки одновременно разбегаются
+    в разные стороны. Кликом по каждой меняем её направление.
+    Задача — не дать им убежать за границу экрана.
+  </p>
+
+  <div class="byte-says">
+    <div class="face">🤖</div>
+    <div class="bubble">
+      Тут есть три события — клик по первой, клик по второй,
+      клик по третьей. У каждой черепашки — свой обработчик.
+      И ещё: нужно определить, когда игра закончится. А для этого
+      проверять — не вышла ли какая-то черепашка за границу.
+    </div>
+  </div>
+
+  <h3>Что нового понадобится</h3>
+
+  <table class="print-table">
+    <thead>
+      <tr><th>Команда</th><th>Что делает</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>t.ycor()</code></td>
+        <td>Возвращает координату Y черепашки</td>
+      </tr>
+      <tr>
+        <td><code>abs(n)</code></td>
+        <td>Убирает знак числа: <code>abs(-5) = 5</code></td>
+      </tr>
+      <tr>
+        <td><code>t.width(n)</code></td>
+        <td>Делает линию толще на n пикселей</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Зачем нужен abs()</div>
+    <p>
+      Черепашка может убежать влево (−200) или вправо (+200).
+      И вверх, и вниз. Мы хотим проверить: «далеко ли она
+      от центра?» — не важно, в какую сторону.
+    </p>
+    <p>
+      <code>abs(t.xcor()) &gt; 200</code> — читается «расстояние
+      по горизонтали больше 200». Работает и для +200, и для −200.
+    </p>
+  </div>
+
+  <h3>Функция проверки окончания игры</h3>
+
+  <p>
+    Опишем функцию, которая возвращает True, если хоть одна
+    черепашка за экраном:
+  </p>
+
+  <div class="code-full"><span class="kw">def</span> <span class="fn">game_finished</span>():
+    t1_out = <span class="fn">abs</span>(t1.xcor()) &gt; w <span class="kw">or</span> <span class="fn">abs</span>(t1.ycor()) &gt; h
+    t2_out = <span class="fn">abs</span>(t2.xcor()) &gt; w <span class="kw">or</span> <span class="fn">abs</span>(t2.ycor()) &gt; h
+    t3_out = <span class="fn">abs</span>(t3.xcor()) &gt; w <span class="kw">or</span> <span class="fn">abs</span>(t3.ycor()) &gt; h
+    <span class="kw">return</span> t1_out <span class="kw">or</span> t2_out <span class="kw">or</span> t3_out</div>
+
+  <p>
+    Функция возвращает True, если <b>хотя бы одна</b> вышла
+    за границу. Главный цикл использует её как условие.
+  </p>
+
+  <h3>Обработчики клика для каждой черепашки</h3>
+
+  <p>
+    Каждая черепашка получит свою функцию-обработчик. При клике
+    она поворачивается в случайную сторону и перепрыгивает
+    в новое место:
+  </p>
+
+  <div class="code-full"><span class="kw">def</span> <span class="fn">catch1</span>(x, y):
+    t1.penup()
+    t1.goto(<span class="fn">randint</span>(-<span class="num">100</span>, <span class="num">100</span>), <span class="fn">randint</span>(-<span class="num">100</span>, <span class="num">100</span>))
+    t1.pendown()
+    t1.left(<span class="fn">randint</span>(<span class="num">0</span>, <span class="num">100</span>))
+
+<span class="cm"># Аналогично — catch2() и catch3()</span>
+
+t1.onclick(catch1)
+t2.onclick(catch2)
+t3.onclick(catch3)</div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Каждая — на своё событие</div>
+    <p>
+      У нас три независимых события: «клик по t1», «клик по t2»,
+      «клик по t3». Каждое подписывается на свою функцию.
+    </p>
+    <p>
+      Если кликнуть по t1 — сработает только <code>catch1</code>.
+      Если по t2 — только <code>catch2</code>. Так и должно быть!
+    </p>
+  </div>
+
+  <h3>Главный игровой цикл</h3>
+
+  <div class="code-full"><span class="kw">while</span> <span class="kw">not</span> game_finished():
+    t1.forward(<span class="num">7</span>)
+    t2.forward(<span class="num">7</span>)
+    t3.forward(<span class="num">7</span>)
+    sleep(<span class="num">0.1</span>)
+
+exitonclick()</div>
+
+  <p>
+    Все три черепашки двигаются одновременно, но каждая —
+    в своём направлении. Игрок кликает по ним, чтобы
+    повернуть.
+  </p>
+
+  <!-- Симулятор трёх черепашек -->
+  <div class="scene">
+    <h4>Симулятор трёх черепашек</h4>
+    <p class="hint">
+      Нажми «Старт» — три черепашки разбегаются из центра.
+      Кликай по любой — она повернётся и прыгнет в новое место.
+      Игра закончится, если одна из них выйдет за границу.
+    </p>
+
+    <div class="click-sim">
+      <div class="field" id="threeField" style="background:linear-gradient(180deg,#F7FAFD,#EEF3F8);position:relative;overflow:hidden">
+        <svg viewBox="0 0 600 280" width="100%" height="100%" style="position:absolute;inset:0">
+          <!-- границы игрового поля -->
+          <rect x="60" y="20" width="480" height="240"
+                fill="none" stroke="#B0BDD0" stroke-width="2" stroke-dasharray="6 4"/>
+          <text x="300" y="14" text-anchor="middle"
+                font-family="JetBrains Mono, monospace" font-size="12"
+                fill="#7F90B0">граница поля</text>
+        </svg>
+
+        <div class="turtle" id="threeT1" style="left:50%;top:50%">
+          <svg viewBox="0 0 64 64">
+            <ellipse cx="32" cy="36" rx="18" ry="12" fill="#E53935"/>
+            <circle cx="32" cy="22" r="7" fill="#E53935"/>
+            <ellipse cx="32" cy="36" rx="10" ry="6" fill="#FFCCD2"/>
+            <polygon points="14,36 4,30 10,44" fill="#E53935"/>
+            <polygon points="50,36 60,30 54,44" fill="#E53935"/>
+            <circle cx="29" cy="21" r="1.5" fill="#fff"/>
+            <circle cx="35" cy="21" r="1.5" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="turtle" id="threeT2" style="left:50%;top:50%">
+          <svg viewBox="0 0 64 64">
+            <ellipse cx="32" cy="36" rx="18" ry="12" fill="#2E7D32"/>
+            <circle cx="32" cy="22" r="7" fill="#2E7D32"/>
+            <ellipse cx="32" cy="36" rx="10" ry="6" fill="#C8E6C9"/>
+            <polygon points="14,36 4,30 10,44" fill="#2E7D32"/>
+            <polygon points="50,36 60,30 54,44" fill="#2E7D32"/>
+            <circle cx="29" cy="21" r="1.5" fill="#fff"/>
+            <circle cx="35" cy="21" r="1.5" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="turtle" id="threeT3" style="left:50%;top:50%">
+          <svg viewBox="0 0 64 64">
+            <ellipse cx="32" cy="36" rx="18" ry="12" fill="#1565C0"/>
+            <circle cx="32" cy="22" r="7" fill="#1565C0"/>
+            <ellipse cx="32" cy="36" rx="10" ry="6" fill="#BBDEFB"/>
+            <polygon points="14,36 4,30 10,44" fill="#1565C0"/>
+            <polygon points="50,36 60,30 54,44" fill="#1565C0"/>
+            <circle cx="29" cy="21" r="1.5" fill="#fff"/>
+            <circle cx="35" cy="21" r="1.5" fill="#fff"/>
+          </svg>
+        </div>
+
+        <div id="threeInfo" style="
+          position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+          background:var(--card);padding:10px 18px;border-radius:12px;
+          border:2px solid var(--line);
+          font:800 14px var(--font-code);color:var(--text);
+          box-shadow:0 6px 16px rgba(23,32,51,.1);
+          white-space:nowrap;
+        ">Нажми «Старт»</div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button type="button" class="cmd-btn" id="threeStart"
+                style="padding:12px 20px;border:none;background:linear-gradient(135deg,#3A7D2C,#0C7C86);color:#fff;border-radius:10px;cursor:pointer;font:800 14px var(--font-ui)">
+          ▶ Старт
+        </button>
+        <button type="button" class="cmd-btn" id="threeReset"
+                style="padding:12px 20px;border:2px solid var(--a2);background:var(--card);color:var(--a2);border-radius:10px;cursor:pointer;font:800 14px var(--font-ui)">
+          ↺ Сброс
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Интерактив: что произойдёт -->
+  <div class="scene">
+    <h4>Что произойдёт?</h4>
+    <p class="hint">
+      Прочитай код и определи результат.
+    </p>
+
+    <div id="g3task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 13.5px var(--font-code);line-height:1.7;color:var(--text);white-space:pre-wrap" id="g3code"></div>
+    </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="text" id="g3answer" placeholder="Что напечатает?" style="text-align:center">
+      <button type="button" id="g3btn">Проверить</button>
+    </div>
+    <div id="g3msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g3score">Счёт: 0 из 0</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ШАГ 6 · ИТОГ И КВИЗ -->
+<!-- ============================================================ -->
+<section class="kstep s6">
+  <span class="badge">⏱ 42–45 минут · 🏁 Итог</span>
+  <h2>Проверь себя</h2>
+  <p class="sub">
+    Семь вопросов по всему уроку. Счёт появится внизу.
+  </p>
+
+  <div class="kquiz" id="kquiz">
+
+    <div class="q">
+      <div class="qnum">Вопрос 1</div>
+      <div class="qtext">Что такое событие в программе?</div>
+      <div class="opts">
+        <button type="button" class="opt">Ошибка в коде</button>
+        <button type="button" class="opt" data-correct="true">Что-то, что произошло во внешнем мире и о чём узнаёт программа</button>
+        <button type="button" class="opt">Команда рисования</button>
+        <button type="button" class="opt">Цвет объекта</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 2</div>
+      <div class="qtext">Что такое подписка на событие?</div>
+      <div class="opts">
+        <button type="button" class="opt">Программа сама создаёт событие</button>
+        <button type="button" class="opt" data-correct="true">Программа говорит: «Я жду это событие»</button>
+        <button type="button" class="opt">Программа удаляет событие</button>
+        <button type="button" class="opt">Программа игнорирует событие</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 3</div>
+      <div class="qtext">Что такое обработчик события?</div>
+      <div class="opts">
+        <button type="button" class="opt">Событие, которое сработало</button>
+        <button type="button" class="opt" data-correct="true">Функция, которая вызывается при событии</button>
+        <button type="button" class="opt">Ошибка в программе</button>
+        <button type="button" class="opt">Координаты клика</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 4</div>
+      <div class="qtext">Какая команда подписывает черепашку на клик?</div>
+      <div class="opts">
+        <button type="button" class="opt"><code>t.click()</code></button>
+        <button type="button" class="opt" data-correct="true"><code>t.onclick(catch)</code></button>
+        <button type="button" class="opt"><code>t.listen()</code></button>
+        <button type="button" class="opt"><code>t.catch()</code></button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 5</div>
+      <div class="qtext">Что делает команда <code>t.write('А!', font=('Arial', 14, 'normal'))</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Рисует букву «А»</button>
+        <button type="button" class="opt" data-correct="true">Печатает текст «А!» шрифтом Arial 14</button>
+        <button type="button" class="opt">Меняет цвет</button>
+        <button type="button" class="opt">Очищает экран</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 6</div>
+      <div class="qtext">Зачем создавать <code>t.points = 0</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">Чтобы черепашка стала красной</button>
+        <button type="button" class="opt" data-correct="true">Чтобы хранить счётчик очков внутри объекта и менять его из функции</button>
+        <button type="button" class="opt">Это обязательно для всех объектов</button>
+        <button type="button" class="opt">Это ошибка, так нельзя</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="q">
+      <div class="qnum">Вопрос 7</div>
+      <div class="qtext">Что вернёт <code>abs(-200)</code>?</div>
+      <div class="opts">
+        <button type="button" class="opt">-200</button>
+        <button type="button" class="opt" data-correct="true">200</button>
+        <button type="button" class="opt">0</button>
+        <button type="button" class="opt">Ошибка</button>
+      </div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="score" id="kquizScore">Счёт: 0 из 7</div>
+  </div>
+
+  <div class="explain memo" style="margin-top:24px">
+    <div class="ttl">🎓 Что ты теперь знаешь</div>
+    <p>
+      <b>1.</b> Что такое событие и почему программа не может его «угадать».<br>
+      <b>2.</b> Что такое подписка на событие — «я жду это событие».<br>
+      <b>3.</b> Что такое обработчик — функция, которая вызывается при событии.<br>
+      <b>4.</b> Как подписать черепашку на клик через <code>t.onclick(catch)</code>.<br>
+      <b>5.</b> Как выводить надписи через <code>t.write()</code>.<br>
+      <b>6.</b> Как создать своё свойство у объекта: <code>t.points = 0</code>.<br>
+      <b>7.</b> Как работает <code>abs()</code> для проверки расстояния.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ИТОГОВЫЕ ЗАДАНИЯ -->
+<!-- ============================================================ -->
+<section class="tasks-wrap">
+
+  <span class="badge" style="background:linear-gradient(135deg,#0C7C86,#5B4BC4);color:#fff;padding:8px 18px;border-radius:99px;font:800 14px var(--font-ui);display:inline-flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(12,124,134,.3)">
+    🏁 После урока · практика
+  </span>
+
+  <h2 style="margin:20px 0 8px;font-size:clamp(26px,3.6vw,34px);line-height:1.15">
+    Итоговые задания в Playground
+  </h2>
+  <p style="color:var(--muted);font-size:17px;margin:0">
+    Восемь задач на события и клики. Нажми «Открыть в Playground» —
+    стартовый код подставится сам.
+  </p>
+
+  <div class="tasks-intro">
+    <b>Важно про turtle.</b> Модуль работает только в настоящем
+    Python на компьютере — открывает отдельное окно. В браузере
+    окно не появится, но <b>код можно писать и проверять синтаксис</b>.
+    А ещё лучше — открывай задачи в своём Python дома.
+  </div>
+
+  <div class="tasks-grid">
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">01</span>
+        <span class="task-title">Первый клик</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Создай черепашку. При клике по ней пусть в консоли
+        печатается «Меня поймали!».
+      </p>
+      <button class="btn-play" data-task="1">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Функция-обработчик <code>def catch(x, y):</code>
+        и <code>t.onclick(catch)</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+
+def catch(x, y):
+    print('Меня поймали!')
+
+t.onclick(catch)
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">02</span>
+        <span class="task-title">Счётчик кликов</span>
+        <span class="task-stars">🌱</span>
+      </div>
+      <p class="task-desc">
+        Добавь счётчик. При каждом клике по черепашке
+        увеличивай <code>t.points</code> и печатай его.
+      </p>
+      <button class="btn-play" data-task="2">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Создай свойство <code>t.points = 0</code> до подписки.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+t.points = 0
+
+def catch(x, y):
+    t.points += 1
+    print('Очков:', t.points)
+
+t.onclick(catch)
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">03</span>
+        <span class="task-title">Надпись при клике</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Сделай так, чтобы при клике по черепашке появлялась
+        надпись «А!» рядом с ней.
+      </p>
+      <button class="btn-play" data-task="3">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p><code>t.write('А!', font=('Arial', 14, 'normal'))</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+
+def catch(x, y):
+    t.write('А!', font=('Arial', 14, 'normal'))
+
+t.onclick(catch)
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">04</span>
+        <span class="task-title">Прыгающая черепашка</span>
+        <span class="task-stars">🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Сделай так, чтобы при клике черепашка перепрыгивала
+        в случайное место. Используй <code>goto(randint(...), randint(...))</code>.
+      </p>
+      <button class="btn-play" data-task="4">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Не забудь <code>t.penup()</code> и <code>t.pendown()</code>,
+        чтобы не оставалось линий.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+from random import randint
+
+t = Turtle()
+t.shape('turtle')
+t.penup()
+
+def catch(x, y):
+    nx = randint(-200, 200)
+    ny = randint(-200, 200)
+    t.goto(nx, ny)
+
+t.onclick(catch)
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">05</span>
+        <span class="task-title">Полная игра на 3 очка</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Собери игру «Поймай черепашку»: 3 клика — победа
+        с надписью «WOW!».
+      </p>
+      <button class="btn-play" data-task="5">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>После победы выведи <code>t.write('WOW!', font=('Arial', 40, 'bold'))</code>.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+from time import sleep
+from random import randint
+
+t = Turtle()
+t.color('red')
+t.shape('turtle')
+t.penup()
+t.points = 0
+
+w = h = 200
+
+def rand_move():
+    t.goto(randint(-w, w), randint(-h, h))
+
+def catch(x, y):
+    t.write('А!', font=('Arial', 14, 'normal'))
+    t.points += 1
+    rand_move()
+
+t.onclick(catch)
+
+while t.points < 3:
+    sleep(1.5)
+    rand_move()
+
+t.write('WOW!', font=('Arial', 40, 'bold'))
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">06</span>
+        <span class="task-title">Две черепашки — два клика</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Создай двух черепашек. Клик по красной меняет её цвет
+        на зелёный, клик по синей — на жёлтый.
+      </p>
+      <button class="btn-play" data-task="6">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Каждой черепашке — своя функция <code>catch_red</code>,
+        <code>catch_blue</code>. Смотри урок 21, если забыл, как
+        работать с несколькими.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+t1 = Turtle()
+t1.color('red')
+t1.shape('turtle')
+t1.penup()
+t1.goto(-100, 0)
+
+t2 = Turtle()
+t2.color('blue')
+t2.shape('turtle')
+t2.penup()
+t2.goto(100, 0)
+
+def catch_red(x, y):
+    t1.color('green')
+
+def catch_blue(x, y):
+    t2.color('yellow')
+
+t1.onclick(catch_red)
+t2.onclick(catch_blue)
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">07</span>
+        <span class="task-title">Проверка координат</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        При клике по черепашке печатай, на каком расстоянии
+        от центра она находится. Используй <code>abs()</code>
+        и <code>xcor()</code>, <code>ycor()</code>.
+      </p>
+      <button class="btn-play" data-task="7">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p><code>abs(t.xcor())</code> и <code>abs(t.ycor())</code>
+        дают расстояние по осям.</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+
+def catch(x, y):
+    dx = abs(t.xcor())
+    dy = abs(t.ycor())
+    print('Расстояние от центра:', dx, dy)
+
+t.onclick(catch)
+exitonclick()</pre>
+      </details>
+    </article>
+
+    <article class="play-task">
+      <div class="task-head">
+        <span class="task-num">08</span>
+        <span class="task-title">Найди и исправь</span>
+        <span class="task-stars">🌱🌱🌱</span>
+      </div>
+      <p class="task-desc">
+        Программа должна считать клики по черепашке, но счётчик
+        всегда остаётся нулём. Найди ошибку.
+      </p>
+      <button class="btn-play" data-task="8">▶ Открыть в Playground</button>
+      <details>
+        <summary>💡 Подсказка</summary>
+        <p>Проверь, где создан счётчик. Обычная переменная
+        снаружи функции не изменится. Нужно свойство объекта!</p>
+      </details>
+      <details>
+        <summary>✅ Решение</summary>
+        <pre>from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+t.points = 0        # ← свойство объекта, а не обычная переменная
+
+def catch(x, y):
+    t.points += 1
+    print('Очков:', t.points)
+
+t.onclick(catch)
+exitonclick()</pre>
+      </details>
+    </article>
+
+  </div>
+</section>
+
+<!-- Стартовый код для Playground -->
+<div id="starters" hidden>
+  <template data-task="1"># Первый клик по черепашке
+from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+
+# def catch(x, y):
+#     print('...')
+
+# t.onclick(catch)
+exitonclick()
+
+</template>
+  <template data-task="2"># Счётчик кликов
+from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+# t.points = 0
+
+# def catch(x, y):
+#     ...
+
+# t.onclick(catch)
+exitonclick()
+
+</template>
+  <template data-task="3"># Надпись при клике
+from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+
+# def catch(x, y):
+#     t.write('А!', font=('Arial', 14, 'normal'))
+
+# t.onclick(catch)
+exitonclick()
+
+</template>
+  <template data-task="4"># Прыгающая черепашка
+from turtle import *
+from random import randint
+
+t = Turtle()
+t.shape('turtle')
+t.penup()
+
+# def catch(x, y):
+#     ...
+
+# t.onclick(catch)
+exitonclick()
+
+</template>
+  <template data-task="5"># Игра на 3 очка
+from turtle import *
+from time import sleep
+from random import randint
+
+t = Turtle()
+t.color('red')
+t.shape('turtle')
+t.penup()
+t.points = 0
+
+w = h = 200
+
+def rand_move():
+    t.goto(randint(-w, w), randint(-h, h))
+
+# def catch(x, y):
+#     ...
+
+# t.onclick(catch)
+
+# while t.points < 3:
+#     sleep(1.5)
+#     rand_move()
+
+# t.write('WOW!', font=('Arial', 40, 'bold'))
+exitonclick()
+
+</template>
+  <template data-task="6"># Две черепашки — два клика
+from turtle import *
+
+t1 = Turtle()
+t1.color('red')
+t1.shape('turtle')
+t1.penup()
+t1.goto(-100, 0)
+
+t2 = Turtle()
+t2.color('blue')
+t2.shape('turtle')
+t2.penup()
+t2.goto(100, 0)
+
+# def catch_red(x, y): ...
+# def catch_blue(x, y): ...
+
+# t1.onclick(catch_red)
+# t2.onclick(catch_blue)
+exitonclick()
+
+</template>
+  <template data-task="7"># Проверка координат
+from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+
+# def catch(x, y):
+#     print(abs(t.xcor()), abs(t.ycor()))
+
+# t.onclick(catch)
+exitonclick()
+
+</template>
+  <template data-task="8"># Счётчик всегда равен 0. Исправь.
+from turtle import *
+
+t = Turtle()
+t.shape('turtle')
+points = 0
+
+def catch(x, y):
+    points = points + 1
+    print('Очков:', points)
+
+t.onclick(catch)
+exitonclick()
+</template>
+</div>
+
+<!-- ============================================================ -->
+<!-- ФИНАЛ -->
+<!-- ============================================================ -->
+<section class="kid-finale">
+  <span class="big-emoji">🎯</span>
+  <h2>Обе игры работают!</h2>
+  <p>
+    Ты научился обрабатывать события: подписываться на клик,
+    писать функцию-обработчик и реагировать на действие игрока.
+    Студия Press and Play получила два прототипа. Впереди —
+    большой проект «Простой редактор»: соберём всё, что
+    знаем про объекты и события.
+  </p>
+
+  <button type="button" class="cta" id="markDoneBtn">
+    ✓ Урок пройден
+  </button>
+
+  <div id="nextLessonWrap" hidden style="margin-top:14px">
+    <a class="cta next" href="lesson-23-oop-editor.html">
+      Следующий урок: ООП. Проект «Простой редактор» →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  Урок 22 · ООП. События · 🐢 «Поймай черепашку» · 🖱️ onclick
+</footer>
+
+<script src="app.js"></script>
+
+<script>
+/* ============================================================
+   ТАЙМЕР
+   ============================================================ */
+(function(){
+  var clock = document.getElementById('clock');
+  var steps = document.querySelectorAll('#steps span');
+  if (!clock || !steps.length) return;
+  var TOTAL = 45 * 60;
+  var elapsed = 0;
+  function render(){
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    clock.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    var blocks = document.querySelectorAll('.kstep');
+    var current = -1;
+    var scrolled = window.scrollY + window.innerHeight / 2;
+    for (var i = 0; i < blocks.length; i++){
+      if (blocks[i].offsetTop <= scrolled) current = i;
+    }
+    for (var j = 0; j < steps.length; j++){
+      steps[j].classList.remove('done', 'active');
+      if (j < current) steps[j].classList.add('done');
+      if (j === current) steps[j].classList.add('active');
+    }
+  }
+  render();
+  setInterval(function(){ if (elapsed < TOTAL) elapsed++; render(); }, 1000);
+  window.addEventListener('scroll', render, { passive: true });
+})();
+
+/* ============================================================
+   СИМУЛЯТОР КЛИКА (шаг 3)
+   ============================================================ */
+(function(){
+  var turtle = document.getElementById('clickTurtle');
+  var field = document.getElementById('clickField');
+  var countEl = document.getElementById('clickCount');
+  var codeEl = document.getElementById('clickCode');
+  if (!turtle || !field) return;
+
+  var count = 0;
+
+  turtle.addEventListener('click', function(){
+    count++;
+    countEl.textContent = count;
+    codeEl.textContent = 'catch(x, y) → очко #' + count;
+
+    // Анимация "поймали"
+    turtle.classList.add('clicked');
+    setTimeout(function(){ turtle.classList.remove('clicked'); }, 320);
+
+    // Небольшое случайное смещение, чтобы почувствовать «живость»
+    var newX = 20 + Math.random() * 60;
+    var newY = 20 + Math.random() * 60;
+    turtle.style.left = newX + '%';
+    turtle.style.top  = newY + '%';
+  });
+})();
+
+/* ============================================================
+   СИМУЛЯТОР «ПОЙМАЙ ЧЕРЕПАШКУ» (шаг 4)
+   ============================================================ */
+(function(){
+  var turtle = document.getElementById('catchTurtle');
+  var field = document.getElementById('catchField');
+  var pointsEl = document.getElementById('catchPoints');
+  var wow = document.getElementById('wowBadge');
+  var resetBtn = document.getElementById('catchReset');
+  if (!turtle || !field) return;
+
+  var points = 0;
+  var timer = null;
+  var running = true;
+
+  function moveRandom(){
+    var x = 15 + Math.random() * 70;
+    var y = 15 + Math.random() * 70;
+    turtle.style.left = x + '%';
+    turtle.style.top  = y + '%';
+  }
+
+  function startLoop(){
+    if (timer) clearInterval(timer);
+    timer = setInterval(moveRandom, 1500);
+  }
+
+  function stopLoop(){
+    if (timer) clearInterval(timer);
+    timer = null;
+  }
+
+  turtle.addEventListener('click', function(){
+    if (!running) return;
+    points++;
+    pointsEl.textContent = points;
+
+    // Анимация
+    turtle.classList.add('clicked');
+    setTimeout(function(){ turtle.classList.remove('clicked'); }, 320);
+
+    // Перемещаем сразу при клике
+    moveRandom();
+
+    if (points >= 3){
+      running = false;
+      stopLoop();
+      wow.style.opacity = '1';
+      wow.style.transform = 'translate(-50%,-50%) scale(1.15)';
+      setTimeout(function(){
+        wow.style.transform = 'translate(-50%,-50%) scale(1)';
+      }, 250);
+    }
+  });
+
+  resetBtn.addEventListener('click', function(){
+    points = 0;
+    pointsEl.textContent = '0';
+    running = true;
+    wow.style.opacity = '0';
+    wow.style.transform = 'translate(-50%,-50%) scale(.6)';
+    moveRandom();
+    startLoop();
+  });
+
+  moveRandom();
+  startLoop();
+})();
+
+/* ============================================================
+   СИМУЛЯТОР ТРЁХ ЧЕРЕПАШЕК (шаг 5)
+   ============================================================ */
+(function(){
+  var field = document.getElementById('threeField');
+  if (!field) return;
+  var t1 = document.getElementById('threeT1');
+  var t2 = document.getElementById('threeT2');
+  var t3 = document.getElementById('threeT3');
+  var info = document.getElementById('threeInfo');
+  var startBtn = document.getElementById('threeStart');
+  var resetBtn = document.getElementById('threeReset');
+
+  var W = 600, H = 280;       // размеры svg
+  var BW = 480, BH = 240;     // границы поля
+  var CX = W/2, CY = H/2;
+
+  // Для каждой черепашки — позиция и угол
+  var state = [
+    { el: t1, x: CX, y: CY, angle: 0 },       // смотрит вправо
+    { el: t2, x: CX, y: CY, angle: 120 },     // смотрит влево-вниз
+    { el: t3, x: CX, y: CY, angle: 240 }      // смотрит влево-вверх
+  ];
+
+  var timer = null;
+  var running = false;
+
+  function renderAll(){
+    state.forEach(function(s){
+      s.el.style.left = (s.x / W * 100) + '%';
+      s.el.style.top  = (s.y / H * 100) + '%';
+      s.el.style.transform = 'translate(-50%,-50%) rotate(' + s.angle + 'deg)';
+    });
+  }
+
+  function isOutside(s){
+    return Math.abs(s.x - CX) > BW/2 || Math.abs(s.y - CY) > BH/2;
+  }
+
+  function tick(){
+    var finished = false;
+    state.forEach(function(s){
+      var rad = s.angle * Math.PI / 180;
+      s.x += 7 * Math.cos(rad);
+      s.y += 7 * Math.sin(rad);
+      if (isOutside(s)) finished = true;
+    });
+    renderAll();
+    if (finished){
+      stop();
+      info.textContent = '🏁 Одна из черепашек убежала за границу!';
+      info.style.color = '#B42318';
+    }
+  }
+
+  function start(){
+    if (running) return;
+    running = true;
+    info.textContent = 'Гонка идёт… Кликай по черепашкам!';
+    info.style.color = 'var(--a3)';
+    timer = setInterval(tick, 60);
+  }
+
+  function stop(){
+    if (timer) clearInterval(timer);
+    timer = null;
+    running = false;
+  }
+
+  function reset(){
+    stop();
+    state = [
+      { el: t1, x: CX, y: CY, angle: 0 },
+      { el: t2, x: CX, y: CY, angle: 120 },
+      { el: t3, x: CX, y: CY, angle: 240 }
+    ];
+    renderAll();
+    info.textContent = 'Нажми «Старт»';
+    info.style.color = 'var(--text)';
+  }
+
+  // Обработчики клика — повернуть черепашку
+  state.forEach(function(s, idx){
+    s.el.addEventListener('click', function(){
+      if (!running) return;
+      // Резкий случайный поворот
+      s.angle += (Math.random() * 180 - 90);
+      // Небольшой прыжок к центру
+      s.x += (CX - s.x) * 0.3;
+      s.y += (CY - s.y) * 0.3;
+      renderAll();
+    });
+  });
+
+  startBtn.addEventListener('click', start);
+  resetBtn.addEventListener('click', reset);
+  reset();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 1: что произойдёт (шаг 3)
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g1code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g1answer');
+  var btn = document.getElementById('g1btn');
+  var msg = document.getElementById('g1msg');
+  var scoreEl = document.getElementById('g1score');
+
+  var tasks = [
+    {
+      code: "def catch(x, y):\n    print('Привет!')\n\nt.onclick(catch)",
+      answer: 'Привет!'
+    },
+    {
+      code: "def catch(x, y):\n    t.color('green')\n\nt.onclick(catch)",
+      answer: 'Черепашка станет зелёной'
+    },
+    {
+      code: "def catch(x, y):\n    t.write('А!')\n\nt.onclick(catch)",
+      answer: 'Появится надпись А!'
+    },
+    {
+      code: "t.onclick(catch)",
+      answer: 'Ничего не произойдёт'
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function norm(s){
+    return s.replace(/\s+/g, ' ').replace(/[.!]/g, '').trim().toLowerCase();
+  }
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = norm(ansEl.value);
+    var correct = norm(tasks[i].answer);
+    answered++;
+    if (user === correct || user.indexOf(correct) !== -1){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1200);
+  }
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 2: что напечатает (шаг 4)
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g2code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g2answer');
+  var btn = document.getElementById('g2btn');
+  var msg = document.getElementById('g2msg');
+  var scoreEl = document.getElementById('g2score');
+
+  var tasks = [
+    {
+      code: "t.points = 0\n\ndef catch(x, y):\n    t.points += 1\n\nt.onclick(catch)\nprint(t.points)",
+      answer: '0'
+    },
+    {
+      code: "def catch(x, y):\n    t.write('WOW!', font=('Arial', 40, 'bold'))\n\nt.onclick(catch)",
+      answer: 'Появится надпись WOW!'
+    },
+    {
+      code: "def catch(x, y):\n    print(x, y)\n\nt.onclick(catch)",
+      answer: 'Напечатает координаты клика'
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function norm(s){
+    return s.replace(/\s+/g, ' ').replace(/[.!]/g, '').trim().toLowerCase();
+  }
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = norm(ansEl.value);
+    var correct = norm(tasks[i].answer);
+    answered++;
+    if (user === correct || user.indexOf(correct) !== -1){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1200);
+  }
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 3: что напечатает (шаг 5, abs)
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g3code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g3answer');
+  var btn = document.getElementById('g3btn');
+  var msg = document.getElementById('g3msg');
+  var scoreEl = document.getElementById('g3score');
+
+  var tasks = [
+    { code: "print(abs(-200))",       answer: '200' },
+    { code: "print(abs(150))",        answer: '150' },
+    { code: "print(abs(-7))",         answer: '7' },
+    { code: "print(abs(0))",          answer: '0' },
+    { code: "print(abs(-3.5))",       answer: '3.5' }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function norm(s){
+    return s.replace(/\s+/g, ' ').replace(/[.]/g, '.').trim();
+  }
+
+  function render(){
+    if (i >= tasks.length){
+      codeEl.textContent = 'Готово! 🎉';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    codeEl.textContent = tasks[i].code;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = norm(ansEl.value);
+    var correct = norm(tasks[i].answer);
+    answered++;
+    if (user === correct){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + tasks[i].answer;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 900);
+  }
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   КВИЗ
+   ============================================================ */
+(function(){
+  var quiz = document.getElementById('kquiz');
+  if (!quiz) return;
+
+  var qs = quiz.querySelectorAll('.q');
+  var total = qs.length;
+  var score = 0, answered = 0;
+  var scoreEl = document.getElementById('kquizScore');
+
+  qs.forEach(function(q){
+    var opts = q.querySelectorAll('.opt');
+    var fb = q.querySelector('.fb');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (q.dataset.done) return;
+        q.dataset.done = '1';
+        var ok = opt.dataset.correct === 'true';
+        opts.forEach(function(o){
+          if (o.dataset.correct === 'true') o.classList.add('right');
+          o.disabled = true;
+        });
+        if (!ok) opt.classList.add('wrong');
+        fb.classList.add(ok ? 'ok' : 'no');
+        fb.textContent = ok ? '✅ Верно!' : '❌ Неверно — правильный ответ подсвечен зелёным.';
+        if (ok) score++;
+        answered++;
+        if (answered === total){
+          var verdict = score === total ? ' — идеально! 🎉'
+                       : score >= total * 0.7 ? ' — хорошо! 👍'
+                       : ' — стоит повторить 🤔';
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total + verdict;
+        } else {
+          scoreEl.textContent = 'Счёт: ' + score + ' из ' + total;
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   КНОПКИ PLAYGROUND
+   ============================================================ */
+(function(){
+  function encodeForPlayground(str){
+    return btoa(unescape(encodeURIComponent(str)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  document.querySelectorAll('.btn-play').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.task;
+      var tpl = document.querySelector('template[data-task="' + id + '"]');
+      var code = tpl ? tpl.content.textContent.trim() : '';
+      var url = 'python-compiler.html#code=' + encodeForPlayground(code);
+      window.open(url, '_blank', 'noopener');
+    });
+  });
+})();
+
+/* ============================================================
+   ОТМЕТКА «УРОК ПРОЙДЕН»
+   ============================================================ */
+(function(){
+  var LS_KEY = 'py_course_progress';
+  var LESSON_NUM = 22;
+  var btn = document.getElementById('markDoneBtn');
+  var nextWrap = document.getElementById('nextLessonWrap');
+  if (!btn) return;
+
+  function readArr(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){ return []; }
+  }
+  function writeArr(arr){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+
+  if (readArr().indexOf(LESSON_NUM) !== -1){
+    btn.textContent = '✓ Урок пройден';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+  }
+
+  btn.addEventListener('click', function(){
+    var arr = readArr();
+    if (arr.indexOf(LESSON_NUM) === -1){
+      arr.push(LESSON_NUM);
+      writeArr(arr);
+    }
+    btn.textContent = '✓ Урок пройден!';
+    btn.disabled = true;
+    nextWrap.hidden = false;
+    nextWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+
+</body>
+</html>
