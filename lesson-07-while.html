@@ -170,6 +170,72 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
 }
 .explain.danger .ttl{color:var(--red)}
 
+/* Жизненная аналогия */
+.life-card{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:14px;margin:22px 0;
+}
+.life-item{
+  background:linear-gradient(135deg,rgba(12,124,134,.06),rgba(91,75,196,.06));
+  border-radius:18px;padding:20px;text-align:center;
+  border:2px solid var(--line);
+}
+.life-item .em{font-size:44px;line-height:1;display:block;margin-bottom:10px}
+.life-item .ttl{font:800 16px var(--font-ui);margin-bottom:6px;line-height:1.3}
+.life-item .txt{font-size:14.5px;color:var(--muted);line-height:1.5}
+
+/* Таблица трассировки */
+.trace-table{
+  width:100%;border-collapse:collapse;margin:18px 0;
+  background:var(--card);border-radius:14px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(23,32,51,.08);
+  font-size:15px;
+}
+.trace-table th{
+  background:linear-gradient(135deg,var(--a1),var(--a3));color:#fff;
+  padding:12px 14px;text-align:left;font:700 13px var(--font-ui);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.trace-table td{
+  padding:12px 14px;border-bottom:1px solid var(--line);
+  font-family:var(--font-code);font-size:14.5px;
+}
+.trace-table tr:last-child td{border-bottom:none}
+.trace-table tr:nth-child(even) td{background:rgba(12,124,134,.03)}
+.trace-table .step-n{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;
+  background:var(--a3);color:#fff;font:800 13px var(--font-ui);
+  font-family:var(--font-ui);
+}
+.trace-table .yes{color:var(--a5);font-weight:700}
+.trace-table .no{color:var(--red);font-weight:700}
+
+/* Анатомия while */
+.anatomy{
+  background:#0F1A30;border-radius:18px;padding:24px;
+  margin:20px 0;color:#E8EEF8;
+  font:16px/2.2 var(--font-code);
+  position:relative;overflow:visible;
+}
+.anatomy .line{position:relative;display:block;padding-left:14px}
+.anatomy .line .num{
+  position:absolute;right:-30px;color:#4A5A78;font-size:13px;
+}
+.anatomy .label{
+  display:inline-block;padding:2px 10px;border-radius:8px;
+  font:700 12px var(--font-ui);margin-left:14px;
+  vertical-align:middle;
+}
+.anatomy .label.a{background:#FFB454;color:#7A2D0A}
+.anatomy .label.b{background:#C9B8FF;color:#2D1F5B}
+.anatomy .label.c{background:#8EE6A0;color:#1F4A28}
+.anatomy .kw{color:#FFB454;font-weight:600}
+.anatomy .fn{color:#C9B8FF;font-weight:600}
+.anatomy .str{color:#8EE6A0}
+.anatomy .num-c{color:#7FC4FF}
+.anatomy .cm{color:#7F90B0;font-style:italic}
+
 .def-card{
   background:linear-gradient(135deg,rgba(12,124,134,.08),rgba(91,75,196,.08));
   border-radius:20px;padding:22px 24px;margin:16px 0;
@@ -398,6 +464,67 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
   transition:.2s ease;
 }
 
+/* сравнение if и while */
+.compare{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0;
+}
+@media(max-width:640px){.compare{grid-template-columns:1fr}}
+.compare-col{
+  background:var(--card);border-radius:18px;
+  padding:20px;border-top:8px solid var(--cc,var(--a1));
+  box-shadow:0 8px 22px rgba(23,32,51,.08);
+}
+.compare-col.while{--cc:var(--a3)}
+.compare-col .head{
+  font:800 16px var(--font-ui);color:var(--cc);
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.compare-col .head .em{font-size:22px;line-height:1}
+.compare-col p{font-size:15px;line-height:1.5;margin:0 0 10px;color:var(--text)}
+.compare-col pre{
+  background:#0F1A30;border-radius:10px;padding:12px 14px;
+  font:13px/1.65 var(--font-code);color:#E8EEF8;
+  margin:0;white-space:pre;overflow-x:auto;
+}
+
+/* типичные ошибки */
+.mistakes{margin:22px 0}
+.mistake{
+  background:var(--card);border-radius:16px;
+  padding:18px 20px;margin-bottom:12px;
+  border-left:6px solid var(--red);
+  box-shadow:0 6px 16px rgba(23,32,51,.07);
+}
+.mistake .ttl{
+  font:800 16px var(--font-ui);color:var(--red);
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.mistake .ttl::before{content:"❌";font-size:18px}
+.mistake .fix{
+  font:700 14px var(--font-ui);color:var(--a5);
+  margin:10px 0 6px;display:flex;align-items:center;gap:8px;
+}
+.mistake .fix::before{content:"✅";font-size:16px}
+.mistake pre{
+  background:#0F1A30;border-radius:10px;padding:12px 14px;
+  font:13px/1.65 var(--font-code);color:#E8EEF8;
+  margin:6px 0;white-space:pre;overflow-x:auto;
+}
+
+/* когда использовать */
+.when-list{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;margin:20px 0;
+}
+.when-item{
+  background:linear-gradient(135deg,rgba(58,125,44,.08),rgba(12,124,134,.06));
+  border-radius:16px;padding:18px 20px;
+  border-left:6px solid var(--a5);
+}
+.when-item .em{font-size:28px;line-height:1;display:block;margin-bottom:8px}
+.when-item .ttl{font:800 16px var(--font-ui);margin-bottom:8px;color:var(--a5)}
+.when-item .txt{font-size:15px;line-height:1.55;color:var(--text)}
+
 .kquiz{margin-top:8px}
 .kquiz .q{
   background:var(--card);border-radius:16px;
@@ -542,6 +669,8 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
   .print-table th, .print-table td{padding:10px 12px}
   .byte-says .face{width:52px;height:52px;font-size:28px}
   .byte-says .bubble{font-size:16.5px}
+  .trace-table{font-size:13px}
+  .trace-table td, .trace-table th{padding:8px 10px}
 }
 </style>
 </head>
@@ -645,7 +774,19 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
     </div>
   </div>
 
-  <p>Вот как это выглядит в блок-схеме:</p>
+  <h3>В чём проблема?</h3>
+  <p>
+    До этого урока каждая команда в нашей программе выполнялась ровно
+    <b>один раз</b>. Если покупатель ошибся с промокодом — программа
+    просто скажет «Ошибка!» и завершится. Покупателю придётся
+    запускать её заново.
+  </p>
+  <p>
+    А мы хотим, чтобы программа <b>сама повторяла ввод</b>, пока
+    покупатель не угадает. Именно для этого придумали <b>циклы</b>.
+  </p>
+
+  <h3>Как это выглядит в блок-схеме</h3>
 
   <div class="loop-scheme">
     <div class="loop-box">Ввод промокода</div>
@@ -667,18 +808,10 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
   </div>
 
   <p>
-    Программа «зацикливается» на одних и тех же действиях, пока промокод
-    не окажется правильным. Такой механизм называется <b>циклом</b>.
+    Стрелка «↺ возврат к проверке» — это и есть сердце цикла.
+    Программа «зацикливается» на одних и тех же действиях, пока
+    промокод не окажется правильным.
   </p>
-
-  <div class="byte-says">
-    <div class="face">🤖</div>
-    <div class="bubble">
-      Раньше, когда мы писали код, каждая команда выполнялась ровно
-      один раз. А теперь нам нужно уметь <b>повторять действия</b>,
-      пока что-то истинно. Как это сделать?
-    </div>
-  </div>
 
   <div class="explain memo">
     <div class="ttl">💭 Что мы уже знаем</div>
@@ -702,7 +835,7 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
   <h2>Что такое цикл</h2>
   <p class="sub">
     Цикл — конструкция, которая повторяет команды. Разберёмся,
-    как она устроена.
+    как она устроена, зачем нужна и где встречается в жизни.
   </p>
 
   <div class="def-card">
@@ -717,22 +850,90 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
     </div>
   </div>
 
-  <h3>Устройство цикла</h3>
+  <h3>Зачем вообще нужны циклы?</h3>
+  <p>
+    Представь, что тебя попросили написать программу, которая
+    печатает числа от 1 до 100. Без цикла пришлось бы писать
+    сто одинаковых строк:
+  </p>
+
+  <div class="code-full"><span class="fn">print</span>(<span class="num">1</span>)
+<span class="fn">print</span>(<span class="num">2</span>)
+<span class="fn">print</span>(<span class="num">3</span>)
+<span class="cm"># ... и так ещё 97 строк ...</span>
+<span class="fn">print</span>(<span class="num">100</span>)</div>
 
   <p>
-    Любой цикл состоит из трёх частей:
+    Согласись, это долго и неудобно. А с циклом — всего 4 строки!
+  </p>
+
+  <div class="explain memo">
+    <div class="ttl">🎯 Главная идея циклов</div>
+    <p>
+      Циклы позволяют <b>написать действие один раз</b>, а компьютер
+      выполнит его столько раз, сколько нужно. Это одна из главных
+      причин, почему программирование вообще имеет смысл — мы
+      описываем <b>правило</b>, а не каждый шаг руками.
+    </p>
+  </div>
+
+  <h3>Циклы вокруг нас</h3>
+  <p>
+    Люди каждый день сталкиваются с циклами, даже не подозревая об этом.
+    Вот несколько примеров:
+  </p>
+
+  <div class="life-card">
+    <div class="life-item">
+      <span class="em">🦷</span>
+      <div class="ttl">Чистим зубы</div>
+      <div class="txt">
+        Пока песня не закончилась — чистим зубы.
+        Песня закончилась → останавливаемся.
+      </div>
+    </div>
+    <div class="life-item">
+      <span class="em">🍲</span>
+      <div class="ttl">Мешаем суп</div>
+      <div class="txt">
+        Пока суп не закипит — мешаем.
+        Закипел → выключаем плиту.
+      </div>
+    </div>
+    <div class="life-item">
+      <span class="em">📚</span>
+      <div class="ttl">Учим стихотворение</div>
+      <div class="txt">
+        Пока не запомнили — читаем снова.
+        Запомнили → рассказываем маме.
+      </div>
+    </div>
+    <div class="life-item">
+      <span class="em">🎮</span>
+      <div class="ttl">Играем в игру</div>
+      <div class="txt">
+        Пока есть жизни — играем.
+        Жизни кончились → Game Over.
+      </div>
+    </div>
+  </div>
+
+  <h3>Устройство цикла: три обязательные части</h3>
+  <p>
+    У любого цикла в программировании есть три части. Если хотя бы
+    одной не хватает — цикл не будет работать правильно:
   </p>
 
   <div class="rules">
     <div class="rule">
       <span class="n">1</span>
       <b>Условие</b> — логическое выражение, которое проверяется
-      перед каждым повтором.
+      перед каждым повтором. Если оно истинно — цикл продолжается.
     </div>
     <div class="rule">
       <span class="n">2</span>
       <b>Тело цикла</b> — действия, которые повторяются, пока условие
-      истинно.
+      истинно. Именно это компьютер и будет делать «по кругу».
     </div>
     <div class="rule">
       <span class="n">3</span>
@@ -756,14 +957,21 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
     </div>
   </div>
 
+  <h3>Как работает цикл — по шагам</h3>
+
   <div class="explain">
-    <div class="ttl">📖 Как работает</div>
+    <div class="ttl">📖 Алгоритм работы любого цикла</div>
     <p>
-      <b>1.</b> Python проверяет условие цикла.<br>
-      <b>2.</b> Если условие истинно — выполняет тело цикла.<br>
-      <b>3.</b> Возвращается к проверке условия.<br>
-      <b>4.</b> Повторяет, пока условие не станет ложным.<br>
-      <b>5.</b> Как только условие ложно — выходит из цикла и идёт дальше.
+      <b>1.</b> Python подходит к циклу и <b>проверяет условие</b>.<br>
+      <b>2.</b> Если условие <b>истинно</b> — выполняет тело цикла
+      (все команды внутри).<br>
+      <b>3.</b> Дошёл до конца тела — <b>возвращается к проверке
+      условия</b>.<br>
+      <b>4.</b> Снова проверяет. Если истинно — снова выполняет тело.<br>
+      <b>5.</b> Так повторяется до тех пор, пока условие не станет
+      <b>ложным</b>.<br>
+      <b>6.</b> Как только условие ложно — <b>выходит из цикла</b>
+      и идёт выполнять команды после него.
     </p>
   </div>
 
@@ -771,7 +979,8 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
     <div class="ttl">⚠️ Главная опасность — бесконечный цикл</div>
     <p>
       Если внутри цикла ничего не меняется, и условие всегда остаётся
-      истинным — цикл будет крутиться <b>вечно</b>. Программа зависнет.
+      истинным — цикл будет крутиться <b>вечно</b>. Программа зависнет,
+      а компьютер начнёт греться.
     </p>
     <p>
       Всегда проверяй: что-то внутри цикла должно влиять на условие.
@@ -779,14 +988,17 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
   </div>
 
   <!-- Интерактив: сколько раз выполнится -->
+    <!-- Интерактив: считаем повторы по истории (без кода) -->
   <div class="scene">
-    <h4>Сколько раз сработает цикл?</h4>
+    <h4>Разминка: сколько раз повторится?</h4>
     <p class="hint">
-      Посмотри на код и напиши, сколько раз выполнится тело цикла.
+      Это задачи без кода — просто истории. Прочитай и посчитай,
+      сколько раз выполнится повторяющееся действие.
     </p>
 
-    <div id="g2task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
-      <div style="font:800 14px var(--font-code);line-height:1.8;color:var(--text);white-space:pre-wrap" id="g2code"></div>
+    <div id="g2task" style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px">
+      <div style="font-size:42px;line-height:1;margin-bottom:12px;text-align:center" id="g2emoji">🤖</div>
+      <div style="font:600 18px var(--font-ui);line-height:1.55;color:var(--text)" id="g2story"></div>
     </div>
 
     <div class="kid-input" style="margin-bottom:0">
@@ -817,28 +1029,83 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
     </div>
   </div>
 
-  <h3>Как выглядит while</h3>
+  <h3>Чем while отличается от if?</h3>
 
-  <div class="code-full"><span class="kw">while</span> условие:
-    <span class="indent">    </span>действие_1
-    <span class="indent">    </span>действие_2
-    <span class="indent">    </span>действие_3
+  <div class="compare">
+    <div class="compare-col">
+      <div class="head"><span class="em">🔀</span> if — один раз</div>
+      <p>Условие проверяется <b>один раз</b>. Если истинно — действие выполнится. Если ложно — сразу пропустится.</p>
+      <pre><span class="kw">if</span> x &lt; <span class="num">3</span>:
+    <span class="fn">print</span>(<span class="str">'мало'</span>)
+<span class="cm"># дальше идёт код</span></pre>
+    </div>
+    <div class="compare-col while">
+      <div class="head"><span class="em">🔁</span> while — много раз</div>
+      <p>Условие проверяется <b>снова и снова</b>. Пока истинно — тело повторяется. Как только ложно — выход.</p>
+      <pre><span class="kw">while</span> x &lt; <span class="num">3</span>:
+    <span class="fn">print</span>(<span class="str">'мало'</span>)
+    x += <span class="num">1</span>
+<span class="cm"># дальше идёт код</span></pre>
+    </div>
+  </div>
 
-действие_4  <span class="cm"># это уже вне цикла</span></div>
+  <h3>Анатомия while — разбираем по частям</h3>
+
+  <p>
+    Давай разберём цикл по кусочкам. Слева — код, справа — что
+    означает каждая часть:
+  </p>
+
+  <div class="anatomy">
+    <span class="line"><span class="kw">while</span> условие<span style="color:#FFB454">:</span>
+      <span class="label a">← служебное слово</span>
+    </span>
+    <span class="line">
+      <span class="label b" style="margin-left:30px">← двоеточие обязательно!</span>
+    </span>
+    <span class="line"><span style="color:#C9B8FF">····</span>действие_1
+      <span class="label c">← тело цикла (4 пробела)</span>
+    </span>
+    <span class="line"><span style="color:#C9B8FF">····</span>действие_2
+      <span class="label c">← ещё одно действие</span>
+    </span>
+    <span class="line"><span style="color:#C9B8FF">····</span>изменение
+      <span class="label c">← обязательно меняем данные!</span>
+    </span>
+    <span class="line">
+    </span>
+    <span class="line">действие_3  <span class="cm"># это уже вне цикла</span></span>
+  </div>
 
   <div class="rules">
     <div class="rule">
       <span class="n">1</span>
-      После условия — <b>двоеточие</b>, как в <code>if</code>.
+      После слова <code>while</code> пишем <b>условие</b> — точно такое
+      же, как в <code>if</code>.
     </div>
     <div class="rule">
       <span class="n">2</span>
-      Тело цикла — с <b>отступом в 4 пробела</b>.
+      После условия — <b>двоеточие</b>. Без него Python выдаст ошибку.
     </div>
     <div class="rule">
       <span class="n">3</span>
-      Команда <b>вне отступа</b> — уже вне цикла.
+      Тело цикла — с новой строки, <b>отступ в 4 пробела</b>.
     </div>
+    <div class="rule">
+      <span class="n">4</span>
+      Команда <b>без отступа</b> — уже вне цикла, выполнится после
+      его завершения.
+    </div>
+  </div>
+
+  <div class="explain warn">
+    <div class="ttl">⚠️ Отступы в Python — это не украшение</div>
+    <p>
+      В отличие от многих языков, в Python отступы <b>влияют
+      на смысл программы</b>. Если написать тело цикла без отступа —
+      Python решит, что это команда после цикла, и цикл станет
+      пустым (а это ошибка).
+    </p>
   </div>
 
   <h3>Задача с промокодом — решаем через while</h3>
@@ -851,6 +1118,75 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
 
 <span class="fn">print</span>(<span class="str">'Промокод активирован!'</span>)</div>
 
+  <h3>Разбор по шагам: что тут происходит</h3>
+
+  <div class="rules">
+    <div class="rule">
+      <span class="n">1</span>
+      <b>Спрашиваем промокод до цикла.</b> Нужно, чтобы было что
+      проверять в условии.
+    </div>
+    <div class="rule">
+      <span class="n">2</span>
+      <b>Проверяем:</b> если <code>promo != 'лето'</code> — истина,
+      заходим в цикл.
+    </div>
+    <div class="rule">
+      <span class="n">3</span>
+      <b>Внутри цикла:</b> печатаем «Ошибка!» и снова спрашиваем
+      промокод — переменная меняется!
+    </div>
+    <div class="rule">
+      <span class="n">4</span>
+      <b>Возвращаемся к условию.</b> Снова проверяем. И так до тех пор,
+      пока не введут «лето».
+    </div>
+    <div class="rule">
+      <span class="n">5</span>
+      <b>Условие стало ложным</b> — выходим из цикла и печатаем
+      «Промокод активирован!».
+    </div>
+  </div>
+
+  <h3>Трассировка: смотрим, что меняется на каждом шаге</h3>
+  <p>
+    «Трассировка» — это пошаговое прослеживание выполнения программы.
+    Отличный способ понять, как работает цикл. В таблице показано,
+    что происходит после каждого действия при вводе «праздник» →
+    «осень» → «лето»:
+  </p>
+
+  <table class="trace-table">
+    <thead>
+      <tr>
+        <th>Шаг</th>
+        <th>promo</th>
+        <th>Проверка promo != 'лето'</th>
+        <th>Что делает программа</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="step-n">1</span></td>
+        <td>'праздник'</td>
+        <td class="yes">Истина</td>
+        <td>Печатает «Ошибка!», спрашивает снова</td>
+      </tr>
+      <tr>
+        <td><span class="step-n">2</span></td>
+        <td>'осень'</td>
+        <td class="yes">Истина</td>
+        <td>Печатает «Ошибка!», спрашивает снова</td>
+      </tr>
+      <tr>
+        <td><span class="step-n">3</span></td>
+        <td>'лето'</td>
+        <td class="no">Ложь</td>
+        <td>Выходит из цикла, печатает «Промокод активирован!»</td>
+      </tr>
+    </tbody>
+  </table>
+
   <div class="term">
     <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
     <pre class="term-body"><span class="dim">Введите промокод: </span><span class="hl">праздник</span>
@@ -859,28 +1195,6 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
 <span class="err">Ошибка!</span>
 <span class="dim">Введите промокод: </span><span class="hl">лето</span>
 <span class="ok">Промокод активирован!</span></pre>
-  </div>
-
-  <h3>Разбор по шагам</h3>
-
-  <div class="rules">
-    <div class="rule">
-      <span class="n">1</span>
-      Спрашиваем промокод <b>до</b> цикла — чтобы было что проверять.
-    </div>
-    <div class="rule">
-      <span class="n">2</span>
-      Проверяем: если промокод не «лето» — заходим в цикл.
-    </div>
-    <div class="rule">
-      <span class="n">3</span>
-      Внутри печатаем «Ошибка!» и снова спрашиваем промокод.
-    </div>
-    <div class="rule">
-      <span class="n">4</span>
-      Когда промокод «лето» — цикл заканчивается, печатаем
-      «Промокод активирован!».
-    </div>
   </div>
 
   <div class="explain memo">
@@ -920,18 +1234,117 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
 <span class="ok">Вы выиграли!</span></pre>
   </div>
 
+  <h3>Когда использовать while?</h3>
+  <p>
+    Цикл <code>while</code> удобно применять, когда:
+  </p>
+
+  <div class="when-list">
+    <div class="when-item">
+      <span class="em">❓</span>
+      <div class="ttl">Заранее неизвестно, сколько раз</div>
+      <div class="txt">
+        Ты не знаешь, сколько попыток сделает пользователь. Может,
+        одну, а может — сто. Главное, чтобы он в конце концов
+        ввёл правильное значение.
+      </div>
+    </div>
+    <div class="when-item">
+      <span class="em">🔁</span>
+      <div class="ttl">Повторяем «пока не…»</div>
+      <div class="txt">
+        Пока не введут правильный пароль. Пока не нажата кнопка «стоп».
+        Пока не закончатся деньги на счёте. Это всё задачи для while.
+      </div>
+    </div>
+    <div class="when-item">
+      <span class="em">🎮</span>
+      <div class="ttl">Игровой цикл</div>
+      <div class="txt">
+        Любая игра работает в цикле: пока персонаж жив — рисуем экран,
+        читаем управление, обновляем положение.
+      </div>
+    </div>
+    <div class="when-item">
+      <span class="em">📥</span>
+      <div class="ttl">Обработка ввода</div>
+      <div class="txt">
+        Меню, где пользователь вводит команды, а программа выполняет
+        их, пока не введут команду выхода.
+      </div>
+    </div>
+  </div>
+
+  <h3>Типичные ошибки начинающих</h3>
+
+  <div class="mistakes">
+
+    <div class="mistake">
+      <div class="ttl">Забыл двоеточие после условия</div>
+      <pre><span class="kw">while</span> x &lt; <span class="num">3</span>      <span class="cm"># ошибка!</span>
+    <span class="fn">print</span>(x)</pre>
+      <div class="fix">Нужно поставить двоеточие</div>
+      <pre><span class="kw">while</span> x &lt; <span class="num">3</span><span style="color:#FFB454">:</span>
+    <span class="fn">print</span>(x)</pre>
+    </div>
+
+    <div class="mistake">
+      <div class="ttl">Забыл отступ у тела цикла</div>
+      <pre><span class="kw">while</span> x &lt; <span class="num">3</span>:
+<span class="fn">print</span>(x)      <span class="cm"># ошибка: нет отступа</span></pre>
+      <div class="fix">4 пробела в начале каждой строки тела</div>
+      <pre><span class="kw">while</span> x &lt; <span class="num">3</span>:
+    <span class="fn">print</span>(x)   <span class="cm"># 4 пробела</span></pre>
+    </div>
+
+    <div class="mistake">
+      <div class="ttl">Забыл изменить переменную внутри цикла</div>
+      <pre>x = <span class="num">0</span>
+<span class="kw">while</span> x &lt; <span class="num">3</span>:
+    <span class="fn">print</span>(x)   <span class="cm"># x не меняется → бесконечный цикл!</span></pre>
+      <div class="fix">Увеличивай переменную внутри цикла</div>
+      <pre>x = <span class="num">0</span>
+<span class="kw">while</span> x &lt; <span class="num">3</span>:
+    <span class="fn">print</span>(x)
+    x += <span class="num">1</span>   <span class="cm"># обязательно!</span></pre>
+    </div>
+
+    <div class="mistake">
+      <div class="ttl">Перенёс изменение за пределы цикла</div>
+      <pre>x = <span class="num">0</span>
+<span class="kw">while</span> x &lt; <span class="num">3</span>:
+    <span class="fn">print</span>(x)
+x += <span class="num">1</span>       <span class="cm"># ошибка: без отступа — вне цикла!</span></pre>
+      <div class="fix">Изменение должно быть внутри цикла (с отступом)</div>
+      <pre>x = <span class="num">0</span>
+<span class="kw">while</span> x &lt; <span class="num">3</span>:
+    <span class="fn">print</span>(x)
+    x += <span class="num">1</span>   <span class="cm"># с отступом — внутри цикла</span></pre>
+    </div>
+
+  </div>
+
   <!-- Интерактив: собери код -->
+   <!-- Интерактив: сколько раз сработает цикл (с кодом) -->
   <div class="scene">
-    <h4>Собери цикл правильно</h4>
+    <h4>Сколько раз сработает цикл?</h4>
     <p class="hint">
-      Расставь кусочки в правильном порядке: программа должна
-      запрашивать промокод, пока не введут «зима».
+      Теперь у тебя есть знания — прочитай код и напиши, сколько раз
+      выполнится тело цикла. Помни: условие проверяется <b>перед</b>
+      каждым повтором.
     </p>
 
-    <div style="background:var(--card);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center">
-      <div style="font:700 15px var(--font-ui);color:var(--muted);margin-bottom:12px">Твой код:</div>
-      <div style="font:800 15px var(--font-code);color:var(--a3);min-height:36px;text-align:left;white-space:pre-wrap;line-height:1.6" id="g3result">?</div>
+    <div id="g2b-task" style="background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font:800 14px var(--font-code);line-height:1.8;color:var(--text);white-space:pre-wrap" id="g2b-code"></div>
     </div>
+
+    <div class="kid-input" style="margin-bottom:0">
+      <input type="number" id="g2b-answer" placeholder="Сколько раз?" style="text-align:center">
+      <button type="button" id="g2b-btn">Проверить</button>
+    </div>
+    <div id="g2b-msg" style="text-align:center;margin-top:12px;font:700 16px var(--font-ui);min-height:22px"></div>
+    <div style="text-align:center;margin-top:8px;font:600 13px var(--font-code);color:var(--muted)" id="g2b-score">Счёт: 0 из 0</div>
+  </div>
 
     <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center" id="g3pool">
       <button class="kid-chip" data-chip="promo = input()" type="button">promo = input()</button>
@@ -983,6 +1396,44 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
     </div>
   </div>
 
+  <h3>Зачем нужен счётчик?</h3>
+  <p>
+    Часто мало просто повторять действия — хочется знать,
+    <b>сколько раз</b> они повторились. Например:
+  </p>
+
+  <div class="when-list">
+    <div class="when-item">
+      <span class="em">🎯</span>
+      <div class="ttl">Сколько попыток сделал игрок</div>
+      <div class="txt">
+        «Угадал с 3-й попытки!» — без счётчика такого не скажешь.
+      </div>
+    </div>
+    <div class="when-item">
+      <span class="em">🛒</span>
+      <div class="ttl">Сколько товаров в корзине</div>
+      <div class="txt">
+        Каждый добавленный товар увеличивает счётчик на 1.
+      </div>
+    </div>
+    <div class="when-item">
+      <span class="em">💰</span>
+      <div class="ttl">Общая сумма покупок</div>
+      <div class="txt">
+        Это «счётчик-накопитель»: не +1, а +цена каждого товара.
+      </div>
+    </div>
+    <div class="when-item">
+      <span class="em">⏱</span>
+      <div class="ttl">Сколько секунд прошло</div>
+      <div class="txt">
+        Каждую секунду счётчик увеличивается на 1 — получаются часы
+        и таймеры.
+      </div>
+    </div>
+  </div>
+
   <h3>Как выглядит цикл со счётчиком</h3>
 
   <div class="counter-viz">
@@ -1016,6 +1467,28 @@ body.kids main{max-width:900px;padding:20px 20px 80px}
     <div class="loop-back" style="margin-top:8px">↺ возврат к проверке</div>
   </div>
 
+  <h3>Как работает <code>+= 1</code>?</h3>
+  <p>
+    Запись <code>attempts += 1</code> — это короткая форма записи
+    <code>attempts = attempts + 1</code>. То есть «взять текущее
+    значение, прибавить 1, положить обратно в переменную».
+  </p>
+
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th>Короткая запись</th>
+        <th>Что означает</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>x += 1</code></td><td>x = x + 1</td></tr>
+      <tr><td><code>x -= 1</code></td><td>x = x - 1</td></tr>
+      <tr><td><code>x *= 2</code></td><td>x = x * 2</td></tr>
+      <tr><td><code>x += price</code></td><td>x = x + price</td></tr>
+    </tbody>
+  </table>
+
   <h3>Задача: считаем попытки ввода промокода</h3>
 
   <p>
@@ -1032,6 +1505,49 @@ attempts = <span class="num">1</span>
     promo = <span class="fn">input</span>(<span class="str">'Введите промокод: '</span>)
 
 <span class="fn">print</span>(<span class="str">'Промокод засчитан с'</span>, attempts, <span class="str">'попытки'</span>)</div>
+
+  <h3>Трассировка — пошагово</h3>
+  <p>
+    Смотрим, что происходит при вводе «счастье» → «мандарины» →
+    «новый год»:
+  </p>
+
+  <table class="trace-table">
+    <thead>
+      <tr>
+        <th>Шаг</th>
+        <th>promo</th>
+        <th>attempts</th>
+        <th>Что делает программа</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="step-n">1</span></td>
+        <td>'счастье'</td>
+        <td>1</td>
+        <td>Вводим промокод, ставим счётчик = 1</td>
+      </tr>
+      <tr>
+        <td><span class="step-n">2</span></td>
+        <td>'счастье'</td>
+        <td>2</td>
+        <td>Условие истинно → attempts += 1, печатаем «Ошибка!», вводим снова</td>
+      </tr>
+      <tr>
+        <td><span class="step-n">3</span></td>
+        <td>'мандарины'</td>
+        <td>3</td>
+        <td>Условие истинно → attempts += 1, печатаем «Ошибка!», вводим снова</td>
+      </tr>
+      <tr>
+        <td><span class="step-n">4</span></td>
+        <td>'новый год'</td>
+        <td>3</td>
+        <td>Условие ложно → выходим из цикла и печатаем результат</td>
+      </tr>
+    </tbody>
+  </table>
 
   <div class="term">
     <div class="term-bar"><i></i><i></i><i></i><em>Что выведет программа</em></div>
@@ -1052,6 +1568,10 @@ attempts = <span class="num">1</span>
     <p>
       Каждый следующий ввод делается уже <b>внутри</b> цикла —
       поэтому увеличиваем счётчик внутри.
+    </p>
+    <p>
+      Если бы мы начинали с 0 и увеличивали только внутри цикла —
+      получили бы на 1 меньше правильного числа.
     </p>
   </div>
 
@@ -1082,6 +1602,18 @@ amount = <span class="num">0</span>
 <span class="dim">Цена (0 - завершить): </span><span class="hl">0</span>
 Куплено товаров: <span class="ok">3</span>
 Сумма: <span class="ok">330</span></pre>
+  </div>
+
+  <div class="explain memo">
+    <div class="ttl">🧠 Здесь два счётчика!</div>
+    <p>
+      <code>amount</code> — счётчик количества. Каждый товар — +1.<br>
+      <code>total</code> — счётчик-накопитель. Каждый товар — +цена.
+    </p>
+    <p>
+      Когда нужно просто <b>посчитать штуки</b> — используем +1.
+      Когда нужно <b>сложить числа</b> — прибавляем именно число.
+    </p>
   </div>
 </section>
 
@@ -1352,12 +1884,16 @@ print(n)</pre>
     <div class="ttl">🎓 Что ты теперь знаешь</div>
     <p>
       <b>1.</b> Что такое цикл и зачем он нужен.<br>
-      <b>2.</b> Как записывается цикл <code>while</code>.<br>
-      <b>3.</b> Что условие проверяется перед каждым повтором.<br>
-      <b>4.</b> Как работает счётчик шагов.<br>
-      <b>5.</b> Что цикл легко превратить в бесконечный, если забыть
+      <b>2.</b> Из каких трёх частей состоит цикл: условие, тело,
+      изменение.<br>
+      <b>3.</b> Как записывается цикл <code>while</code> в Python.<br>
+      <b>4.</b> Что условие проверяется перед каждым повтором.<br>
+      <b>5.</b> Что отступ в 4 пробела обязателен.<br>
+      <b>6.</b> Как работает счётчик шагов и почему он начинается
+      с 0 или с 1.<br>
+      <b>7.</b> Что цикл легко превратить в бесконечный, если забыть
       об изменении.<br>
-      <b>6.</b> Как соединить цикл с условным оператором.
+      <b>8.</b> Как соединить цикл с условным оператором.
     </p>
   </div>
 </section>
@@ -1705,15 +2241,95 @@ while password != "1234":
 })();
 
 /* ============================================================
-   ИНТЕРАКТИВ 1: сколько раз выполнится
+   ИНТЕРАКТИВ 1: считаем повторы по истории (без кода) — шаг 2
    ============================================================ */
 (function(){
-  var codeEl = document.getElementById('g2code');
-  if (!codeEl) return;
+  var storyEl = document.getElementById('g2story');
+  if (!storyEl) return;
+  var emojiEl = document.getElementById('g2emoji');
   var ansEl = document.getElementById('g2answer');
   var btn = document.getElementById('g2btn');
   var msg = document.getElementById('g2msg');
   var scoreEl = document.getElementById('g2score');
+
+  var tasks = [
+    {
+      emoji: '🤖',
+      story: 'У робота заряд 5%. Пока заряд больше нуля, робот едет вперёд и тратит 1% заряда. Сколько раз робот проедет вперёд, прежде чем остановится?',
+      answer: 5
+    },
+    {
+      emoji: '🍬',
+      story: 'В вазе 8 конфет. Пока конфет в вазе больше нуля, Миша берёт одну конфету. Сколько конфет возьмёт Миша?',
+      answer: 8
+    },
+    {
+      emoji: '📖',
+      story: 'Читатель на странице 1. Пока номер страницы меньше 10, он переворачивает страницу (номер увеличивается на 1). Сколько страниц он перевернёт?',
+      answer: 9
+    },
+    {
+      emoji: '🔊',
+      story: 'Громкость колонки = 0. Пока громкость меньше 5, нажимаем «плюс» — громкость растёт на 1. Сколько раз нажмём кнопку?',
+      answer: 5
+    },
+    {
+      emoji: '🐷',
+      story: 'Копилка пуста. Пока в копилке меньше 100 рублей, мама кладёт туда 20 рублей. Сколько раз мама положит деньги?',
+      answer: 5
+    }
+  ];
+  var i = 0, score = 0, answered = 0;
+
+  function render(){
+    if (i >= tasks.length){
+      storyEl.textContent = 'Готово! 🎉';
+      emojiEl.textContent = '🏆';
+      ansEl.style.display = 'none';
+      btn.style.display = 'none';
+      msg.textContent = 'Твой результат: ' + score + ' из ' + tasks.length;
+      msg.style.color = 'var(--a3)';
+      scoreEl.textContent = 'Счёт: ' + score + ' из ' + tasks.length;
+      return;
+    }
+    emojiEl.textContent = tasks[i].emoji;
+    storyEl.textContent = tasks[i].story;
+    ansEl.value = '';
+    ansEl.focus();
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+  }
+
+  function check(){
+    var user = parseInt(ansEl.value, 10);
+    var correct = tasks[i].answer;
+    answered++;
+    if (user === correct){
+      score++;
+      msg.textContent = '✅ Верно!';
+      msg.style.color = 'var(--a5)';
+    } else {
+      msg.textContent = '❌ Правильный ответ: ' + correct;
+      msg.style.color = 'var(--red)';
+    }
+    scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
+    setTimeout(function(){ i++; render(); }, 1200);
+  }
+
+  btn.addEventListener('click', check);
+  ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+  render();
+})();
+
+/* ============================================================
+   ИНТЕРАКТИВ 1-бис: сколько раз выполнится (с кодом) — шаг 3
+   ============================================================ */
+(function(){
+  var codeEl = document.getElementById('g2b-code');
+  if (!codeEl) return;
+  var ansEl = document.getElementById('g2b-answer');
+  var btn = document.getElementById('g2b-btn');
+  var msg = document.getElementById('g2b-msg');
+  var scoreEl = document.getElementById('g2b-score');
 
   var tasks = [
     {
@@ -1768,7 +2384,7 @@ while password != "1234":
       msg.style.color = 'var(--red)';
     }
     scoreEl.textContent = 'Счёт: ' + score + ' из ' + answered;
-    setTimeout(function(){ i++; render(); }, 1000);
+    setTimeout(function(){ i++; render(); }, 1200);
   }
 
   btn.addEventListener('click', check);
